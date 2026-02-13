@@ -1,0 +1,11 @@
+[
+null,
+{"id":1,"expanded":true,"name":"MAP001","order":1,"parentId":0,"scrollX":1216,"scrollY":1714},
+{"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
+{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":1216.5,"scrollY":754.5},
+{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1216.5,"scrollY":754.5},
+{"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":1228.5,"scrollY":685.5},
+{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":1228.5,"scrollY":685.5},
+{"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2434,"scrollY":4287},
+{"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":1216.5,"scrollY":754.5}
+]
