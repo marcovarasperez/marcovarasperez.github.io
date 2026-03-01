@@ -1,11 +1,13 @@
 [
 null,
-{"id":1,"expanded":true,"name":"MAP001","order":1,"parentId":0,"scrollX":1216,"scrollY":1714},
-{"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
-{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":1216.5,"scrollY":754.5},
-{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1216.5,"scrollY":754.5},
+{"id":1,"expanded":true,"name":"MAP001","order":1,"parentId":0,"scrollX":1391.2,"scrollY":1937.6},
+{"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":648.8,"scrollY":594.4},
+{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":791.2,"scrollY":1080.8},
+{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":791.2,"scrollY":754.4},
 {"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":1228.5,"scrollY":685.5},
-{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":1228.5,"scrollY":685.5},
-{"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2434,"scrollY":4287},
-{"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":1216.5,"scrollY":754.5}
+{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":648.8,"scrollY":594.4},
+{"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2470.4,"scrollY":816},
+{"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":791.2,"scrollY":996.8},
+{"id":9,"expanded":true,"name":"IGLESIA","order":9,"parentId":1,"scrollX":1468.5,"scrollY":2490},
+{"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":589.8181818181819,"scrollY":1597.8181818181818}
 ]

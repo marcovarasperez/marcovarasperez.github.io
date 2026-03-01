@@ -9319,12 +9319,3 @@ ResourceHandler.retry = function() {
         this._reloaders.length = 0;
     }
 };
-// Ajuste pantalla completa en Android / móviles
-SceneManager._screenWidth  = Graphics.width;
-SceneManager._screenHeight = Graphics.height;
-
-Graphics._updateAllElements = function() {
-    this._canvas.width  = this.width;
-    this._canvas.height = this.height;
-    this._renderer.resize(this.width, this.height);
-};
