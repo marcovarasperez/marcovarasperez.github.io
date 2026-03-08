@@ -1,13 +1,18 @@
 [
 null,
-{"id":1,"expanded":true,"name":"MAP001","order":1,"parentId":0,"scrollX":1391.2,"scrollY":1937.6},
+{"id":1,"expanded":true,"name":"Mundo","order":1,"parentId":0,"scrollX":1390,"scrollY":2338},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":648.8,"scrollY":594.4},
-{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":791.2,"scrollY":1080.8},
-{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":791.2,"scrollY":754.4},
+{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":811,"scrollY":800},
+{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1081.3333333333333,"scrollY":754.6666666666666},
 {"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":1228.5,"scrollY":685.5},
-{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":648.8,"scrollY":594.4},
+{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
 {"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2470.4,"scrollY":816},
 {"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":791.2,"scrollY":996.8},
 {"id":9,"expanded":true,"name":"IGLESIA","order":9,"parentId":1,"scrollX":1468.5,"scrollY":2490},
-{"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":589.8181818181819,"scrollY":1597.8181818181818}
+{"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":1205.3333333333333,"scrollY":1553.3333333333333},
+{"id":11,"expanded":true,"name":"Intro","order":11,"parentId":1,"scrollX":819,"scrollY":457},
+{"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1081,"scrollY":484},
+{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1081,"scrollY":449},
+{"id":14,"expanded":false,"name":"Bano","order":14,"parentId":11,"scrollX":819,"scrollY":457},
+{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":457}
 ]
