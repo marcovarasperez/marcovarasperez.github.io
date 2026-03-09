@@ -1,6 +1,6 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Mundo","order":1,"parentId":0,"scrollX":1390,"scrollY":2338},
+{"id":1,"expanded":true,"name":"Mundo","order":1,"parentId":0,"scrollX":1382.6666666666667,"scrollY":2281.3333333333335},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":648.8,"scrollY":594.4},
 {"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":811,"scrollY":800},
 {"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1081.3333333333333,"scrollY":754.6666666666666},
@@ -11,8 +11,8 @@ null,
 {"id":9,"expanded":true,"name":"IGLESIA","order":9,"parentId":1,"scrollX":1468.5,"scrollY":2490},
 {"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":1205.3333333333333,"scrollY":1553.3333333333333},
 {"id":11,"expanded":true,"name":"Intro","order":11,"parentId":1,"scrollX":819,"scrollY":457},
-{"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1081,"scrollY":484},
-{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1081,"scrollY":449},
+{"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1073,"scrollY":476},
+{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1073,"scrollY":449},
 {"id":14,"expanded":false,"name":"Bano","order":14,"parentId":11,"scrollX":819,"scrollY":457},
-{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":457}
+{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":1092,"scrollY":609.3333333333334}
 ]
