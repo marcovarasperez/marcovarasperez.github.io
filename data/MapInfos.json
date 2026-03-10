@@ -1,11 +1,11 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Mundo","order":1,"parentId":0,"scrollX":1382.6666666666667,"scrollY":2281.3333333333335},
+{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1489.2,"scrollY":1930.8},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":648.8,"scrollY":594.4},
-{"id":3,"expanded":false,"name":"Cueva #1","order":2,"parentId":1,"scrollX":811,"scrollY":800},
-{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1081.3333333333333,"scrollY":754.6666666666666},
+{"id":3,"expanded":false,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":973.1999999999999,"scrollY":891.5999999999999},
+{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":973.1999999999999,"scrollY":754.8},
 {"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":1228.5,"scrollY":685.5},
-{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
+{"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":982.8,"scrollY":548.4},
 {"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2470.4,"scrollY":816},
 {"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":791.2,"scrollY":996.8},
 {"id":9,"expanded":true,"name":"IGLESIA","order":9,"parentId":1,"scrollX":1468.5,"scrollY":2490},
@@ -14,5 +14,5 @@ null,
 {"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1073,"scrollY":476},
 {"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1073,"scrollY":449},
 {"id":14,"expanded":false,"name":"Bano","order":14,"parentId":11,"scrollX":819,"scrollY":457},
-{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":1092,"scrollY":609.3333333333334}
+{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":476}
 ]
