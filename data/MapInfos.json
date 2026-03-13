@@ -1,18 +1,18 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1473,"scrollY":2117},
+{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1473.3333333333333,"scrollY":2017.3333333333333},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":7,"parentId":1,"scrollX":720.8888888888889,"scrollY":498.6666666666667},
-{"id":3,"expanded":false,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":811,"scrollY":2407},
-{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1081.3333333333333,"scrollY":802.6666666666666},
-{"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":982.8,"scrollY":548.4},
+{"id":3,"expanded":false,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":1769.4545454545455,"scrollY":1882.909090909091},
+{"id":4,"expanded":true,"name":"Cueva #2","order":3,"parentId":1,"scrollX":1786.909090909091,"scrollY":997.0909090909091},
+{"id":5,"expanded":false,"name":"Cueva #2.1","order":4,"parentId":4,"scrollX":1786.909090909091,"scrollY":997.0909090909091},
 {"id":6,"expanded":true,"name":"Kid Island","order":5,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
-{"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2785.2,"scrollY":4261.2},
+{"id":7,"expanded":false,"name":"Inferno","order":6,"parentId":6,"scrollX":2786.1818181818185,"scrollY":3820.3636363636365},
 {"id":8,"expanded":false,"name":"Cueva #3","order":8,"parentId":1,"scrollX":1216.5,"scrollY":754.5},
 {"id":9,"expanded":true,"name":"IGLESIA","order":9,"parentId":1,"scrollX":1468.8,"scrollY":2634},
 {"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":1204.8,"scrollY":1552.8},
-{"id":11,"expanded":true,"name":"Intro","order":11,"parentId":1,"scrollX":819,"scrollY":457},
-{"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1073,"scrollY":476},
-{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1073,"scrollY":449},
+{"id":11,"expanded":true,"name":"Intro","order":11,"parentId":1,"scrollX":1092,"scrollY":609.3333333333334},
+{"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1081.3333333333333,"scrollY":830.6666666666666},
+{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1092,"scrollY":598.6666666666666},
 {"id":14,"expanded":false,"name":"Bano","order":14,"parentId":11,"scrollX":819,"scrollY":457},
-{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":476}
+{"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":743}
 ]
