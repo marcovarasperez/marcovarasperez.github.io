@@ -49,6 +49,31 @@
     <script type="text/javascript" src="js/rpg_windows.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <script>
+    window.addEventListener('load', function() {
+        var canvas = document.querySelector('canvas');
+        if (!canvas) return;
+
+        function resize() {
+            var winW = window.innerWidth;
+            var winH = window.innerHeight;
+            var gameW = 1280;
+            var gameH = 720;
+            var scaleX = winW / gameW;
+            var scaleY = winH / gameH;
+            var scale = Math.min(scaleX, scaleY);
+
+            canvas.style.setProperty('width',  Math.floor(gameW * scale) + 'px', 'important');
+            canvas.style.setProperty('height', Math.floor(gameH * scale) + 'px', 'important');
+            canvas.style.setProperty('position', 'absolute', 'important');
+            canvas.style.setProperty('left', Math.floor((winW - gameW * scale) / 2) + 'px', 'important');
+            canvas.style.setProperty('top',  Math.floor((winH - gameH * scale) / 2) + 'px', 'important');
+        }
+
+        resize();
+        window.addEventListener('resize', resize);
+    });
+</script>
 </body>
 
 </html>
