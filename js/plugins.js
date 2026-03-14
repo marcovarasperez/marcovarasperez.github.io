@@ -9,5 +9,6 @@ var $plugins =
 {"name":"Galv_ScreenButtons","status":false,"description":"(v.1.3) Show buttons on screen that can be touched or clicked.","parameters":{"Precache Buttons":"BtnUp,BtnDown,BtnRight,BtnLeft,BtnOk,BtnCancel,Btnblue","Disable Mouse Move":"true","Button Fade":"30"}},
 {"name":"FullScreen","status":true,"description":"Starts the game in fullscreen","parameters":{}},
 {"name":"RelativeTouchPad","status":true,"description":"相対タッチパッドプラグイン","parameters":{"タッチ有効領域":"0,0,816,624","パッド画像ファイル":"","アロー画像ファイル":"","パッド画像不透明度":"255"}},
-{"name":"Battlepacks","status":true,"description":"Escala los battlebacks para cubrir toda la pantalla","parameters":{}}
+{"name":"Battlepacks","status":true,"description":"Escala los battlebacks para cubrir toda la pantalla","parameters":{}},
+{"name":"Navegador en Pantalla Completa","status":true,"description":"Pantalla completa y orientación horizontal en navegador","parameters":{}}
 ];
