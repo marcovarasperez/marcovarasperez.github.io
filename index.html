@@ -49,12 +49,10 @@
     <script type="text/javascript" src="js/rpg_windows.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
-    <script>
+ <script>
     window.addEventListener('load', function() {
-        var canvas = document.querySelector('canvas');
-        if (!canvas) return;
 
-        function resize() {
+        function resize(canvas) {
             var winW = window.innerWidth;
             var winH = window.innerHeight;
             var gameW = 1280;
@@ -63,15 +61,46 @@
             var scaleY = winH / gameH;
             var scale = Math.min(scaleX, scaleY);
 
-            canvas.style.setProperty('width',  Math.floor(gameW * scale) + 'px', 'important');
-            canvas.style.setProperty('height', Math.floor(gameH * scale) + 'px', 'important');
-            canvas.style.setProperty('position', 'absolute', 'important');
-            canvas.style.setProperty('left', Math.floor((winW - gameW * scale) / 2) + 'px', 'important');
-            canvas.style.setProperty('top',  Math.floor((winH - gameH * scale) / 2) + 'px', 'important');
+            var w = Math.floor(gameW * scale);
+            var h = Math.floor(gameH * scale);
+            var left = Math.floor((winW - w) / 2);
+            var top  = Math.floor((winH - h) / 2);
+
+            canvas.style.setProperty('width',    w    + 'px', 'important');
+            canvas.style.setProperty('height',   h    + 'px', 'important');
+            canvas.style.setProperty('left',     left + 'px', 'important');
+            canvas.style.setProperty('top',      top  + 'px', 'important');
+            canvas.style.setProperty('position', 'absolute',  'important');
+            canvas.style.setProperty('margin',   '0',         'important');
         }
 
-        resize();
-        window.addEventListener('resize', resize);
+        var canvas = document.querySelector('canvas');
+
+        if (canvas) {
+            resize(canvas);
+            // Observar cambios en el style del canvas y corregirlos
+            var observer = new MutationObserver(function() {
+                resize(canvas);
+            });
+            observer.observe(canvas, { attributes: true, attributeFilter: ['style'] });
+        } else {
+            // Si el canvas aún no existe, esperar a que aparezca
+            var bodyObserver = new MutationObserver(function() {
+                var c = document.querySelector('canvas');
+                if (c) {
+                    bodyObserver.disconnect();
+                    resize(c);
+                    var observer = new MutationObserver(function() { resize(c); });
+                    observer.observe(c, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
+            bodyObserver.observe(document.body, { childList: true, subtree: true });
+        }
+
+        window.addEventListener('resize', function() {
+            var c = document.querySelector('canvas');
+            if (c) resize(c);
+        });
     });
 </script>
 </body>
