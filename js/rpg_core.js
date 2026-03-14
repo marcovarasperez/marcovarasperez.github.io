@@ -3000,7 +3000,6 @@ Input.keyRepeatInterval = 6;
  * @type Object
  */
 Input.keyMapper = {
-    9: 'menu',       // TAB → menú
 
     13: 'ok',        // Enter
     16: 'shift',     // Shift (correr)

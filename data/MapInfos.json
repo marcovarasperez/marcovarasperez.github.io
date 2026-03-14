@@ -12,7 +12,7 @@ null,
 {"id":10,"expanded":false,"name":"Catedral por Dentro","order":10,"parentId":9,"scrollX":1622,"scrollY":1534},
 {"id":11,"expanded":true,"name":"Intro","order":11,"parentId":1,"scrollX":1638,"scrollY":914},
 {"id":12,"expanded":false,"name":"Clase","order":12,"parentId":11,"scrollX":1638,"scrollY":914},
-{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1092,"scrollY":598.6666666666666},
+{"id":13,"expanded":false,"name":"Pasillo","order":13,"parentId":11,"scrollX":1638,"scrollY":914},
 {"id":14,"expanded":false,"name":"Bano","order":14,"parentId":11,"scrollX":1638,"scrollY":914},
 {"id":15,"expanded":false,"name":"Matrix","order":15,"parentId":11,"scrollX":811,"scrollY":743}
 ]
