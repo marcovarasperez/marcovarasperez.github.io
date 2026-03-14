@@ -3000,30 +3000,39 @@ Input.keyRepeatInterval = 6;
  * @type Object
  */
 Input.keyMapper = {
-    9: 'tab',       // tab
-    13: 'ok',       // enter
-    16: 'shift',    // shift
-    17: 'control',  // control
-    18: 'control',  // alt
-    27: 'escape',   // escape
-    32: 'ok',       // space
-    33: 'pageup',   // pageup
-    34: 'pagedown', // pagedown
-    37: 'left',     // left arrow
-    38: 'up',       // up arrow
-    39: 'right',    // right arrow
-    40: 'down',     // down arrow
-    45: 'escape',   // insert
-    81: 'pageup',   // Q
-    87: 'pagedown', // W
-    88: 'escape',   // X
-    90: 'ok',       // Z
-    96: 'escape',   // numpad 0
-    98: 'down',     // numpad 2
-    100: 'left',    // numpad 4
-    102: 'right',   // numpad 6
-    104: 'up',      // numpad 8
-    120: 'debug'    // F9
+    9: 'menu',       // TAB → menú
+
+    13: 'ok',        // Enter
+    16: 'shift',     // Shift (correr)
+    17: 'control',   // Ctrl
+    18: 'control',   // Alt
+    27: 'escape',    // ESC cancelar
+    32: 'ok',        // Espacio aceptar
+
+    33: 'pageup',    // PageUp
+    34: 'pagedown',  // PageDown
+
+    37: 'left',      // Flecha izquierda
+    38: 'up',        // Flecha arriba
+    39: 'right',     // Flecha derecha
+    40: 'down',      // Flecha abajo
+
+    45: 'escape',    // Insert cancelar
+
+    65: 'left',      // A
+    68: 'right',     // D
+    83: 'down',      // S
+    87: 'up',        // W
+
+    69: 'ok',        // E aceptar
+    81: 'escape',    // Q cancelar
+
+    82: 'pageup',    // R (alternativa pageup)
+    70: 'pagedown',  // F (alternativa pagedown)
+
+    90: 'ok',        // Z aceptar clásico
+    88: 'escape',    // X cancelar
+    67: 'menu'       // C menú alternativo
 };
 
 /**
