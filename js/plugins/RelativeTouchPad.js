@@ -282,15 +282,28 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     Game_Relative_Pad.prototype.updateActive = function() {
-        if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
-            this.initMember();
-            if ($gamePlayer.canMove()) this.submitOk();
-        } else {
-            this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
-            this._dir4   = this._calculateDir4();
-            this._dir8   = this._calculateDir8();
+    if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
+        this.initMember();
+        if ($gamePlayer.canMove()) this.submitOk();
+    } else {
+        this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
+        
+        // --- FLOATING JOYSTICK ---
+        // Si el dedo se aleja más del radio máximo, reposiciona el punto neutro
+        var maxRadius = Game_Relative_Pad.distanceFar;
+        var dist = this.getDistance();
+        if (dist > maxRadius) {
+            var angle = Math.atan2(this.getDeltaY(), this.getDeltaX());
+            var excess = dist - maxRadius;
+            this._neutralX -= Math.cos(angle) * excess;
+            this._neutralY -= Math.sin(angle) * excess;
         }
-    };
+        // -------------------------
+        
+        this._dir4   = this._calculateDir4();
+        this._dir8   = this._calculateDir8();
+    }
+};
 
     Game_Relative_Pad.prototype.submitOk = function() {
         Input.submitKey('ok');
