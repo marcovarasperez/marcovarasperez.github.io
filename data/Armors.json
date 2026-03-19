@@ -1,7 +1,7 @@
 [
 null,
-{"id":1,"atypeId":3,"description":"Yelmo de Hierro Negro, famoso por su gran peso. Está hecho de hierro negro especial y te protege de los ataques de fuego.\n","etypeId":2,"traits":[{"code":21,"dataId":5,"value":2}],"iconIndex":132,"name":"Casco de Hierro Negro","note":"","params":[0,0,0,0,0,40,0,0],"price":100},
-{"id":2,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
+{"id":1,"atypeId":3,"description":"Yelmo de Hierro Negro, famoso por su gran peso. Está hecho de hierro negro especial y te protege de los ataques de fuego.\n","etypeId":2,"traits":[{"code":21,"dataId":5,"value":1.4}],"iconIndex":132,"name":"Casco de Hierro Negro","note":"","params":[0,0,0,0,0,20,0,0],"price":100},
+{"id":2,"atypeId":1,"description":"Nació del último grito de un alma que no quiso morir. Ahora vive en ti, y tiene hambre.","etypeId":3,"traits":[{"code":22,"dataId":1,"value":0},{"code":21,"dataId":4,"value":1.2},{"code":21,"dataId":0,"value":0.7}],"iconIndex":146,"name":"Colgante del Espititu Devorado","note":"","params":[0,-10,0,0,0,0,0,0],"price":1000},
 {"id":3,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
 {"id":4,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
 {"id":5,"atypeId":0,"description":"","etypeId":2,"traits":[{"code":22,"dataId":1,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},
