@@ -1,4 +1,4 @@
-<img width="1024" height="1024" alt="app_icon_round" src="https://github.com/user-attachments/assets/63f41208-1c4e-4a9d-9c9b-be072c29c129" />
+<img width="512" height="512" alt="app_icon_round" src="https://github.com/user-attachments/assets/63f41208-1c4e-4a9d-9c9b-be072c29c129" />
 
 ```markdown
 #Contexto académico 📚
