@@ -1,5 +1,5 @@
+<img width="1024" height="1024" alt="app_icon_round" src="https://github.com/user-attachments/assets/63f41208-1c4e-4a9d-9c9b-be072c29c129" />
 
-![Game.apk](app/src/main/res/mipmap-xxxhdpi/app_icon.png)
 ```markdown
 #Contexto académico 📚
 
