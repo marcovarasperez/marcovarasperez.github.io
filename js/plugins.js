@@ -10,5 +10,6 @@ var $plugins =
 {"name":"FullScreen","status":true,"description":"Starts the game in fullscreen","parameters":{}},
 {"name":"RelativeTouchPad","status":true,"description":"相対タッチパッドプラグイン","parameters":{"タッチ有効領域":"0,0,816,624","パッド画像ファイル":"","アロー画像ファイル":"","パッド画像不透明度":"255"}},
 {"name":"Battlepacks","status":true,"description":"Escala los battlebacks para cubrir toda la pantalla","parameters":{}},
-{"name":"Navegador en Pantalla Completa","status":true,"description":"Pantalla completa y orientación horizontal en navegador","parameters":{}}
+{"name":"Navegador en Pantalla Completa","status":true,"description":"Pantalla completa y orientación horizontal en navegador","parameters":{}},
+{"name":"YEP_EventChasePlayer","status":true,"description":"v1.07 When a player is in the proximity of a certain event,\nthe event will start chasing or fleeing from the player.","parameters":{"Sight Lock":"300","See Player":"true","Alert Timer":"120","Alert Balloon":"1","Alert Sound":"Attack1","Alert Common Event":"0","Return After":"true","Return Wait":"180"}}
 ];
