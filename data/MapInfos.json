@@ -1,8 +1,8 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1622,"scrollY":1568},
+{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1490,"scrollY":2018},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":10,"parentId":1,"scrollX":1404,"scrollY":783.4285714285713},
-{"id":3,"expanded":true,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":1622,"scrollY":914},
+{"id":3,"expanded":true,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":923,"scrollY":449},
 {"id":4,"expanded":true,"name":"Cueva #2","order":6,"parentId":1,"scrollX":1404,"scrollY":783.4285714285713},
 {"id":5,"expanded":false,"name":"Cueva #2.1","order":7,"parentId":4,"scrollX":1404,"scrollY":783.4285714285713},
 {"id":6,"expanded":true,"name":"Kid Island","order":8,"parentId":1,"scrollX":1786.909090909091,"scrollY":997.0909090909091},
@@ -16,8 +16,8 @@ null,
 {"id":14,"expanded":false,"name":"Bano","order":18,"parentId":11,"scrollX":2808,"scrollY":1566.8571428571427},
 {"id":15,"expanded":false,"name":"Matrix","order":19,"parentId":11,"scrollX":884.7272727272727,"scrollY":498.54545454545456},
 {"id":16,"expanded":false,"name":"Lugar Seguro","order":20,"parentId":1,"scrollX":1622,"scrollY":954},
-{"id":17,"expanded":false,"name":"TunelIgneo","order":5,"parentId":3,"scrollX":973.1999999999999,"scrollY":783.5999999999999},
-{"id":18,"expanded":true,"name":"Tunel Igneo 2","order":3,"parentId":3,"scrollX":1638,"scrollY":914},
+{"id":17,"expanded":false,"name":"TunelIgneo","order":5,"parentId":3,"scrollX":1638,"scrollY":914},
+{"id":18,"expanded":true,"name":"Tunel Igneo 2","order":3,"parentId":3,"scrollX":1404,"scrollY":783.4285714285713},
 {"id":19,"expanded":false,"name":"TunelIgneo3","order":4,"parentId":18,"scrollX":1638,"scrollY":914},
 {"id":20,"expanded":false,"name":"Cueva Gelida","order":14,"parentId":9,"scrollX":1786.909090909091,"scrollY":997.0909090909091}
 ]
