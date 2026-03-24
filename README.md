@@ -11,7 +11,7 @@
 #Información básica ℹ️ 
 
 Escape Room TFG
-  - Descripción corta (1–2 líneas):
+  - Descripción: RPG por turnos con recursos predeterminados y plugins añadidos. Proyecto propuesto como TFG
   - Género: RPG por turnos, exploración libre, decisiones
   - Mecánicas principales:
 
