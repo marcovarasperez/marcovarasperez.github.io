@@ -6,7 +6,7 @@
   - Nombre del grado: Desarrollo de Aplicaciones Multiplataforma
   - Institución: Colegio Santísima Trinidad
   - Año: 2025/2026
-  - Breve descripción del objetivo del proyecto:
+  - Descripción: RPG por turnos con recursos predeterminados y plugins añadidos. Proyecto propuesto como TFG
   
 #Información básica ℹ️ 
 
@@ -33,9 +33,10 @@ Escape Room TFG
 #Desarrollo 🛠️
 
   - Herramientas usadas:
-  - RPG Maker MV
+    - RPG Maker MV
   - Plugins usados:
-  - Uso de Texturas/Assets propios del motor de juego, por razone de tiempo no me he permitido cambiar o modificar los assets predeterminados
+    - 
+  - Uso de Texturas/Assets propios del motor de juego, por razones de tiempo no me he permitido cambiar o modificar los assets predeterminados
 
 #Contribuidores 👥
 
