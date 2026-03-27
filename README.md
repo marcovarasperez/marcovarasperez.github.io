@@ -39,6 +39,10 @@ Escape Room TFG
 
 #Contribuidores 👥
 
-  - Desarrollador: Marco Varas Pérez
+  - Desarrollador:
+      - Marco Varas Pérez
   - Testers:
-  - Historia: 
+      - Natalia Ruano Álvarez
+      - Daniel González de Prado
+      - Pedro García Vicente
+      - Iván González Sánchez
