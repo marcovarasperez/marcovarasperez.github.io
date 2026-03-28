@@ -3555,7 +3555,7 @@ TouchInput.isPressed = function() {
  * @static
  * @method isTriggered
  * @return {Boolean} True if the mouse button or touchscreen is triggered
- */
+ *
 TouchInput.isTriggered = function() {
     return this._triggered;
 };
@@ -3866,7 +3866,7 @@ TouchInput._onTouchEnd = function(event) {
  * @private
  */
 TouchInput._onTouchCancel = function(event) {
-    this._screenPressed = false;
+    //this._screenPressed = false;
 };
 
 /**
