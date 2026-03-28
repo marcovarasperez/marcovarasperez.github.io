@@ -3559,7 +3559,6 @@ TouchInput.isPressed = function() {
 TouchInput.isTriggered = function() {
     return this._triggered;
 };
-
 /**
  * Checks whether the left mouse button or touchscreen is just pressed
  * or a pseudo key repeat occurred.
