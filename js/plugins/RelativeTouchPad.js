@@ -1,88 +1,41 @@
 //=============================================================================
-// RelativeTouchPad.js
-// ----------------------------------------------------------------------------
-// (C)2016 Triacontane
-// This software is released under the MIT License.
-// http://opensource.org/licenses/mit-license.php
-// ----------------------------------------------------------------------------
-// Version
-// 1.1.3 2018/08/14 諸事情により名称を変更して再公開
-// 1.1.2 2017/05/27 競合の可能性のある記述（Objectクラスへのプロパティ追加）をリファクタリング
-// 1.1.1 2017/05/10 乗り物中にダッシュが有効になっていた現象を修正
-// 1.1.0 2017/03/01 数値入力ウィンドウのボタンを常に表示するよう変更
-//                  ダッシュ禁止の場合はダッシュできないよう変更
-// 1.0.3 2016/04/29 createUpperLayerによる競合対策
-// 1.0.2 2016/03/04 本体バージョン1.1.0の未使用素材の削除機能への対応
-// 1.0.1 2016/02/21 一般公開用に設定項目を追加
-// 1.0.0 2016/02/19 初版
-// ----------------------------------------------------------------------------
-// [Blog]   : https://triacontane.blogspot.jp/
-// [Twitter]: https://twitter.com/triacontane/
-// [GitHub] : https://github.com/triacontane/
+// RelativeTouchPad.js — Solo joystick + botón A
 //=============================================================================
-
 /*:
- * @plugindesc 相対タッチパッドプラグイン
- * @author トリアコンタン
+ * @plugindesc Joystick relativo + botón A. Sin toque de mapa ni dos dedos.
+ * @author Triacontane (modificado)
  *
  * @param タッチ有効領域
- * @desc タッチ移動可能な有効領域をピクセル単位で指定します。
+ * @desc Área táctil válida en píxeles (x1,y1,x2,y2)
  * @default 0,0,816,624
  *
  * @param パッド画像ファイル
- * @desc パッド画像のファイル名（拡張子は不要）です。
- * 画像は「img/pictures/」以下に保存してください。
+ * @desc Imagen del pad (sin extensión). En img/pictures/
  * @default
  * @require 1
  * @dir img/pictures/
  * @type file
  *
  * @param アロー画像ファイル
- * @desc アロー画像ファイル名（拡張子は不要）です。
- * 画像は「img/pictures/」以下に保存してください。
+ * @desc Imagen de la flecha (sin extensión). En img/pictures/
  * @default
  * @require 1
  * @dir img/pictures/
  * @type file
  *
  * @param パッド画像不透明度
- * @desc パッド画像の不透明度（0...255）です。
+ * @desc Opacidad del pad (0-255)
  * @default 255
- *
- * @help マップタッチ移動の代わりにタッチを開始した位置からの
- * 相対座標をもとにプレイヤーを移動します。
- * 傾きの大きさによって「その場で方向転換」「歩行」「ダッシュ」と
- * 変化します。
- * オプションの「常時ダッシュ」が有効な場合は「歩行」は行いません。
- *
- * パッド画像ファイルとアロー画像ファイルに任意のピクチャを
- * 指定することができます。指定しなかった場合は動的に作成された
- * 画像が使用されます。
- *
- * 画像の規格は以下の通りです。
- * ・パッド : 任意のサイズの正方形画像（円形が望ましい）
- * ・アロー : パッドと同じサイズの画像で、上を指していることが分かる画像
- *
- * このプラグインにはプラグインコマンドはありません。
- *
- * 利用規約：
- *  作者に無断で改変、再配布が可能で、利用形態（商用、18禁利用等）
- *  についても制限はありません。
- *  このプラグインはもうあなたのものです。
  */
 
 function Game_Relative_Pad() {
     this.initialize.apply(this, arguments);
 }
-/* 設定項目 */
-/* 相対タッチ移動を禁止します。 */
-Game_Relative_Pad.disable              = false;
-/* 通常のマップタッチ移動を禁止します。 */
-Game_Relative_Pad.mapTouchDisable      = true;
-/* 歩行せずその場方向転換になる圏内です。 */
-Game_Relative_Pad.distanceNear         = 24;
-/* ダッシュせず歩行になる圏内です。 */
-Game_Relative_Pad.distanceFar          = 144;
+
+Game_Relative_Pad.disable         = false;
+Game_Relative_Pad.mapTouchDisable = true;
+Game_Relative_Pad.distanceNear    = 24;
+Game_Relative_Pad.distanceFar     = 144;
 
 (function () {
     var pluginName = 'RelativeTouchPad';
@@ -108,13 +61,13 @@ Game_Relative_Pad.distanceFar          = 144;
         return null;
     };
 
-    var getParamArrayString = function (paramNames) {
+    var getParamArrayString = function(paramNames) {
         var values = getParamString(paramNames).split(',');
         for (var i = 0; i < values.length; i++) values[i] = values[i].trim();
         return values;
     };
 
-    var getParamArrayNumber = function (paramNames, min, max) {
+    var getParamArrayNumber = function(paramNames, min, max) {
         var values = getParamArrayString(paramNames);
         if (arguments.length < 2) min = -Infinity;
         if (arguments.length < 3) max = Infinity;
@@ -133,8 +86,40 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     //=============================================================================
+    // TouchInput — bloquear dos dedos, botón derecho y toque de mapa
+    // Solo dejamos pasar el toque de un dedo para el joystick
+    //=============================================================================
+
+    // Bloquear dos dedos como cancelar/menú — eliminar el _onCancel
+    var _TouchInput_onTouchStart = TouchInput._onTouchStart;
+    TouchInput._onTouchStart = function(event) {
+        for (var i = 0; i < event.changedTouches.length; i++) {
+            var touch = event.changedTouches[i];
+            var x = Graphics.pageToCanvasX(touch.pageX);
+            var y = Graphics.pageToCanvasY(touch.pageY);
+            if (Graphics.isInsideCanvas(x, y)) {
+                // Solo procesar si es UN dedo — ignorar dos o más
+                if (event.touches.length === 1) {
+                    this._screenPressed = true;
+                    this._pressedTime = 0;
+                    this._onTrigger(x, y);
+                }
+                // Dos o más dedos: no hacer nada en absoluto
+                event.preventDefault();
+            }
+        }
+        if (window.cordova || window.navigator.standalone) {
+            event.preventDefault();
+        }
+    };
+
+    // Bloquear botón derecho del ratón como cancelar
+    TouchInput._onRightButtonDown = function(event) {
+        // No hacer nada — el botón derecho no cancela ni abre menú
+    };
+
+    //=============================================================================
     // Input
-    //  キー入力情報を送信する処理を追加定義します。
     //=============================================================================
     Input.submitKey = function(keyName) {
         this._currentState[keyName] = true;
@@ -155,7 +140,7 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     Input._suppressSubmit = function() {
-        iterate(this._submitState, function (keyName, frameCount) {
+        iterate(this._submitState, function(keyName, frameCount) {
             if (frameCount + 1 < Graphics.frameCount) {
                 this._currentState[keyName] = false;
                 delete this._submitState[keyName];
@@ -165,7 +150,6 @@ Game_Relative_Pad.distanceFar          = 144;
 
     //=============================================================================
     // Game_Temp
-    //  Game_RelativeTouchPadのインスタンスを作成します。
     //=============================================================================
     var _Game_Temp_initialize = Game_Temp.prototype.initialize;
     Game_Temp.prototype.initialize = function() {
@@ -179,7 +163,6 @@ Game_Relative_Pad.distanceFar          = 144;
 
     //=============================================================================
     // Game_Player
-    //  Game_RelativeTouchPadによる移動を追加定義します。
     //=============================================================================
     var _Game_Player_update = Game_Player.prototype.update;
     Game_Player.prototype.update = function(sceneActive) {
@@ -208,7 +191,7 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     Game_Player.prototype.executeDiagonalMove = function(d) {
-        var horizon  = d / 3 <=  1 ? d + 3 : d - 3;
+        var horizon  = d / 3 <= 1 ? d + 3 : d - 3;
         var vertical = d % 3 === 0 ? d - 1 : d + 1;
         var x2 = $gameMap.roundXWithDirection(this.x, horizon);
         var y2 = $gameMap.roundYWithDirection(this.y, vertical);
@@ -237,19 +220,16 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     //=============================================================================
-    // Scene_Map
-    //  マップタッチ移動を禁止します。
+    // Scene_Map — deshabilitar toque de mapa completamente
     //=============================================================================
-    var _Scene_Map_isMapTouchOk = Scene_Map.prototype.isMapTouchOk;
     Scene_Map.prototype.isMapTouchOk = function() {
-        return _Scene_Map_isMapTouchOk.apply(this, arguments) && !Game_Relative_Pad.mapTouchDisable;
+        return false; // Nunca mover al tocar el mapa
     };
 
     var paramTouchableRect = getParamArrayNumber(['タッチ有効領域', 'TouchableRect'], 0);
+
     //=============================================================================
     // Game_Relative_Pad
-    //  相対タッチパッドを定義します。
-    //  $gameTempで作成され、セーブデータには保存されません。
     //=============================================================================
     Game_Relative_Pad.prototype.constructor = Game_Relative_Pad;
 
@@ -270,8 +250,8 @@ Game_Relative_Pad.distanceFar          = 144;
     Game_Relative_Pad.prototype.update = function() {
         this._x = TouchInput.x;
         this._y = TouchInput.y;
-        if(!this.isActive()) this.updateNonActive();
-        if(this.isActive()) this.updateActive();
+        if (!this.isActive()) this.updateNonActive();
+        if (this.isActive())  this.updateActive();
     };
 
     Game_Relative_Pad.prototype.updateNonActive = function() {
@@ -282,32 +262,28 @@ Game_Relative_Pad.distanceFar          = 144;
     };
 
     Game_Relative_Pad.prototype.updateActive = function() {
-    if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
-        this.initMember();
-        if ($gamePlayer.canMove()) this.submitOk();
-    } else {
-        this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
-        
-        // --- FLOATING JOYSTICK ---
-        // Si el dedo se aleja más del radio máximo, reposiciona el punto neutro
-        var maxRadius = Game_Relative_Pad.distanceFar;
-        var dist = this.getDistance();
-        if (dist > maxRadius) {
-            var angle = Math.atan2(this.getDeltaY(), this.getDeltaX());
-            var excess = dist - maxRadius;
-            this._neutralX -= Math.cos(angle) * excess;
-            this._neutralY -= Math.sin(angle) * excess;
-        }
-        // -------------------------
-        
-        this._dir4   = this._calculateDir4();
-        this._dir8   = this._calculateDir8();
-    }
-};
+        if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
+            this.initMember();
+            // NO llamar submitOk aquí — el botón A ya gestiona el ok
+        } else {
+            this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
 
-    Game_Relative_Pad.prototype.submitOk = function() {
-        Input.submitKey('ok');
+            // Floating joystick: reposicionar el punto neutro si el dedo se aleja mucho
+            var maxRadius = Game_Relative_Pad.distanceFar;
+            var dist = this.getDistance();
+            if (dist > maxRadius) {
+                var angle = Math.atan2(this.getDeltaY(), this.getDeltaX());
+                var excess = dist - maxRadius;
+                this._neutralX -= Math.cos(angle) * excess;
+                this._neutralY -= Math.sin(angle) * excess;
+            }
+
+            this._dir4 = this._calculateDir4();
+            this._dir8 = this._calculateDir8();
+        }
     };
+
+    // submitOk eliminado del joystick — el botón A en Boton.js lo gestiona
 
     Game_Relative_Pad.prototype.setNeutral = function() {
         this._neutralX = this._x;
@@ -335,28 +311,26 @@ Game_Relative_Pad.distanceFar          = 144;
         return this._dir4;
     };
 
-    /** @private */
     Game_Relative_Pad.prototype._calculateDir4 = function() {
         var pi4d = Math.PI / 4;
-        if (this.isDistanceZero())                                  return 0;
-        if (this._radian <   pi4d     || this._radian >=  pi4d * 7) return 6;
-        if (this._radian >=  pi4d     && this._radian <   pi4d * 3) return 8;
-        if (this._radian >=  pi4d * 3 && this._radian <   pi4d * 5) return 4;
-        if (this._radian >=  pi4d * 5 && this._radian <   pi4d * 7) return 2;
+        if (this.isDistanceZero())                                   return 0;
+        if (this._radian <  pi4d      || this._radian >= pi4d * 7)  return 6;
+        if (this._radian >= pi4d      && this._radian <  pi4d * 3)  return 8;
+        if (this._radian >= pi4d * 3  && this._radian <  pi4d * 5)  return 4;
+        if (this._radian >= pi4d * 5  && this._radian <  pi4d * 7)  return 2;
     };
 
-    /** @private */
     Game_Relative_Pad.prototype._calculateDir8 = function() {
         var pi8d = Math.PI / 8;
-        if (this.isDistanceZero())                                    return 0;
-        if (this._radian <   pi8d      || this._radian >=  pi8d * 15) return 6;
-        if (this._radian >=  pi8d      && this._radian <   pi8d * 3)  return 9;
-        if (this._radian >=  pi8d * 3  && this._radian <   pi8d * 5)  return 8;
-        if (this._radian >=  pi8d * 5  && this._radian <   pi8d * 7)  return 7;
-        if (this._radian >=  pi8d * 7  && this._radian <   pi8d * 9)  return 4;
-        if (this._radian >=  pi8d * 9  && this._radian <   pi8d * 11) return 1;
-        if (this._radian >=  pi8d * 11 && this._radian <   pi8d * 13) return 2;
-        if (this._radian >=  pi8d * 13 && this._radian <   pi8d * 15) return 3;
+        if (this.isDistanceZero())                                     return 0;
+        if (this._radian <  pi8d       || this._radian >= pi8d * 15)  return 6;
+        if (this._radian >= pi8d       && this._radian <  pi8d * 3)   return 9;
+        if (this._radian >= pi8d * 3   && this._radian <  pi8d * 5)   return 8;
+        if (this._radian >= pi8d * 5   && this._radian <  pi8d * 7)   return 7;
+        if (this._radian >= pi8d * 7   && this._radian <  pi8d * 9)   return 4;
+        if (this._radian >= pi8d * 9   && this._radian <  pi8d * 11)  return 1;
+        if (this._radian >= pi8d * 11  && this._radian <  pi8d * 13)  return 2;
+        if (this._radian >= pi8d * 13  && this._radian <  pi8d * 15)  return 3;
     };
 
     Game_Relative_Pad.prototype.getDeltaX = function() {
@@ -399,15 +373,13 @@ Game_Relative_Pad.distanceFar          = 144;
         return this.getDistance() > Game_Relative_Pad.distanceFar;
     };
 
-    /** @private */
     Game_Relative_Pad.prototype._inTouchableRect = function() {
         return this._x >= paramTouchableRect[0] && this._x <= paramTouchableRect[2] &&
-            this._y >= paramTouchableRect[1] && this._y <= paramTouchableRect[3];
+               this._y >= paramTouchableRect[1] && this._y <= paramTouchableRect[3];
     };
 
     //=============================================================================
-    // Spriteset_Map
-    //  相対タッチパッドの画像を追加定義します。
+    // Spriteset_Map — crear el sprite del pad
     //=============================================================================
     var _Spriteset_Base_createUpperLayer = Spriteset_Base.prototype.createUpperLayer;
     Spriteset_Base.prototype.createUpperLayer = function() {
@@ -422,33 +394,33 @@ Game_Relative_Pad.distanceFar          = 144;
 
     //=============================================================================
     // Sprite_Relative_Pad
-    //  相対タッチパッドのスプライトです。
     //=============================================================================
     function Sprite_Relative_Pad() {
         this.initialize.apply(this, arguments);
     }
 
-    Sprite_Relative_Pad.prototype = Object.create(Sprite.prototype);
+    Sprite_Relative_Pad.prototype             = Object.create(Sprite.prototype);
     Sprite_Relative_Pad.prototype.constructor = Sprite_Relative_Pad;
-    Sprite_Relative_Pad.padImage   = null;
-    Sprite_Relative_Pad.arrorImage = null;
+    Sprite_Relative_Pad.padImage              = null;
+    Sprite_Relative_Pad.arrorImage            = null;
 
     var _Sprite_Relative_Pad_initialize = Sprite_Relative_Pad.prototype.initialize;
     Sprite_Relative_Pad.prototype.initialize = function() {
         _Sprite_Relative_Pad_initialize.apply(this, arguments);
-        this.anchor.x   = 0.5;
-        this.anchor.y   = 0.5;
-        this.opacity    = 0;
-        var fileName    = getParamString(['パッド画像ファイル', 'ImageNamePad']);
-        this.bitmap     = this.loadPictureOrEmpty(fileName, this.makeImagePad.bind(this));
-        this._padActive = false;
+        this.anchor.x     = 0.5;
+        this.anchor.y     = 0.5;
+        this.opacity      = 0;
+        var fileName      = getParamString(['パッド画像ファイル', 'ImageNamePad']);
+        this.bitmap       = this.loadPictureOrEmpty(fileName, this.makeImagePad.bind(this));
+        this._padActive   = false;
         this._arrowDiagonal = 0;
         this.createTouchArrowSprite();
         this.update();
     };
 
     Sprite_Relative_Pad.prototype.createTouchArrowSprite = function() {
-        var fileName      = getParamString(['アロー画像ファイル', 'ImageNameArrow']), sprite = new Sprite();
+        var fileName      = getParamString(['アロー画像ファイル', 'ImageNameArrow']);
+        var sprite        = new Sprite();
         sprite.anchor.x   = 0.5;
         sprite.anchor.y   = 0.5;
         sprite.bitmap     = this.loadPictureOrEmpty(fileName, this.makeArrowPad.bind(this));
@@ -480,10 +452,10 @@ Game_Relative_Pad.distanceFar          = 144;
 
     Sprite_Relative_Pad.prototype.refresh = function() {
         this._arrowDiagonal = getDiagonalInt(this._arrowSprite.width / 4, this._arrowSprite.height / 4);
-        this.opacity = getParamNumber(['パッド画像不透明度', 'PadOpacity'], 0, 255);
-        this.scale.x = 1.0;
-        this.scale.y = 1.0;
-        this.visible = true;
+        this.opacity  = getParamNumber(['パッド画像不透明度', 'PadOpacity'], 0, 255);
+        this.scale.x  = 1.0;
+        this.scale.y  = 1.0;
+        this.visible  = true;
         this._padActive = true;
     };
 
@@ -509,122 +481,122 @@ Game_Relative_Pad.distanceFar          = 144;
 
     Sprite_Relative_Pad.prototype.updateArrowSprite = function() {
         if (this.getMovePad().isDistanceZero()) {
-            this._arrowSprite.visible  = false;
+            this._arrowSprite.visible = false;
         } else {
             this._arrowSprite.visible  = true;
             this._arrowSprite.rotation = this.getMovePad().getRotation();
-            var scale                  = this.getMovePad().getDistance() / this._arrowDiagonal;
-            this._arrowSprite.scale.x = scale;
-            this._arrowSprite.scale.y = scale;
-            this._arrowSprite.opacity = Math.min(255, 255 / (scale / 1.5));
+            var scale = this.getMovePad().getDistance() / this._arrowDiagonal;
+            this._arrowSprite.scale.x  = scale;
+            this._arrowSprite.scale.y  = scale;
+            this._arrowSprite.opacity  = Math.min(255, 255 / (scale / 1.5));
         }
     };
 
     Sprite_Relative_Pad.prototype.updateFadeout = function() {
-        this.opacity -= 36;
-        this.scale.x += 0.02;
-        this.scale.y += 0.02;
+        this.opacity  -= 36;
+        this.scale.x  += 0.02;
+        this.scale.y  += 0.02;
     };
 
     Sprite_Relative_Pad.prototype.getMovePad = function() {
         return $gameTemp.getRelativeTouchPad();
     };
     //=============================================================================
-// Botón de menú + botón de cancelar en menús y submenús
-//=============================================================================
+    // Interfaz de Botones Mejorada (Mochila, Cancelar y Botón A) - COMPATIBLE MV
+    //=============================================================================
+    (function() {
+        
+        var _actionCooldown = 0;
 
-(function() {
+        // Actualizador de Cooldown global
+        var _Scene_Map_update = Scene_Map.prototype.update;
+        Scene_Map.prototype.update = function() {
+            _Scene_Map_update.call(this);
+            if (_actionCooldown > 0) _actionCooldown--;
+        };
 
-    // ===============================
-    // --- BOTÓN DE MOCHILA EN MAPA ---
-    // ===============================
-    Scene_Map.prototype.createMenuButton = function() {
-        if (this._menuButton) return;
+        function createAnimatedButton(iconIndex, x, y, action) {
+            var btn = new Sprite_Button();
+            var pw = Window_Base._iconWidth;
+            var ph = Window_Base._iconHeight;
+            // Creamos un bitmap de 96x96 para que el icono se vea grande y nítido
+            var bitmap = new Bitmap(96, 96); 
+            var sx = (iconIndex % 16) * pw;
+            var sy = Math.floor(iconIndex / 16) * ph;
+            
+            // Dibujamos el icono escalado
+            bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, 96, 96);
+            
+            btn.bitmap = bitmap;
+            btn.x = x;
+            btn.y = y;
+            btn.anchor.x = 0.5;
+            btn.anchor.y = 0.5;
 
-        this._menuButton = new Sprite_Button();
+            // Reemplazo de isPressed para RPG Maker MV
+            btn.update = function() {
+                Sprite_Button.prototype.update.call(this);
+                
+                // Si el ratón/dedo está sobre el botón y pulsado
+                if (this._touching) {
+                    this.scale.set(0.8, 0.8); // Animación: se encoge
+                    this.opacity = 180;
+                } else {
+                    this.scale.set(1.0, 1.0); // Tamaño normal
+                    this.opacity = 255;
+                }
+            };
 
-        var bitmap = new Bitmap(96, 96);
-        var iconIndex = 209; // Icono de mochila
-        var pw = Window_Base._iconWidth;
-        var ph = Window_Base._iconHeight;
-        var sx = (iconIndex % 16) * pw;
-        var sy = Math.floor(iconIndex / 16) * ph;
-        bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, 96, 96);
+            btn.setClickHandler(action);
+            return btn;
+        }
 
-        this._menuButton.bitmap = bitmap;
-        this._menuButton.x = Graphics.width - 110;
-        this._menuButton.y = 10;
+        // ── Botones en el Mapa ──────────────────────────────────────
+        var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
+        Scene_Map.prototype.createAllWindows = function() {
+            _Scene_Map_createAllWindows.call(this);
+            
+            // Botón Menú (Arriba Derecha)
+            this._menuButton = createAnimatedButton(209, Graphics.width - 60, 60, function() {
+                if ($gamePlayer.canMove()) {
+                    SoundManager.playOk();
+                    SceneManager.push(Scene_Menu);
+                }
+            });
+            this.addChild(this._menuButton);
 
-        var self = this;
-        this._menuButton.setClickHandler(function() {
-            SceneManager.push(Scene_Menu);
-        });
+            // Botón A (Abajo Derecha)
+            this._actionButton = createAnimatedButton(84, Graphics.width - 80, Graphics.height - 80, function() {
+                // Solo dispara la acción si no hay cooldown
+                if (_actionCooldown <= 0) {
+                    _actionCooldown = 20; // Bloqueo de 20 frames (aprox 0.3 seg)
+                    Input.submitKey('ok');
+                }
+            });
+            this.addChild(this._actionButton);
+        };
 
-        this.addChild(this._menuButton);
-    };
-
-    var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
-    Scene_Map.prototype.createAllWindows = function() {
-        _Scene_Map_createAllWindows.call(this);
-        this.createMenuButton();
-    };
-
-    // ===============================
-    // --- BOTÓN DE CANCELAR EN MENÚ ---
-    // ===============================
-    var _Scene_MenuBase_create = Scene_MenuBase.prototype.create;
-    Scene_MenuBase.prototype.create = function() {
-        _Scene_MenuBase_create.call(this);
-        this.createCancelButton();
-    };
-
-    Scene_MenuBase.prototype.createCancelButton = function() {
-        if (this._cancelButton) return;
-
-        this._cancelButton = new Sprite_Button();
-
-        var bitmap = new Bitmap(96, 96);
-        var iconIndex = 74; // Icono de cruz o cancelar
-        var pw = Window_Base._iconWidth;
-        var ph = Window_Base._iconHeight;
-        var sx = (iconIndex % 16) * pw;
-        var sy = Math.floor(iconIndex / 16) * ph;
-        bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, 96, 96);
-
-        this._cancelButton.bitmap = bitmap;
-        this._cancelButton.x = Graphics.width - 110;
-        this._cancelButton.y = 10;
-
-        var self = this;
-        this._cancelButton.setClickHandler(function() {
-            // Si estamos en un submenú, volvemos al menú principal
-            if (SceneManager._scene instanceof Scene_Menu) {
-                SceneManager.pop(); // Salimos al mapa
-            } else {
-                SceneManager.pop(); // Salimos del submenú
+        // ── Botón Cancelar en Menús ──────────────────────────────────
+        var _Scene_MenuBase_create = Scene_MenuBase.prototype.create;
+        Scene_MenuBase.prototype.create = function() {
+            _Scene_MenuBase_create.call(this);
+            if (!(this instanceof Scene_Map)) {
+                this._cancelButton = createAnimatedButton(74, Graphics.width - 60, 60, function() {
+                    SoundManager.playCancel();
+                    SceneManager.pop();
+                });
+                this.addChild(this._cancelButton);
             }
-        });
+        };
 
-        this.addChild(this._cancelButton);
+        // Limpieza de visibilidad
+        var _Scene_MenuBase_terminate = Scene_MenuBase.prototype.terminate;
+        Scene_MenuBase.prototype.terminate = function() {
+            _Scene_MenuBase_terminate.call(this);
+            if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._menuButton) {
+                SceneManager._scene._menuButton.visible = true;
+            }
+        };
 
-        // Oculta el botón de mochila mientras el menú esté abierto
-        if (SceneManager._scene._menuButton) {
-            SceneManager._scene._menuButton.visible = false;
-        }
-    };
-
-    // Restaurar el botón de mochila al salir del menú completamente
-    var _Scene_MenuBase_terminate = Scene_MenuBase.prototype.terminate;
-    Scene_MenuBase.prototype.terminate = function() {
-        if (this._cancelButton) {
-            this._cancelButton.visible = false;
-        }
-        // Solo restaurar la mochila si volvemos al mapa
-        if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._menuButton) {
-            SceneManager._scene._menuButton.visible = true;
-        }
-        _Scene_MenuBase_terminate.call(this);
-    };
-
-})();
+    })();   
 })();

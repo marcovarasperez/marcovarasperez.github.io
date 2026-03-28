@@ -45,29 +45,43 @@
         Graphics.boxHeight = screenH;
     };
 
-    // ================================
-    // 2. Fullscreen desde el arranque
-    //    NW.js no necesita interacción
-    //    del usuario — se puede llamar
-    //    directamente en initialize
+  // ================================
+    // 2. Fullscreen (NW.js y Mobile APK)
     // ================================
     var _SceneManager_initialize = SceneManager.initialize;
     SceneManager.initialize = function() {
         _SceneManager_initialize.call(this);
-        // NW.js: pantalla completa directa
+        
+        // 1. Caso NW.js (PC/Escritorio)
         if (Utils.isNwjs()) {
             var gui = require('nw.gui');
             var win = gui.Window.get();
             win.enterFullscreen();
-        } else {
-            // Navegador: intenta fullscreen en el primer click
-            document.addEventListener('click', function handler() {
+        } 
+        
+        // 2. Caso Móvil / Navegador (APK)
+        // Añadimos múltiples disparadores para asegurar que entre en pantalla completa
+        var forceFullScreen = function() {
+            if (Graphics && !Graphics._isFullScreen()) {
                 Graphics._switchFullScreen();
-                document.removeEventListener('click', handler);
-            }, { once: true });
+            }
+            // Eliminamos los listeners una vez que se logra
+            document.removeEventListener('touchstart', forceFullScreen);
+            document.removeEventListener('mousedown', forceFullScreen);
+        };
+
+        // Escuchamos el primer toque en el móvil para activar el FullScreen
+        document.addEventListener('touchstart', forceFullScreen, { once: true });
+        document.addEventListener('mousedown', forceFullScreen, { once: true });
+        
+        // Intento de forzado automático (algunos WebViews lo permiten)
+        if (typeof document.documentElement.requestFullscreen === 'function') {
+            document.documentElement.requestFullscreen().catch(function() {
+                // Si falla (lo normal en móvil sin toque previo), no hacemos nada
+                // el listener de arriba se encargará al primer toque.
+            });
         }
     };
-
     // ================================
     // 3. Escena de Splash propia
     //    Se inserta ANTES de Scene_Title
