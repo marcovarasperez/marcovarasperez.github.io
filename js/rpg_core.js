@@ -3758,7 +3758,8 @@ TouchInput._onRightButtonDown = function(event) {
     var x = Graphics.pageToCanvasX(event.pageX);
     var y = Graphics.pageToCanvasY(event.pageY);
     if (Graphics.isInsideCanvas(x, y)) {
-        this._onCancel(x, y);
+        // Comenta esta línea para que el click derecho no haga nada
+        // this._onCancel(x, y); 
     }
 };
 
@@ -3817,16 +3818,14 @@ TouchInput._onTouchStart = function(event) {
         if (Graphics.isInsideCanvas(x, y)) {
             this._screenPressed = true;
             this._pressedTime = 0;
-            if (event.touches.length >= 2) {
-                this._onCancel(x, y);
+            if (event.touches.length >= 2) { 
+                // AL COMENTAR ESTO, DOS DEDOS YA NO ABREN EL MENÚ
+                // this._onCancel(x, y); 
             } else {
                 this._onTrigger(x, y);
             }
             event.preventDefault();
         }
-    }
-    if (window.cordova || window.navigator.standalone) {
-        event.preventDefault();
     }
 };
 
