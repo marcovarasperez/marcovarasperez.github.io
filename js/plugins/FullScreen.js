@@ -266,5 +266,28 @@
     Graphics._paintUpperCanvas = function() {
         this._clearUpperCanvas();
     };
+//=============================================================================
+// FullscreenMobile.js
+//=============================================================================
+/*:
+ * @plugindesc Fuerza pantalla completa en móvil
+ */
 
+(function() {
+
+    var _SceneManager_run = SceneManager.run;
+    SceneManager.run = function(sceneClass) {
+        this._screenWidth  = window.innerWidth;
+        this._screenHeight = window.innerHeight;
+        this._boxWidth  = window.innerWidth;
+        this._boxHeight = window.innerHeight;
+
+        Graphics._stretchEnabled = true;
+
+        _SceneManager_run.call(this, sceneClass);
+
+        Graphics._updateRealScale();
+    };
+
+})();
 })();
