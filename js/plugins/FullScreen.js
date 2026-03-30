@@ -46,16 +46,63 @@
     };
 
     // ================================
-    // 2. Canvas scaling (llena toda la pantalla manteniendo proporción)
+    // 2. CSS base — elimina márgenes y fuerza tamaño real
+    //    Se inyecta una sola vez, antes de cualquier cálculo
+    // ================================
+    (function injectBaseCSS() {
+        var style = document.createElement('style');
+        style.textContent = [
+            'html, body {',
+            '  margin: 0 !important;',
+            '  padding: 0 !important;',
+            '  width: 100% !important;',
+            '  height: 100% !important;',
+            '  overflow: hidden !important;',
+            '  background: #000 !important;',
+            '}',
+            /* Elimina cualquier margen que RPG Maker ponga en el canvas */
+            'canvas {',
+            '  display: block !important;',
+            '  margin: 0 !important;',
+            '}'
+        ].join('\n');
+        document.head.appendChild(style);
+    })();
+
+    // ================================
+    // 3. Canvas scaling (llena toda la pantalla manteniendo proporción)
     //    Funciona en PC, Web y APK (WebView)
     // ================================
+
+    // Devuelve las dimensiones reales de la ventana.
+    // En landscape móvil, window.innerWidth puede ser menor que screen.width
+    // porque el navegador reserva espacio para su barra de UI.
+    // Usamos el mayor valor disponible para evitar barras negras.
+    function getRealSize() {
+        // En landscape, screen.width es el eje largo y screen.height el corto
+        var sw = screen.width  || window.innerWidth;
+        var sh = screen.height || window.innerHeight;
+
+        // Nos quedamos con el valor más grande entre inner y screen
+        // para cubrir tanto navegador como WebView/APK
+        var w = Math.max(window.innerWidth,  sw);
+        var h = Math.max(window.innerHeight, sh);
+
+        // Seguridad: si estamos en portrait (h > w), intercambiamos
+        // porque el juego es landscape 1280×720
+        if (h > w) { var tmp = w; w = h; h = tmp; }
+
+        return { w: w, h: h };
+    }
+
     function fitCanvas() {
         var canvas = Graphics._canvas;
         if (!canvas) return;
 
-        var winW  = window.innerWidth;
-        var winH  = window.innerHeight;
-        var scale = Math.min(winW / screenW, winH / screenH);
+        var size   = getRealSize();
+        var winW   = size.w;
+        var winH   = size.h;
+        var scale  = Math.min(winW / screenW, winH / screenH);
 
         var scaledW = Math.floor(screenW * scale);
         var scaledH = Math.floor(screenH * scale);
@@ -65,15 +112,15 @@
         canvas.style.position = 'absolute';
         canvas.style.left     = Math.floor((winW - scaledW) / 2) + 'px';
         canvas.style.top      = Math.floor((winH - scaledH) / 2) + 'px';
-
-        // Fondo negro para las barras laterales / superiores
-        document.body.style.backgroundColor = '#000000';
-        document.body.style.margin          = '0';
-        document.body.style.overflow        = 'hidden';
     }
 
-    window.addEventListener('load',   fitCanvas);
-    window.addEventListener('resize', fitCanvas);
+    window.addEventListener('load',            fitCanvas);
+    window.addEventListener('resize',          fitCanvas);
+    // En móvil el resize no siempre dispara al girar; orientationchange sí
+    window.addEventListener('orientationchange', function() {
+        // Pequeño delay para que el navegador termine de recalcular dimensiones
+        setTimeout(fitCanvas, 200);
+    });
 
     // ================================
     // 3. Fullscreen (NW.js y Mobile/Web)
