@@ -3,7 +3,7 @@
 //=============================================================================
 /*:
  * @plugindesc Fullscreen + splash + canvas scaling (PC, Web, APK)
- * @author Corregido v3
+ * @author Corregido v4
  *
  * @param Screen Width
  * @default 1280
@@ -58,19 +58,16 @@
     })();
 
     // ================================
-    // 3. Scaling real — parcheamos Graphics._updateCanvas
-    //    RPG Maker MV llama esta función cada vez que necesita
-    //    reposicionar el canvas. Si solo ponemos CSS desde fuera,
-    //    el engine lo sobreescribe continuamente. Hay que interceptarlo.
+    // 3. Scaling — se parchea Graphics._updateCanvas
+    //
+    //    RPG Maker MV llama _updateCanvas cada vez que reposiciona
+    //    el canvas. Si solo aplicamos CSS desde fuera, el engine lo
+    //    sobreescribe en el siguiente frame. Hay que interceptarlo.
     // ================================
 
     function calcFit() {
-        // En móvil landscape, window.innerWidth puede ser menor que
-        // la pantalla real porque el navegador reserva espacio para su UI.
-        // screen.width/height siempre devuelven el tamaño físico del dispositivo.
         var ww = Math.max(window.innerWidth,  screen.width  || 0);
         var wh = Math.max(window.innerHeight, screen.height || 0);
-        // Si por algún motivo obtenemos portrait, giramos los ejes
         if (wh > ww) { var t = ww; ww = wh; wh = t; }
         var scale   = Math.min(ww / screenW, wh / screenH);
         var scaledW = Math.floor(screenW * scale);
@@ -95,47 +92,38 @@
         c.style.top      = f.top     + 'px';
     }
 
-    // _updateCanvas es el método interno de MV que posiciona el canvas.
-    // Lo envolvemos para aplicar nuestro scaling justo después.
     var _orig_updateCanvas = Graphics._updateCanvas;
     Graphics._updateCanvas = function() {
         if (_orig_updateCanvas) _orig_updateCanvas.call(this);
         applyFit();
     };
 
-    // _updateRenderer también puede tocar el canvas vía PIXI
     var _orig_updateRenderer = Graphics._updateRenderer;
     Graphics._updateRenderer = function() {
         if (_orig_updateRenderer) _orig_updateRenderer.call(this);
         applyFit();
     };
 
-    // Reajuste al girar/redimensionar
     window.addEventListener('resize', applyFit);
     window.addEventListener('orientationchange', function() {
         setTimeout(applyFit, 250);
     });
 
     // ================================
-    // 3. Fullscreen (NW.js y Mobile/Web)
+    // 4. Fullscreen (NW.js y Mobile/Web)
     // ================================
     var _SceneManager_initialize = SceneManager.initialize;
     SceneManager.initialize = function() {
         _SceneManager_initialize.call(this);
 
-        // --- PC con NW.js ---
         if (Utils.isNwjs()) {
             try {
                 var gui = require('nw.gui');
                 var win = gui.Window.get();
                 win.enterFullscreen();
             } catch(e) {}
-            return; // En NW.js no necesitamos requestFullscreen
+            return;
         }
-
-        // --- Web / APK (WebView) ---
-        // Algunos WebViews permiten fullscreen automático; en otros hace falta
-        // un gesto del usuario (toque/click). Cubrimos ambos casos.
 
         function requestFS() {
             var el = document.documentElement;
@@ -144,28 +132,17 @@
                   || el.mozRequestFullScreen
                   || el.msRequestFullscreen;
             if (fn) {
-                fn.call(el).then(fitCanvas).catch(function() {
-                    // Fallo silencioso — se usará solo el scaling CSS
-                });
+                fn.call(el).then(applyFit).catch(function() {});
             }
         }
 
-        // Intento inmediato (funciona en algunos WebViews Android)
         requestFS();
-
-        // Fallback: primer toque o click del usuario
-        function onFirstGesture() {
-            requestFS();
-            document.removeEventListener('touchstart', onFirstGesture);
-            document.removeEventListener('mousedown',  onFirstGesture);
-        }
-        document.addEventListener('touchstart', onFirstGesture, { once: true });
-        document.addEventListener('mousedown',  onFirstGesture, { once: true });
+        document.addEventListener('touchstart', requestFS, { once: true });
+        document.addEventListener('mousedown',  requestFS, { once: true });
     };
 
     // ================================
-    // 4. Escena de Splash propia
-    //    Se inserta ANTES de Scene_Title
+    // 5. Escena de Splash propia
     // ================================
     if (splashImage) {
 
@@ -184,12 +161,10 @@
         Scene_Splash.prototype.create = function() {
             Scene_Base.prototype.create.call(this);
 
-            // Fondo negro
             this._bg = new Sprite(new Bitmap(screenW, screenH));
             this._bg.bitmap.fillAll('#000000');
             this.addChild(this._bg);
 
-            // Imagen del splash (centrada)
             this._sprite = new Sprite();
             this._sprite.opacity = 0;
             this.addChild(this._sprite);
@@ -209,29 +184,24 @@
 
             var fadeLen = 40;
             if (this._timer <= fadeLen) {
-                // Fade in
                 this._sprite.opacity = Math.floor((this._timer / fadeLen) * 255);
             } else if (this._timer <= splashFrames - fadeLen) {
-                // Visible
                 this._sprite.opacity = 255;
             } else if (this._timer <= splashFrames) {
-                // Fade out
                 var remaining = splashFrames - this._timer;
                 this._sprite.opacity = Math.floor((remaining / fadeLen) * 255);
             } else {
-                // Ir al título
                 SceneManager.goto(Scene_Title);
             }
         };
 
-        // Redirigir el boot al splash en lugar de ir directo al título
         Scene_Boot.prototype.startNormalGame = function() {
             SceneManager.goto(Scene_Splash);
         };
     }
 
     // ================================
-    // 5. Scene_Boot — aplicar scaling al arrancar
+    // 6. Scene_Boot — aplicar scaling al arrancar
     // ================================
     var _Scene_Boot_start = Scene_Boot.prototype.start;
     Scene_Boot.prototype.start = function() {
@@ -240,7 +210,7 @@
     };
 
     // ================================
-    // 6. Game Over centrado
+    // 7. Game Over centrado
     // ================================
     Scene_Gameover.prototype.createBackground = function() {
         var bitmap = ImageManager.loadSystem(gameOverImg);
@@ -255,7 +225,7 @@
     };
 
     // ================================
-    // 7. Eliminar logo de RPG Maker
+    // 8. Eliminar logo de RPG Maker
     // ================================
     Graphics._paintUpperCanvas = function() {
         this._clearUpperCanvas();
