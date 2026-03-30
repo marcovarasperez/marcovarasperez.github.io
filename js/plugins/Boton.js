@@ -43,8 +43,8 @@ Scene_Map.prototype.createActionButton = function() {
     this._actionButton.bitmap = bmp;
 
     // POSICIÓN: Abajo a la derecha dinámico
-    this._actionButton.x = Graphics.width - size - margin;
-    this._actionButton.y = Graphics.height - size - margin;
+    this._actionButton.x = Graphics.width - size - margin  -160 ;
+    this._actionButton.y = Graphics.height - size - margin - 160;
 
     // Lógica del Click
     this._actionButton.setClickHandler(function() {

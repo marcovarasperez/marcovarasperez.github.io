@@ -515,41 +515,50 @@ Game_Relative_Pad.distanceFar     = 144;
             if (_actionCooldown > 0) _actionCooldown--;
         };
 
-        function createAnimatedButton(iconIndex, x, y, action) {
-            var btn = new Sprite_Button();
-            var pw = Window_Base._iconWidth;
-            var ph = Window_Base._iconHeight;
-            // Creamos un bitmap de 96x96 para que el icono se vea grande y nítido
-            var bitmap = new Bitmap(96, 96); 
-            var sx = (iconIndex % 16) * pw;
-            var sy = Math.floor(iconIndex / 16) * ph;
-            
-            // Dibujamos el icono escalado
-            bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, 96, 96);
-            
-            btn.bitmap = bitmap;
-            btn.x = x;
-            btn.y = y;
-            btn.anchor.x = 0.5;
-            btn.anchor.y = 0.5;
+       function createAnimatedButton(iconIndex, x, y, action, size = 96) {
+    // size: tamaño del botón y del icono (puedes aumentarlo)
+    var btn = new Sprite_Button();
+    var pw = Window_Base._iconWidth;
+    var ph = Window_Base._iconHeight;
 
-            // Reemplazo de isPressed para RPG Maker MV
-            btn.update = function() {
-                Sprite_Button.prototype.update.call(this);
-                
-                // Si el ratón/dedo está sobre el botón y pulsado
-                if (this._touching) {
-                    this.scale.set(0.8, 0.8); // Animación: se encoge
-                    this.opacity = 180;
-                } else {
-                    this.scale.set(1.0, 1.0); // Tamaño normal
-                    this.opacity = 255;
-                }
-            };
+    // Creamos un bitmap del tamaño deseado
+    var bitmap = new Bitmap(size, size);
 
-            btn.setClickHandler(action);
-            return btn;
+    // Calculamos el source del icono
+    var sx = (iconIndex % 16) * pw;
+    var sy = Math.floor(iconIndex / 16) * ph;
+
+    // Dibujamos el icono escalado a todo el bitmap
+    bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, size, size);
+
+    btn.bitmap = bitmap;
+
+    // Posición del sprite
+    btn.x = x -110;
+    btn.y = y;
+
+    // No centrar el icono
+    btn.anchor.x = 0;
+    btn.anchor.y = 0;
+
+    // Hitbox igual al tamaño del bitmap
+    btn.hitArea = new PIXI.Rectangle(0, 0, size, size);
+
+    // Animación de pulsar
+    btn.update = function() {
+        Sprite_Button.prototype.update.call(this);
+        if (this._touching) {
+            this.scale.set(0.9, 0.9); // se encoge ligeramente al pulsar
+            this.opacity = 180;
+        } else {
+            this.scale.set(1.0, 1.0);
+            this.opacity = 255;
         }
+    };
+
+    btn.setClickHandler(action);
+    return btn;
+}
 
         // ── Botones en el Mapa ──────────────────────────────────────
         var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
@@ -565,8 +574,8 @@ Game_Relative_Pad.distanceFar     = 144;
             });
             this.addChild(this._menuButton);
 
-            // Botón A (Abajo Derecha)
-            this._actionButton = createAnimatedButton(84, Graphics.width - 80, Graphics.height - 80, function() {
+            /* Botón A (Abajo Derecha)
+            this._actionButton = createAnimatedButton(84, Graphics.width - 80, Graphics.height - 140, function() {
                 // Solo dispara la acción si no hay cooldown
                 if (_actionCooldown <= 0) {
                     _actionCooldown = 20; // Bloqueo de 20 frames (aprox 0.3 seg)
@@ -574,6 +583,7 @@ Game_Relative_Pad.distanceFar     = 144;
                 }
             });
             this.addChild(this._actionButton);
+            */
         };
 
         // ── Botón Cancelar en Menús ──────────────────────────────────
