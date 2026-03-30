@@ -72,7 +72,6 @@ window.fitCanvas = function() {
         var ww = Math.max(window.innerWidth,  screen.width  || 0);
         var wh = Math.max(window.innerHeight, screen.height || 0);
         if (wh > ww) { var t = ww; ww = wh; wh = t; }
-        var scale   = Math.min(ww / screenW, wh / screenH);
         var scaledW = Math.floor(screenW * scale);
         var scaledH = Math.floor(screenH * scale);
         return {
@@ -84,16 +83,19 @@ window.fitCanvas = function() {
     }
 
     function applyFit() {
-        var c = Graphics._canvas;
-        if (!c) return;
-        var f = calcFit();
-        c.style.position = 'absolute';
-        c.style.margin   = '0';
-        c.style.width    = f.scaledW + 'px';
-        c.style.height   = f.scaledH + 'px';
-        c.style.left     = f.left    + 'px';
-        c.style.top      = f.top     + 'px';
-    }
+    var c = Graphics._canvas;
+    if (!c) return;
+
+    c.style.position = 'absolute';
+    c.style.margin   = '0';
+
+    // 🔥 OCUPAR TODA LA PANTALLA
+    c.style.width  = window.innerWidth + 'px';
+    c.style.height = window.innerHeight + 'px';
+
+    c.style.left = '0px';
+    c.style.top  = '0px';
+}
 
     var _orig_updateCanvas = Graphics._updateCanvas;
     Graphics._updateCanvas = function() {
