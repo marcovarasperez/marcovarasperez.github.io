@@ -224,11 +224,15 @@
         });
     };
 
-    // ================================
-    // 8. Eliminar logo de RPG Maker
-    // ================================
-    Graphics._paintUpperCanvas = function() {
-        this._clearUpperCanvas();
-    };
+   // ================================
+// 8. Eliminar logo de RPG Maker
+// ================================
+Graphics._paintUpperCanvas = function() {
+    this._clearUpperCanvas();
+};
 
+// 🔥 FIX GLOBAL
+window.fitCanvas = function() {
+    applyFit();
+};
 })();
