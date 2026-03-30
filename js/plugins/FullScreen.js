@@ -25,7 +25,10 @@
  */
 
 (function() {
-
+// 🔥 FIX GLOBAL
+window.fitCanvas = function() {
+    applyFit();
+};
     var parameters   = PluginManager.parameters('FullscreenPro');
     var screenW      = Number(parameters['Screen Width']    || 1280);
     var screenH      = Number(parameters['Screen Height']   || 720);
@@ -231,8 +234,5 @@ Graphics._paintUpperCanvas = function() {
     this._clearUpperCanvas();
 };
 
-// 🔥 FIX GLOBAL
-window.fitCanvas = function() {
-    applyFit();
-};
+
 })();
