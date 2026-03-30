@@ -2,8 +2,8 @@
 // FullscreenPro.js
 //=============================================================================
 /*:
- * @plugindesc Fullscreen + splash correcto
- * @author Corregido v2
+ * @plugindesc Fullscreen + splash + canvas scaling (PC, Web, APK)
+ * @author Corregido v3
  *
  * @param Screen Width
  * @default 1280
@@ -45,47 +45,86 @@
         Graphics.boxHeight = screenH;
     };
 
-  // ================================
-    // 2. Fullscreen (NW.js y Mobile APK)
+    // ================================
+    // 2. Canvas scaling (llena toda la pantalla manteniendo proporción)
+    //    Funciona en PC, Web y APK (WebView)
+    // ================================
+    function fitCanvas() {
+        var canvas = Graphics._canvas;
+        if (!canvas) return;
+
+        var winW  = window.innerWidth;
+        var winH  = window.innerHeight;
+        var scale = Math.min(winW / screenW, winH / screenH);
+
+        var scaledW = Math.floor(screenW * scale);
+        var scaledH = Math.floor(screenH * scale);
+
+        canvas.style.width    = scaledW + 'px';
+        canvas.style.height   = scaledH + 'px';
+        canvas.style.position = 'absolute';
+        canvas.style.left     = Math.floor((winW - scaledW) / 2) + 'px';
+        canvas.style.top      = Math.floor((winH - scaledH) / 2) + 'px';
+
+        // Fondo negro para las barras laterales / superiores
+        document.body.style.backgroundColor = '#000000';
+        document.body.style.margin          = '0';
+        document.body.style.overflow        = 'hidden';
+    }
+
+    window.addEventListener('load',   fitCanvas);
+    window.addEventListener('resize', fitCanvas);
+
+    // ================================
+    // 3. Fullscreen (NW.js y Mobile/Web)
     // ================================
     var _SceneManager_initialize = SceneManager.initialize;
     SceneManager.initialize = function() {
         _SceneManager_initialize.call(this);
-        
-        // 1. Caso NW.js (PC/Escritorio)
-        if (Utils.isNwjs()) {
-            var gui = require('nw.gui');
-            var win = gui.Window.get();
-            win.enterFullscreen();
-        } 
-        
-        // 2. Caso Móvil / Navegador (APK)
-        // Añadimos múltiples disparadores para asegurar que entre en pantalla completa
-        var forceFullScreen = function() {
-            if (Graphics && !Graphics._isFullScreen()) {
-                Graphics._switchFullScreen();
-            }
-            // Eliminamos los listeners una vez que se logra
-            document.removeEventListener('touchstart', forceFullScreen);
-            document.removeEventListener('mousedown', forceFullScreen);
-        };
 
-        // Escuchamos el primer toque en el móvil para activar el FullScreen
-        document.addEventListener('touchstart', forceFullScreen, { once: true });
-        document.addEventListener('mousedown', forceFullScreen, { once: true });
-        
-        // Intento de forzado automático (algunos WebViews lo permiten)
-        if (typeof document.documentElement.requestFullscreen === 'function') {
-            document.documentElement.requestFullscreen().catch(function() {
-                // Si falla (lo normal en móvil sin toque previo), no hacemos nada
-                // el listener de arriba se encargará al primer toque.
-            });
+        // --- PC con NW.js ---
+        if (Utils.isNwjs()) {
+            try {
+                var gui = require('nw.gui');
+                var win = gui.Window.get();
+                win.enterFullscreen();
+            } catch(e) {}
+            return; // En NW.js no necesitamos requestFullscreen
         }
+
+        // --- Web / APK (WebView) ---
+        // Algunos WebViews permiten fullscreen automático; en otros hace falta
+        // un gesto del usuario (toque/click). Cubrimos ambos casos.
+
+        function requestFS() {
+            var el = document.documentElement;
+            var fn = el.requestFullscreen
+                  || el.webkitRequestFullscreen
+                  || el.mozRequestFullScreen
+                  || el.msRequestFullscreen;
+            if (fn) {
+                fn.call(el).then(fitCanvas).catch(function() {
+                    // Fallo silencioso — se usará solo el scaling CSS
+                });
+            }
+        }
+
+        // Intento inmediato (funciona en algunos WebViews Android)
+        requestFS();
+
+        // Fallback: primer toque o click del usuario
+        function onFirstGesture() {
+            requestFS();
+            document.removeEventListener('touchstart', onFirstGesture);
+            document.removeEventListener('mousedown',  onFirstGesture);
+        }
+        document.addEventListener('touchstart', onFirstGesture, { once: true });
+        document.addEventListener('mousedown',  onFirstGesture, { once: true });
     };
+
     // ================================
-    // 3. Escena de Splash propia
+    // 4. Escena de Splash propia
     //    Se inserta ANTES de Scene_Title
-    //    así no compite con nada
     // ================================
     if (splashImage) {
 
@@ -98,8 +137,7 @@
 
         Scene_Splash.prototype.initialize = function() {
             Scene_Base.prototype.initialize.call(this);
-            this._timer    = 0;
-            this._fadeOut  = false;
+            this._timer = 0;
         };
 
         Scene_Splash.prototype.create = function() {
@@ -110,7 +148,7 @@
             this._bg.bitmap.fillAll('#000000');
             this.addChild(this._bg);
 
-            // Imagen del splash
+            // Imagen del splash (centrada)
             this._sprite = new Sprite();
             this._sprite.opacity = 0;
             this.addChild(this._sprite);
@@ -128,35 +166,40 @@
             Scene_Base.prototype.update.call(this);
             this._timer++;
 
-            // Fade in: primeros 40 frames
-            if (this._timer <= 40) {
-                this._sprite.opacity = Math.floor((this._timer / 40) * 255);
-
-            // Espera en el centro
-            } else if (this._timer <= splashFrames - 40) {
+            var fadeLen = 40;
+            if (this._timer <= fadeLen) {
+                // Fade in
+                this._sprite.opacity = Math.floor((this._timer / fadeLen) * 255);
+            } else if (this._timer <= splashFrames - fadeLen) {
+                // Visible
                 this._sprite.opacity = 255;
-
-            // Fade out: últimos 40 frames
             } else if (this._timer <= splashFrames) {
+                // Fade out
                 var remaining = splashFrames - this._timer;
-                this._sprite.opacity = Math.floor((remaining / 40) * 255);
-
-            // Fin — ir al título
+                this._sprite.opacity = Math.floor((remaining / fadeLen) * 255);
             } else {
+                // Ir al título
                 SceneManager.goto(Scene_Title);
             }
         };
 
-        // Interceptar Scene_Boot para que vaya al splash
-        // en lugar de ir directamente al título
-        var _Scene_Boot_startNormalGame = Scene_Boot.prototype.startNormalGame;
+        // Redirigir el boot al splash en lugar de ir directo al título
         Scene_Boot.prototype.startNormalGame = function() {
             SceneManager.goto(Scene_Splash);
         };
     }
 
     // ================================
-    // 4. Game Over centrado
+    // 5. Scene_Boot — aplicar scaling al arrancar
+    // ================================
+    var _Scene_Boot_start = Scene_Boot.prototype.start;
+    Scene_Boot.prototype.start = function() {
+        _Scene_Boot_start.call(this);
+        fitCanvas();
+    };
+
+    // ================================
+    // 6. Game Over centrado
     // ================================
     Scene_Gameover.prototype.createBackground = function() {
         var bitmap = ImageManager.loadSystem(gameOverImg);
@@ -169,8 +212,12 @@
             self._backgroundSprite.y = Math.floor((screenH - bitmap.height) / 2);
         });
     };
- Graphics._paintUpperCanvas = function() {
-    this._clearUpperCanvas();
-    // No pintar nada — elimina el logo de RPG Maker
-};
+
+    // ================================
+    // 7. Eliminar logo de RPG Maker
+    // ================================
+    Graphics._paintUpperCanvas = function() {
+        this._clearUpperCanvas();
+    };
+
 })();
