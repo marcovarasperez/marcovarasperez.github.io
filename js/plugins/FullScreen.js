@@ -46,80 +46,74 @@
     };
 
     // ================================
-    // 2. CSS base — elimina márgenes y fuerza tamaño real
-    //    Se inyecta una sola vez, antes de cualquier cálculo
+    // 2. CSS base — body/html sin márgenes
     // ================================
     (function injectBaseCSS() {
         var style = document.createElement('style');
-        style.textContent = [
-            'html, body {',
-            '  margin: 0 !important;',
-            '  padding: 0 !important;',
-            '  width: 100% !important;',
-            '  height: 100% !important;',
-            '  overflow: hidden !important;',
-            '  background: #000 !important;',
-            '}',
-            /* Elimina cualquier margen que RPG Maker ponga en el canvas */
-            'canvas {',
-            '  display: block !important;',
-            '  margin: 0 !important;',
-            '}'
-        ].join('\n');
+        style.textContent =
+            'html,body{margin:0!important;padding:0!important;' +
+            'width:100%!important;height:100%!important;' +
+            'overflow:hidden!important;background:#000!important;}';
         document.head.appendChild(style);
     })();
 
     // ================================
-    // 3. Canvas scaling (llena toda la pantalla manteniendo proporción)
-    //    Funciona en PC, Web y APK (WebView)
+    // 3. Scaling real — parcheamos Graphics._updateCanvas
+    //    RPG Maker MV llama esta función cada vez que necesita
+    //    reposicionar el canvas. Si solo ponemos CSS desde fuera,
+    //    el engine lo sobreescribe continuamente. Hay que interceptarlo.
     // ================================
 
-    // Devuelve las dimensiones reales de la ventana.
-    // En landscape móvil, window.innerWidth puede ser menor que screen.width
-    // porque el navegador reserva espacio para su barra de UI.
-    // Usamos el mayor valor disponible para evitar barras negras.
-    function getRealSize() {
-        // En landscape, screen.width es el eje largo y screen.height el corto
-        var sw = screen.width  || window.innerWidth;
-        var sh = screen.height || window.innerHeight;
-
-        // Nos quedamos con el valor más grande entre inner y screen
-        // para cubrir tanto navegador como WebView/APK
-        var w = Math.max(window.innerWidth,  sw);
-        var h = Math.max(window.innerHeight, sh);
-
-        // Seguridad: si estamos en portrait (h > w), intercambiamos
-        // porque el juego es landscape 1280×720
-        if (h > w) { var tmp = w; w = h; h = tmp; }
-
-        return { w: w, h: h };
-    }
-
-    function fitCanvas() {
-        var canvas = Graphics._canvas;
-        if (!canvas) return;
-
-        var size   = getRealSize();
-        var winW   = size.w;
-        var winH   = size.h;
-        var scale  = Math.min(winW / screenW, winH / screenH);
-
+    function calcFit() {
+        // En móvil landscape, window.innerWidth puede ser menor que
+        // la pantalla real porque el navegador reserva espacio para su UI.
+        // screen.width/height siempre devuelven el tamaño físico del dispositivo.
+        var ww = Math.max(window.innerWidth,  screen.width  || 0);
+        var wh = Math.max(window.innerHeight, screen.height || 0);
+        // Si por algún motivo obtenemos portrait, giramos los ejes
+        if (wh > ww) { var t = ww; ww = wh; wh = t; }
+        var scale   = Math.min(ww / screenW, wh / screenH);
         var scaledW = Math.floor(screenW * scale);
         var scaledH = Math.floor(screenH * scale);
-
-        canvas.style.width    = scaledW + 'px';
-        canvas.style.height   = scaledH + 'px';
-        canvas.style.position = 'absolute';
-        canvas.style.left     = Math.floor((winW - scaledW) / 2) + 'px';
-        canvas.style.top      = Math.floor((winH - scaledH) / 2) + 'px';
+        return {
+            scaledW: scaledW,
+            scaledH: scaledH,
+            left:    Math.floor((ww - scaledW) / 2),
+            top:     Math.floor((wh - scaledH) / 2)
+        };
     }
 
-    window.addEventListener('load',            fitCanvas);
-    window.addEventListener('resize',          fitCanvas);
-    // En móvil el resize no siempre dispara al girar; orientationchange sí
+    function applyFit() {
+        var c = Graphics._canvas;
+        if (!c) return;
+        var f = calcFit();
+        c.style.position = 'absolute';
+        c.style.margin   = '0';
+        c.style.width    = f.scaledW + 'px';
+        c.style.height   = f.scaledH + 'px';
+        c.style.left     = f.left    + 'px';
+        c.style.top      = f.top     + 'px';
+    }
+
+    // _updateCanvas es el método interno de MV que posiciona el canvas.
+    // Lo envolvemos para aplicar nuestro scaling justo después.
+    var _orig_updateCanvas = Graphics._updateCanvas;
+    Graphics._updateCanvas = function() {
+        if (_orig_updateCanvas) _orig_updateCanvas.call(this);
+        applyFit();
+    };
+
+    // _updateRenderer también puede tocar el canvas vía PIXI
+    var _orig_updateRenderer = Graphics._updateRenderer;
+    Graphics._updateRenderer = function() {
+        if (_orig_updateRenderer) _orig_updateRenderer.call(this);
+        applyFit();
+    };
+
+    // Reajuste al girar/redimensionar
+    window.addEventListener('resize', applyFit);
     window.addEventListener('orientationchange', function() {
-        // Pequeño delay para que el navegador termine de recalcular dimensiones
-        setTimeout(fitCanvas, 200);
+        setTimeout(applyFit, 250);
     });
 
     // ================================
@@ -242,7 +236,7 @@
     var _Scene_Boot_start = Scene_Boot.prototype.start;
     Scene_Boot.prototype.start = function() {
         _Scene_Boot_start.call(this);
-        fitCanvas();
+        applyFit();
     };
 
     // ================================
@@ -266,28 +260,5 @@
     Graphics._paintUpperCanvas = function() {
         this._clearUpperCanvas();
     };
-//=============================================================================
-// FullscreenMobile.js
-//=============================================================================
-/*:
- * @plugindesc Fuerza pantalla completa en móvil
- */
 
-(function() {
-
-    var _SceneManager_run = SceneManager.run;
-    SceneManager.run = function(sceneClass) {
-        this._screenWidth  = window.innerWidth;
-        this._screenHeight = window.innerHeight;
-        this._boxWidth  = window.innerWidth;
-        this._boxHeight = window.innerHeight;
-
-        Graphics._stretchEnabled = true;
-
-        _SceneManager_run.call(this, sceneClass);
-
-        Graphics._updateRealScale();
-    };
-
-})();
 })();
