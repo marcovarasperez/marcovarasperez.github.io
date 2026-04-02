@@ -1,0 +1,25 @@
+info:
+  name: Prueba de entrada
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://collins-stereotactic-sanctifiably.ngrok-free.dev/webhook-test/npc-dialog
+  body:
+    type: json
+    data: |-
+      {
+        "npc_id": "anciana_maga",
+        "player_name": "Héroe",
+        "player_message": "te gusta el helado de chocolate",
+        "quest_active": "ninguna",
+        "gold": 100
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
