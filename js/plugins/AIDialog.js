@@ -19,7 +19,7 @@ console.log('Mensaje que se envía:', playerMsg);
         var payload = { player_message: playerMsg };
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://collins-stereotactic-sanctifiably.ngrok-free.dev/webhook/npc-dialog', true);
+        xhr.open('POST', 'http://79.72.55.106:5678/webhook/npc-dialog', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
         xhr.onload = function() {
