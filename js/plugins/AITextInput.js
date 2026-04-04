@@ -11,7 +11,7 @@ var AITextInput = AITextInput || {};
             'position:fixed',
             'top:0','left:0',
             'width:100%','height:100%',
-            'background:rgba(0,0,0,0.8)',
+            'background:rgba(0,0,0,0.75)',
             'z-index:9999',
             'display:flex',
             'flex-direction:column',
@@ -25,16 +25,16 @@ var AITextInput = AITextInput || {};
             'background:#1a1a2e',
             'border:2px solid #e0c97f',
             'border-radius:8px',
-            'padding:16px',
-            'width:95%',
-            'max-width:500px',
+            'padding:10px',
+            'width:90%',
+            'max-width:380px',
             'box-sizing:border-box'
         ].join(';');
 
         // Título
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
-        title.style.cssText = 'color:#e0c97f;font-size:16px;margin:0 0 10px 0;text-align:center;';
+        title.style.cssText = 'color:#e0c97f;font-size:13px;margin:0 0 6px 0;text-align:center;';
 
         // Pantalla de texto
         var screen = document.createElement('div');
@@ -42,21 +42,21 @@ var AITextInput = AITextInput || {};
             'background:#0f0f1a',
             'border:1px solid #e0c97f',
             'border-radius:4px',
-            'padding:10px',
-            'min-height:40px',
+            'padding:6px 8px',
+            'min-height:30px',
             'color:#ffffff',
-            'font-size:16px',
-            'margin-bottom:12px',
+            'font-size:13px',
+            'margin-bottom:8px',
             'word-break:break-all'
         ].join(';');
 
         var text = '';
+        var confirmed = false;
 
         function updateScreen() {
             screen.textContent = text || '';
         }
 
-        // Teclado físico — solo capturamos si el overlay está visible
         function onKeyDown(e) {
             if (!document.getElementById('ai-input-overlay')) return;
             if (e.key === 'Enter') {
@@ -69,12 +69,13 @@ var AITextInput = AITextInput || {};
                 updateScreen();
             }
             e.stopPropagation();
-            // NO llamamos preventDefault aquí para no bloquear toques en móvil
         }
         document.addEventListener('keydown', onKeyDown);
 
         function confirmInput() {
+            if (confirmed) return;
             if (text.trim() === '') return;
+            confirmed = true;
             $gameVariables._data[2] = text.trim();
             document.removeEventListener('keydown', onKeyDown);
             if (document.body.contains(overlay)) {
@@ -83,26 +84,30 @@ var AITextInput = AITextInput || {};
             interpreter.setWaitMode('');
         }
 
-        // ── Función para crear botones táctiles ──────────────────────────
+        // ── Crear botones ─────────────────────────────────────────────────
         function makeButton(label, styleCss, handler) {
             var btn = document.createElement('button');
             btn.textContent = label;
             btn.style.cssText = styleCss;
 
-            // Evitar que el toque se propague al juego
+            var touched = false;
+
             btn.addEventListener('touchstart', function(e) {
+                touched = true;
                 e.stopPropagation();
             }, { passive: true });
 
-            // Usar touchend para respuesta inmediata en móvil
             btn.addEventListener('touchend', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                handler();
+                if (touched) {
+                    touched = false;
+                    handler();
+                }
             });
 
-            // Mantener onclick para escritorio
             btn.addEventListener('click', function(e) {
+                if (touched) return;
                 e.stopPropagation();
                 handler();
             });
@@ -110,7 +115,7 @@ var AITextInput = AITextInput || {};
             return btn;
         }
 
-        // ── Filas del teclado ────────────────────────────────────────────
+        // ── Filas del teclado ─────────────────────────────────────────────
         var rows = [
             ['1','2','3','4','5','6','7','8','9','0'],
             ['Q','W','E','R','T','Y','U','I','O','P'],
@@ -124,12 +129,12 @@ var AITextInput = AITextInput || {};
             'color:#e0c97f',
             'border:1px solid #e0c97f',
             'border-radius:4px',
-            'padding:10px 4px',
-            'font-size:15px',
+            'padding:6px 2px',
+            'font-size:12px',
             'cursor:pointer',
             'flex:1',
-            'margin:2px',
-            'min-width:28px',
+            'margin:1px',
+            'min-width:24px',
             'touch-action:manipulation',
             '-webkit-tap-highlight-color:transparent',
             'user-select:none',
@@ -138,7 +143,7 @@ var AITextInput = AITextInput || {};
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
-            rowDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:4px;';
+            rowDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:3px;';
 
             row.forEach(function(key) {
                 var btn;
@@ -149,11 +154,11 @@ var AITextInput = AITextInput || {};
                         'color:#1a1a2e',
                         'border:none',
                         'border-radius:4px',
-                        'padding:10px 16px',
-                        'font-size:15px',
+                        'padding:8px 12px',
+                        'font-size:12px',
                         'cursor:pointer',
                         'font-weight:bold',
-                        'margin:2px',
+                        'margin:1px',
                         'flex:2',
                         'touch-action:manipulation',
                         '-webkit-tap-highlight-color:transparent',
@@ -192,14 +197,11 @@ var AITextInput = AITextInput || {};
             box.appendChild(rowDiv);
         });
 
-        // Evitar que toques en el overlay se propaguen al juego
+        // Solo bloquar touchstart en overlay, NO touchend
+        // para que los botones reciban su touchend correctamente
         overlay.addEventListener('touchstart', function(e) {
             e.stopPropagation();
         }, { passive: true });
-
-        overlay.addEventListener('touchend', function(e) {
-            e.stopPropagation();
-        });
 
         box.insertBefore(screen, box.firstChild);
         box.insertBefore(title, box.firstChild);
