@@ -85,29 +85,22 @@ var AITextInput = AITextInput || {};
         }
 
         // ── Crear botones ─────────────────────────────────────────────────
+        // CORRECCIÓN MÓVIL: usar solo touchend sin flag 'touched',
+        // y sin mezclar con click para evitar doble disparo o no disparo.
         function makeButton(label, styleCss, handler) {
             var btn = document.createElement('button');
             btn.textContent = label;
             btn.style.cssText = styleCss;
 
-            var touched = false;
-
-            btn.addEventListener('touchstart', function(e) {
-                touched = true;
-                e.stopPropagation();
-            }, { passive: true });
-
+            // Móvil: touchend dispara el handler directamente
             btn.addEventListener('touchend', function(e) {
-                e.stopPropagation();
                 e.preventDefault();
-                if (touched) {
-                    touched = false;
-                    handler();
-                }
-            });
+                e.stopPropagation();
+                handler();
+            }, { passive: false });
 
+            // Escritorio: click normal
             btn.addEventListener('click', function(e) {
-                if (touched) return;
                 e.stopPropagation();
                 handler();
             });
@@ -197,9 +190,12 @@ var AITextInput = AITextInput || {};
             box.appendChild(rowDiv);
         });
 
-        // Solo bloquar touchstart en overlay, NO touchend
-        // para que los botones reciban su touchend correctamente
+        // Bloquear eventos del overlay para que no lleguen al juego
         overlay.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
+
+        overlay.addEventListener('touchend', function(e) {
             e.stopPropagation();
         }, { passive: true });
 
