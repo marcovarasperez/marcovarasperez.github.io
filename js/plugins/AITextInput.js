@@ -82,6 +82,12 @@ var AITextInput = AITextInput || {};
                 document.body.removeChild(overlay);
             }
             interpreter.setWaitMode('');
+            // Forzar al intérprete a continuar en el siguiente frame
+            setTimeout(function() {
+                interpreter._waitMode = '';
+                interpreter.updateWaitMode();
+                if (interpreter._waitCount > 0) interpreter._waitCount = 0;
+            }, 50);
         }
 
         // ── Crear botones ─────────────────────────────────────────────────
@@ -218,7 +224,13 @@ var AITextInput = AITextInput || {};
     var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
     Game_Interpreter.prototype.updateWaitMode = function() {
         if (this._waitMode === 'ai_input') {
-            return true;
+            // Solo bloquear si el overlay sigue en el DOM
+            if (document.getElementById('ai-input-overlay')) {
+                return true;
+            }
+            // Si el overlay ya no existe, liberar el wait mode
+            this._waitMode = '';
+            return false;
         }
         return _updateWaitMode.call(this);
     };
