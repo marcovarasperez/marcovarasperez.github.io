@@ -5,6 +5,10 @@ var AITextInput = AITextInput || {};
     AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
+        // Neutralizar TouchInput de RPG Maker mientras el overlay esté activo
+        AITextInput._origTouchUpdate = TouchInput.update;
+        TouchInput.update = function() {};
+
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
         overlay.style.cssText = [
@@ -82,10 +86,14 @@ var AITextInput = AITextInput || {};
                 document.body.removeChild(overlay);
             }
             interpreter.setWaitMode('');
+            // Restaurar TouchInput de RPG Maker
+            if (AITextInput._origTouchUpdate) {
+                TouchInput.update = AITextInput._origTouchUpdate;
+                AITextInput._origTouchUpdate = null;
+            }
             // Forzar al intérprete a continuar en el siguiente frame
             setTimeout(function() {
                 interpreter._waitMode = '';
-                interpreter.updateWaitMode();
                 if (interpreter._waitCount > 0) interpreter._waitCount = 0;
             }, 50);
         }
@@ -196,12 +204,20 @@ var AITextInput = AITextInput || {};
             box.appendChild(rowDiv);
         });
 
-        // Bloquear eventos del overlay para que no lleguen al juego
-        overlay.addEventListener('touchstart', function(e) {
-            e.stopPropagation();
-        }, { passive: true });
+        // Bloquear TODOS los eventos touch/pointer/mouse del overlay
+        // para que no lleguen al canvas de RPG Maker
+        ['touchstart','touchend','touchmove','touchcancel',
+         'pointerdown','pointerup','pointermove',
+         'mousedown','mouseup','mousemove','click'].forEach(function(evt) {
+            overlay.addEventListener(evt, function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, { passive: false });
+        });
 
-        overlay.addEventListener('touchend', function(e) {
+        // Pero los botones necesitan su propio preventDefault en touchend
+        // así que re-permitimos solo dentro del box
+        box.addEventListener('touchstart', function(e) {
             e.stopPropagation();
         }, { passive: true });
 

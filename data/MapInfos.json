@@ -1,8 +1,8 @@
 [
 null,
-{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1489.5,"scrollY":1615.5},
+{"id":1,"expanded":true,"name":"Mundo Lejano","order":1,"parentId":0,"scrollX":1622,"scrollY":1826},
 {"id":2,"expanded":false,"name":"Isla Flotante","order":11,"parentId":1,"scrollX":1404,"scrollY":783.4285714285713},
-{"id":3,"expanded":false,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":1769.4545454545455,"scrollY":1477.0909090909092},
+{"id":3,"expanded":false,"name":"Cueva Ignea","order":2,"parentId":1,"scrollX":1622,"scrollY":914},
 {"id":4,"expanded":true,"name":"Cueva #2","order":7,"parentId":1,"scrollX":2144,"scrollY":1570.6666666666667},
 {"id":5,"expanded":false,"name":"Cueva #2.1","order":8,"parentId":4,"scrollX":3573.818181818182,"scrollY":1994.1818181818182},
 {"id":6,"expanded":true,"name":"Kid Island","order":9,"parentId":1,"scrollX":1638,"scrollY":914},
