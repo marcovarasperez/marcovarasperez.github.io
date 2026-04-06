@@ -7,19 +7,17 @@ var AITextInput = AITextInput || {};
 
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;'; // touch-action evita scrolls raros
 
         var box = document.createElement('div');
         box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:16px;width:95%;max-width:500px;box-sizing:border-box;';
 
-        // Título
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
         title.style.cssText = 'color:#e0c97f;font-size:12px;margin:0 0 10px 0;text-align:center;';
 
-        // Pantalla de texto
         var screen = document.createElement('div');
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:4px;padding:10px;min-height:20px;color:#ffffff;font-size:12px;margin-bottom:12px;word-break:break-all;';
+        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:8px;min-height:15px;color:#ffffff;font-size:12px;margin-bottom:8px;word-break:break-all;';
 
         var text = '';
 
@@ -27,7 +25,6 @@ var AITextInput = AITextInput || {};
             screen.textContent = text || '';
         }
 
-        // Teclado físico
         document.addEventListener('keydown', onKeyDown);
 
         function onKeyDown(e) {
@@ -41,7 +38,6 @@ var AITextInput = AITextInput || {};
                 updateScreen();
             }
             e.stopPropagation();
-            e.preventDefault();
         }
 
         function confirm() {
@@ -52,16 +48,15 @@ var AITextInput = AITextInput || {};
             interpreter.setWaitMode('');
         }
 
-        // Filas del teclado virtual
-       var rows = [
-    ['1','2','3','4','5','6','7','8','9','0'],
-    ['Q','W','E','R','T','Y','U','I','O','P'],
-    ['A','S','D','F','G','H','J','K','L','Ñ'],
-    ['Z','X','C','V','B','N','M','⌫'],
-    ['ESPACIO','CONFIRMAR']
-];
+        var rows = [
+            ['1','2','3','4','5','6','7','8','9','0'],
+            ['Q','W','E','R','T','Y','U','I','O','P'],
+            ['A','S','D','F','G','H','J','K','L','Ñ'],
+            ['Z','X','C','V','B','N','M','⌫'],
+            ['ESPACIO','CONFIRMAR']
+        ];
 
-        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:8px 4px;font-size:12px;cursor:pointer;flex:1;margin:2px;min-width:28px;';
+        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:8px 4px;font-size:12px;cursor:pointer;flex:1;margin:2px;min-width:28px;touch-action:manipulation;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
@@ -71,33 +66,33 @@ var AITextInput = AITextInput || {};
                 var btn = document.createElement('button');
                 btn.textContent = key;
 
+                // Estilo específico
                 if (key === 'CONFIRMAR') {
                     btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:8px 16px;font-size:12px;cursor:pointer;font-weight:bold;margin:2px;flex:2;';
-                    btn.onclick = confirm;
                 } else if (key === 'ESPACIO') {
                     btn.style.cssText = btnStyle + 'flex:3;';
-                    btn.onclick = function() {
-                        if (text.length < 80) {
-                            text += ' ';
-                            updateScreen();
-                        }
-                    };
                 } else if (key === '⌫') {
                     btn.style.cssText = btnStyle + 'flex:1.5;';
-                    btn.onclick = function() {
-                        text = text.slice(0, -1);
-                        updateScreen();
-                    };
                 } else {
                     btn.style.cssText = btnStyle;
-                    btn.onclick = function() {
-                        if (text.length < 80) {
-                            text += key.toLowerCase();
-                            updateScreen();
-                        }
-                    };
                 }
 
+                // --- EL CAMBIO PARA MÓVIL ESTÁ AQUÍ ---
+                var handlePress = function(e) {
+                    e.preventDefault(); // Evita que el toque pase al mapa del juego
+                    if (key === 'CONFIRMAR') {
+                        confirm();
+                    } else if (key === 'ESPACIO') {
+                        if (text.length < 80) { text += ' '; updateScreen(); }
+                    } else if (key === '⌫') {
+                        text = text.slice(0, -1); updateScreen();
+                    } else {
+                        if (text.length < 80) { text += key.toLowerCase(); updateScreen(); }
+                    }
+                };
+
+                // Usamos pointerdown para que funcione con dedo y ratón al instante
+                btn.addEventListener('pointerdown', handlePress);
                 rowDiv.appendChild(btn);
             });
 
@@ -120,9 +115,7 @@ var AITextInput = AITextInput || {};
 
     var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
     Game_Interpreter.prototype.updateWaitMode = function() {
-        if (this._waitMode === 'ai_input') {
-            return true;
-        }
+        if (this._waitMode === 'ai_input') return true;
         return _updateWaitMode.call(this);
     };
 
