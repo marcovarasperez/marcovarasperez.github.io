@@ -15,51 +15,65 @@ var AIDialog = AIDialog || {};
 
     AIDialog.ask = function (playerMsg, npcname, interpreter) {
         interpreter.setWaitMode('ai_dialog');
+
         var payload = {
             player_message: playerMsg,
             npcName: npcname
         };
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://79.72.55.106:5678/webhook/npc-dialog', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
+        // Pequeño delay para asegurar que el intérprete está listo
+        // antes de lanzar la petición (crítico en móvil)
+        setTimeout(function() {
 
-        xhr.onload = function () {
-            if (xhr.status === 200) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://79.72.55.106:5678/webhook/npc-dialog', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
 
-                if (!xhr.responseText) {
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+
+                    if (!xhr.responseText) {
+                        interpreter.setWaitMode('');
+                        return;
+                    }
+
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                    } catch (e) {
+                        console.log("Error parseando JSON:", e);
+                        console.log("Respuesta recibida:", xhr.responseText);
+                        interpreter.setWaitMode('');
+                        return;
+                    }
+
+                    if (data.dialog) {
+                        $gameMessage.add(data.dialog);
+                    }
+
+                    if (data.estado === "correcto") {
+                        $gameVariables.setValue(4, 0);
+                    }
+
+                    if (data.estado === "incorrecto") {
+                        $gameVariables.setValue(4, 1);
+                    }
+                }
+
+                // Liberar el wait mode después de procesar
+                // Usamos setTimeout para asegurar que $gameMessage
+                // se ha procesado antes de continuar (crítico en móvil)
+                setTimeout(function() {
                     interpreter.setWaitMode('');
-                    return;
-                }
+                }, 50);
+            };
 
-                try {
-                    var data = JSON.parse(xhr.responseText);
-                } catch (e) {
-                    console.log("Error parseando JSON:", e);
-                    console.log("Respuesta recibida:", xhr.responseText);
-                    interpreter.setWaitMode('');
-                    return;
-                }
+            xhr.onerror = function () {
+                interpreter.setWaitMode('');
+            };
 
-                $gameMessage.add(data.dialog);
+            xhr.send(JSON.stringify(payload));
 
-                if (data.estado === "correcto") {
-                    $gameVariables.setValue(4, 0);
-                }
-
-                if (data.estado === "incorrecto") {
-                    $gameVariables.setValue(4, 1);
-                }
-            }
-
-            interpreter.setWaitMode('');
-        };
-
-        xhr.onerror = function () {
-            interpreter.setWaitMode('');
-        };
-
-        xhr.send(JSON.stringify(payload));
+        }, 100);
     };
 
     var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
