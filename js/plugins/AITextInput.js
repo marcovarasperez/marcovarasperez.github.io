@@ -12,14 +12,14 @@ var AITextInput = AITextInput || {};
 
         // 2. LA CAJA: Contenedor del teclado
         var box = document.createElement('div');
-        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:16px;width:95%;max-width:500px;box-sizing:border-box;';
+        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:8px;width:95%;max-width:500px;box-sizing:border-box;';
 
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
-        title.style.cssText = 'color:#e0c97f;font-size:12px;margin:0 0 10px 0;text-align:center;';
+        title.style.cssText = 'color:#e0c97f;font-size:10px;margin:0 0 10px 0;text-align:center;';
 
         var screen = document.createElement('div');
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:8px;min-height:15px;color:#ffffff;font-size:12px;margin-bottom:8px;word-break:break-all;pointer-events:none;';
+        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:8px;min-height:15px;color:#ffffff;font-size:10px;margin-bottom:8px;word-break:break-all;pointer-events:none;';
 
         var text = '';
         function updateScreen() { screen.textContent = text || ''; }
@@ -49,7 +49,7 @@ var AITextInput = AITextInput || {};
             ['ESPACIO','CONFIRMAR']
         ];
 
-        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:12px 4px;font-size:14px;cursor:pointer;flex:1;margin:2px;min-width:28px;touch-action:manipulation;';
+        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:4px 2px;font-size:10px;cursor:pointer;flex:1;margin:2px;min-width:20px;touch-action:manipulation;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
@@ -61,7 +61,7 @@ var AITextInput = AITextInput || {};
                 
                 // Estilos visuales
                 if (key === 'CONFIRMAR') {
-                    btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:12px 16px;font-size:14px;cursor:pointer;font-weight:bold;margin:2px;flex:2;';
+                    btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:4px 6px;font-size:8px;cursor:pointer;font-weight:bold;margin:2px;flex:2;';
                 } else if (key === 'ESPACIO') {
                     btn.style.cssText = btnStyle + 'flex:3;';
                 } else if (key === '⌫') {
