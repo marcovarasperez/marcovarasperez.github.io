@@ -2,6 +2,21 @@ var AITextInput = AITextInput || {};
 
 (function() {
 
+    // Detectar si es móvil
+    var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    function addTapHandler(btn, fn) {
+        if (isMobile) {
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fn();
+            }, { passive: false });
+        } else {
+            btn.onclick = fn;
+        }
+    }
+
     AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
@@ -28,7 +43,6 @@ var AITextInput = AITextInput || {};
 
         function onConfirm() {
             if (text.trim() === '') return;
-            // Guardar en variable 2 correctamente
             $gameVariables.setValue(2, text.trim());
             document.body.removeChild(overlay);
             interpreter.setWaitMode('');
@@ -54,17 +68,17 @@ var AITextInput = AITextInput || {};
 
                 if (key === 'CONFIRMAR') {
                     btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:8px 12px;font-size:12px;font-weight:bold;cursor:pointer;margin:1px;flex:2;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;';
-                    btn.onclick = onConfirm;
+                    addTapHandler(btn, onConfirm);
                 } else if (key === 'ESPACIO') {
                     btn.style.cssText = base + 'flex:3;';
-                    btn.onclick = function() { if (text.length < 80) { text += ' '; updateScreen(); } };
+                    addTapHandler(btn, function() { if (text.length < 80) { text += ' '; updateScreen(); } });
                 } else if (key === '⌫') {
                     btn.style.cssText = base + 'flex:1.5;';
-                    btn.onclick = function() { text = text.slice(0, -1); updateScreen(); };
+                    addTapHandler(btn, function() { text = text.slice(0, -1); updateScreen(); });
                 } else {
                     btn.style.cssText = base;
                     var k = key;
-                    btn.onclick = function() { if (text.length < 80) { text += k.toLowerCase(); updateScreen(); } };
+                    addTapHandler(btn, function() { if (text.length < 80) { text += k.toLowerCase(); updateScreen(); } });
                 }
 
                 rowDiv.appendChild(btn);
@@ -84,6 +98,11 @@ var AITextInput = AITextInput || {};
             else if (e.key === 'Backspace') { text = text.slice(0, -1); updateScreen(); }
             else if (e.key.length === 1 && text.length < 80) { text += e.key; updateScreen(); }
         });
+
+        // Evitar que toques en el overlay pasen al juego
+        overlay.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
 
         box.insertBefore(screen, box.firstChild);
         box.insertBefore(title, box.firstChild);
