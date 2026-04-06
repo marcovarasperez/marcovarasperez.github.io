@@ -1,11 +1,6 @@
-var AITextInput = AITextInput || {};
-
-(function() {
-
-    AITextInput.showInput = function(interpreter) {
+AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
-        // Limpieza previa por si acaso
         var existing = document.getElementById('ai-input-overlay');
         if (existing) document.body.removeChild(existing);
 
@@ -13,28 +8,28 @@ var AITextInput = AITextInput || {};
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
         
-        // ESTILOS CRÍTICOS PARA MÓVIL
         overlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.85);
             z-index: 20000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             touch-action: none;
-            -webkit-user-select: none;
         `;
 
         var box = document.createElement('div');
-        box.style.cssText = 'background:#1a1a2e; border:2px solid #e0c97f; border-radius:8px; padding:10px; width:95%; max-width:400px; box-sizing:border-box;';
+        // Reducido max-width de 400 a 340px para que sea más pequeño
+        box.style.cssText = 'background:#1a1a2e; border:2px solid #e0c97f; border-radius:8px; padding:8px; width:90%; max-width:340px; box-sizing:border-box;';
 
         var screen = document.createElement('div');
-        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:8px; min-height:35px; color:#fff; font-size:16px; margin-bottom:10px; word-break:break-all; text-align:center;';
+        // Padding reducido para ahorrar espacio
+        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:5px; min-height:30px; color:#fff; font-size:14px; margin-bottom:8px; word-break:break-all; text-align:center; font-family:monospace;';
         
         function updateScreen() { screen.textContent = text; }
 
@@ -45,9 +40,7 @@ var AITextInput = AITextInput || {};
             interpreter.setWaitMode('');
         }
 
-        // GESTOR DE EVENTOS PARA MÓVIL (Sustituye al click)
         function bind(btn, fn) {
-            // Usamos pointerdown que es el estándar moderno para móvil y PC
             btn.addEventListener('pointerdown', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -63,12 +56,13 @@ var AITextInput = AITextInput || {};
             ['ESPACIO','CONFIRMAR']
         ];
 
-        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:4px; padding:12px 2px; font-size:14px; font-weight:bold; flex:1; margin:2px; touch-action:manipulation;';
+        // Reducido padding de 12px a 8px y fuente a 13px
+        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:4px; padding:8px 1px; font-size:13px; font-weight:bold; flex:1; margin:1px; touch-action:manipulation; user-select:none;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
             rowDiv.style.display = 'flex';
-            rowDiv.style.marginBottom = '4px';
+            rowDiv.style.marginBottom = '2px';
 
             row.forEach(function(key) {
                 var btn = document.createElement('button');
@@ -78,7 +72,8 @@ var AITextInput = AITextInput || {};
                 if (key === 'CONFIRMAR') {
                     btn.style.background = '#e0c97f';
                     btn.style.color = '#1a1a2e';
-                    btn.style.flex = '2';
+                    btn.style.flex = '2.5';
+                    btn.style.fontSize = '11px'; // Un poco más pequeña para que quepa la palabra
                     bind(btn, onConfirm);
                 } else if (key === 'ESPACIO') {
                     btn.style.flex = '3';
@@ -96,29 +91,5 @@ var AITextInput = AITextInput || {};
 
         box.insertBefore(screen, box.firstChild);
         overlay.appendChild(box);
-        
-        // AGREGAR AL FINAL DEL BODY
         document.body.appendChild(overlay);
     };
-
-    // Registro del comando
-    var _pluginCommand = Game_Interpreter.prototype.pluginCommand;
-    Game_Interpreter.prototype.pluginCommand = function(command, args) {
-        _pluginCommand.call(this, command, args);
-        if (command === 'TEXTINPUT') AITextInput.showInput(this);
-    };
-
-    // Manejo del Wait
-    var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
-    Game_Interpreter.prototype.updateWaitMode = function() {
-        if (this._waitMode === 'ai_input') {
-            if (!document.getElementById('ai-input-overlay')) {
-                this._waitMode = '';
-                return false;
-            }
-            return true;
-        }
-        return _updateWaitMode.call(this);
-    };
-
-})();
