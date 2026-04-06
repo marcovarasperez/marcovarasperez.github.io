@@ -250,4 +250,5 @@ var AITextInput = AITextInput || {};
         }
         return _updateWaitMode.call(this);
     };
+
 }());

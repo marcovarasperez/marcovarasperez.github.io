@@ -16,13 +16,15 @@ var AIDialog = AIDialog || {};
     AIDialog.ask = function (playerMsg, npcname, interpreter) {
         interpreter.setWaitMode('ai_dialog');
 
+        // Neutralizar TouchInput mientras esperamos respuesta del webhook
+        AIDialog._origTouchUpdate = TouchInput.update;
+        TouchInput.update = function() {};
+
         var payload = {
             player_message: playerMsg,
             npcName: npcname
         };
 
-        // Pequeño delay para asegurar que el intérprete está listo
-        // antes de lanzar la petición (crítico en móvil)
         setTimeout(function() {
 
             var xhr = new XMLHttpRequest();
@@ -33,6 +35,7 @@ var AIDialog = AIDialog || {};
                 if (xhr.status === 200) {
 
                     if (!xhr.responseText) {
+                        AIDialog._restoreTouchInput();
                         interpreter.setWaitMode('');
                         return;
                     }
@@ -42,6 +45,7 @@ var AIDialog = AIDialog || {};
                     } catch (e) {
                         console.log("Error parseando JSON:", e);
                         console.log("Respuesta recibida:", xhr.responseText);
+                        AIDialog._restoreTouchInput();
                         interpreter.setWaitMode('');
                         return;
                     }
@@ -59,21 +63,27 @@ var AIDialog = AIDialog || {};
                     }
                 }
 
-                // Liberar el wait mode después de procesar
-                // Usamos setTimeout para asegurar que $gameMessage
-                // se ha procesado antes de continuar (crítico en móvil)
                 setTimeout(function() {
+                    AIDialog._restoreTouchInput();
                     interpreter.setWaitMode('');
                 }, 50);
             };
 
             xhr.onerror = function () {
+                AIDialog._restoreTouchInput();
                 interpreter.setWaitMode('');
             };
 
             xhr.send(JSON.stringify(payload));
 
         }, 100);
+    };
+
+    AIDialog._restoreTouchInput = function() {
+        if (AIDialog._origTouchUpdate) {
+            TouchInput.update = AIDialog._origTouchUpdate;
+            AIDialog._origTouchUpdate = null;
+        }
     };
 
     var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
