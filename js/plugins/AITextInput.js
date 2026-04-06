@@ -12,20 +12,23 @@ var AITextInput = AITextInput || {};
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;align-items:center;justify-content:center;touch-action:none;';
 
         var box = document.createElement('div');
-        // Mantenemos el ancho compacto al 85% en móvil
-        var boxWidth = isMobile ? '85vw' : '360px'; 
-        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:8px;width:' + boxWidth + ';max-width:420px;box-sizing:border-box;';
+        // --- CAMBIO: Más ancho (95% del ancho de pantalla) ---
+        var boxWidth = isMobile ? '95vw' : '400px'; 
+        // --- CAMBIO: Menos padding (4px) para reducir altura total ---
+        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:4px;width:' + boxWidth + ';max-width:450px;box-sizing:border-box;';
 
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
-        title.style.cssText = 'color:#e0c97f;font-size:10px;margin:0 0 5px 0;text-align:center;text-transform:uppercase;';
+        // --- CAMBIO: Margen mínimo para ahorrar espacio ---
+        title.style.cssText = 'color:#e0c97f;font-size:10px;margin:2px 0;text-align:center;text-transform:uppercase;';
 
         var screen = document.createElement('input');
         screen.type = 'text';
         screen.readOnly = true;
         screen.setAttribute('autocorrect', 'off');
         screen.setAttribute('spellcheck', 'false');
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:4px;padding:4px;height:26px;width:100%;color:#ffffff;font-size:12px;margin-bottom:8px;box-sizing:border-box;text-align:center;';
+        // --- CAMBIO: Altura muy reducida (20px) ---
+        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:4px;padding:2px;height:20px;width:100%;color:#ffffff;font-size:11px;margin-bottom:4px;box-sizing:border-box;text-align:center;';
 
         var text = '';
         function updateScreen() { screen.value = text || ''; }
@@ -46,19 +49,19 @@ var AITextInput = AITextInput || {};
         }
         document.addEventListener('keydown', onKeyDown);
 
-        // FILAS ACTUALIZADAS (Añadido el punto y coma ';')
         var rows = [
             ['1','2','3','4','5','6','7','8','9','0'],
             ['Q','W','E','R','T','Y','U','I','O','P'],
             ['A','S','D','F','G','H','J','K','L','Ñ'],
-            ['Z','X','C','V','B','N','M',',','.',';'], // Fila de puntuación 1
-            ['¿','?','¡','!','-',':','ESPACIO','⌫'],     // Fila de puntuación 2
+            ['Z','X','C','V','B','N','M',',','.',';'],
+            ['¿','?','¡','!','-',':','ESPACIO','⌫'],
             ['CONFIRMAR']
         ];
 
-        var btnPadding = isMobile ? '4px 0' : '8px 0';
-        var btnFontSize = isMobile ? '10px' : '13px';
-        var btnHeight = isMobile ? '28px' : '36px';
+        // --- CAMBIO: Altura de botón reducida a 24px en móvil ---
+        var btnPadding = isMobile ? '2px 0' : '6px 0';
+        var btnFontSize = isMobile ? '10px' : '12px';
+        var btnHeight = isMobile ? '24px' : '32px';
 
         var btnBase = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:' + btnPadding + ';font-size:' + btnFontSize + ';height:' + btnHeight + ';cursor:pointer;flex:1;margin:1px;box-sizing:border-box;touch-action:manipulation;';
 
@@ -71,7 +74,8 @@ var AITextInput = AITextInput || {};
                 btn.textContent = key;
                 
                 if (key === 'CONFIRMAR') {
-                    btn.style.cssText = btnBase + 'background:#e0c97f;color:#1a1a2e;font-weight:bold;width:100%;flex:none;margin-top:4px;';
+                    // --- CAMBIO: Altura reducida también para confirmar ---
+                    btn.style.cssText = btnBase + 'background:#e0c97f;color:#1a1a2e;font-weight:bold;width:100%;flex:none;margin-top:2px;height:26px;';
                 } else if (key === 'ESPACIO') {
                     btn.style.cssText = btnBase + 'flex:2.2;';
                 } else if (key === '⌫') {
@@ -90,7 +94,6 @@ var AITextInput = AITextInput || {};
                     } else if (key === '⌫') {
                         text = text.slice(0, -1); updateScreen();
                     } else {
-                        // Letras a minúscula, símbolos se mantienen
                         var char = (key.length === 1 && /[A-ZÑ]/.test(key)) ? key.toLowerCase() : key;
                         if (text.length < 60) { text += char; updateScreen(); }
                     }
