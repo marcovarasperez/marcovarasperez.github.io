@@ -1,33 +1,34 @@
 AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
-        var existing = document.getElementById('ai-input-overlay');
-        if (existing) document.body.removeChild(existing);
+        var old = document.getElementById('ai-input-overlay');
+        if (old) document.body.removeChild(old);
 
         var text = '';
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
         
+        // Estilo fijo abajo para evitar que desaparezca
         overlay.style.cssText = `
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.7);
+            bottom: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
             z-index: 20000;
             display: flex;
-            align-items: flex-end; /* Lo pega a la parte inferior */
-            justify-content: center;
-            padding-bottom: 10px; /* Margen con el borde inferior */
+            flex-direction: column;
+            justify-content: flex-end; /* Empuja el teclado al borde inferior */
+            align-items: center;
+            padding-bottom: 5px;
             touch-action: none;
         `;
 
         var box = document.createElement('div');
-        // Reducimos el padding interno del cuadro a solo 5px
-        box.style.cssText = 'background:#1a1a2e; border:1px solid #e0c97f; border-radius:6px; padding:5px; width:95%; max-width:350px; box-sizing:border-box;';
+        // Reducimos padding y márgenes al mínimo
+        box.style.cssText = 'background:#1a1a2e; border:1px solid #e0c97f; border-radius:4px; padding:4px; width:98%; max-width:350px; box-sizing:border-box;';
 
         var screen = document.createElement('div');
-        // Altura mínima para la pantalla de texto
-        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:4px; min-height:24px; color:#fff; font-size:13px; margin-bottom:5px; word-break:break-all; text-align:center; font-family:monospace;';
+        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:3px; padding:4px; min-height:22px; color:#fff; font-size:13px; margin-bottom:4px; word-break:break-all; text-align:center; font-family:monospace;';
         
         function updateScreen() { screen.textContent = text; }
 
@@ -38,6 +39,7 @@ AITextInput.showInput = function(interpreter) {
             interpreter.setWaitMode('');
         }
 
+        // Función de click/toque mejorada
         function bind(btn, fn) {
             btn.addEventListener('pointerdown', function(e) {
                 e.preventDefault();
@@ -54,13 +56,13 @@ AITextInput.showInput = function(interpreter) {
             ['ESPACIO','CONFIRMAR']
         ];
 
-        // Padding vertical de 6px (muy plano) y margen de 1px
-        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:3px; padding:6px 0; font-size:12px; font-weight:bold; flex:1; margin:1px; touch-action:manipulation; user-select:none;';
+        // Botones más bajos (padding: 5px)
+        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:2px; padding:5px 0; font-size:12px; font-weight:bold; flex:1; margin:1px; touch-action:manipulation; user-select:none; -webkit-user-select:none;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
             rowDiv.style.display = 'flex';
-            rowDiv.style.marginBottom = '1px'; // Espacio mínimo entre filas
+            rowDiv.style.width = '100%';
 
             row.forEach(function(key) {
                 var btn = document.createElement('button');
