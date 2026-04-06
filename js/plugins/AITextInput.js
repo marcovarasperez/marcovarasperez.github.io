@@ -5,26 +5,31 @@ var AITextInput = AITextInput || {};
     AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
-        // 1. EL FONDO: Ahora con 'pointer-events: auto' para que deje pasar clics a sus hijos
+        // Detectar si es móvil (pantalla menor a 768px)
+        var isMobile = window.innerWidth < 768;
+        var scale = isMobile ? '0.8' : '1'; // Factor de escala para fuentes
+
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;';
 
-        // 2. LA CAJA: Contenedor del teclado
         var box = document.createElement('div');
-        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:8px;width:95%;max-width:500px;box-sizing:border-box;';
+        // CAMBIO CLAVE: Aquí aplicamos el 80% de ancho en móvil
+        var boxWidth = isMobile ? '80%' : '95%';
+        var boxMaxWidth = isMobile ? '320px' : '500px';
+        
+        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:' + (isMobile ? '8px' : '16px') + ';width:' + boxWidth + ';max-width:' + boxMaxWidth + ';box-sizing:border-box;';
 
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
-        title.style.cssText = 'color:#e0c97f;font-size:10px;margin:0 0 10px 0;text-align:center;';
+        title.style.cssText = 'color:#e0c97f;font-size:' + (isMobile ? '10px' : '12px') + ';margin:0 0 5px 0;text-align:center;';
 
         var screen = document.createElement('div');
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:8px;min-height:15px;color:#ffffff;font-size:10px;margin-bottom:8px;word-break:break-all;pointer-events:none;';
+        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:6px;min-height:' + (isMobile ? '10px' : '15px') + ';color:#ffffff;font-size:' + (isMobile ? '10px' : '12px') + ';margin-bottom:6px;word-break:break-all;pointer-events:none;';
 
         var text = '';
         function updateScreen() { screen.textContent = text || ''; }
 
-        // Manejo de teclado físico corregido
         function onKeyDown(e) {
             if (e.key === 'Enter') confirm();
             else if (e.key === 'Backspace') { text = text.slice(0, -1); updateScreen(); }
@@ -49,19 +54,21 @@ var AITextInput = AITextInput || {};
             ['ESPACIO','CONFIRMAR']
         ];
 
-        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:4px 2px;font-size:10px;cursor:pointer;flex:1;margin:2px;min-width:20px;touch-action:manipulation;';
+        // Estilo de botones adaptativo
+        var btnPadding = isMobile ? '6px 2px' : '12px 4px';
+        var btnFontSize = isMobile ? '10px' : '14px';
+        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:' + btnPadding + ';font-size:' + btnFontSize + ';cursor:pointer;flex:1;margin:1px;min-width:20px;touch-action:manipulation;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
-            rowDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:4px;';
+            rowDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:' + (isMobile ? '2px' : '4px') + ';';
 
             row.forEach(function(key) {
                 var btn = document.createElement('button');
                 btn.textContent = key;
                 
-                // Estilos visuales
                 if (key === 'CONFIRMAR') {
-                    btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:4px 6px;font-size:8px;cursor:pointer;font-weight:bold;margin:2px;flex:2;';
+                    btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:' + btnPadding + ';font-size:' + btnFontSize + ';cursor:pointer;font-weight:bold;margin:1px;flex:2;';
                 } else if (key === 'ESPACIO') {
                     btn.style.cssText = btnStyle + 'flex:3;';
                 } else if (key === '⌫') {
@@ -70,20 +77,13 @@ var AITextInput = AITextInput || {};
                     btn.style.cssText = btnStyle;
                 }
 
-                // FUNCIÓN DE PULSACIÓN: Usamos 'pointerdown' que cubre ratón y táctil
                 btn.addEventListener('pointerdown', function(e) {
-                    e.preventDefault();   // Evita que el juego reciba el clic
-                    e.stopPropagation();  // Evita que otros plugins lo detecten
-                    
-                    if (key === 'CONFIRMAR') {
-                        confirm();
-                    } else if (key === 'ESPACIO') {
-                        if (text.length < 80) { text += ' '; updateScreen(); }
-                    } else if (key === '⌫') {
-                        text = text.slice(0, -1); updateScreen();
-                    } else {
-                        if (text.length < 80) { text += key.toLowerCase(); updateScreen(); }
-                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (key === 'CONFIRMAR') confirm();
+                    else if (key === 'ESPACIO') { if (text.length < 80) { text += ' '; updateScreen(); } }
+                    else if (key === '⌫') { text = text.slice(0, -1); updateScreen(); }
+                    else { if (text.length < 80) { text += key.toLowerCase(); updateScreen(); } }
                 });
 
                 rowDiv.appendChild(btn);
@@ -96,12 +96,8 @@ var AITextInput = AITextInput || {};
         overlay.appendChild(box);
         document.body.appendChild(overlay);
 
-        // Bloquear toques que salgan del área del teclado
         overlay.addEventListener('pointerdown', function(e) {
-            if (e.target === overlay) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            if (e.target === overlay) { e.preventDefault(); e.stopPropagation(); }
         });
     };
 
