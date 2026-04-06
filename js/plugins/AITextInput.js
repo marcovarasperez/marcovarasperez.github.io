@@ -9,26 +9,26 @@ var AITextInput = AITextInput || {};
 
         var overlay = document.createElement('div');
         overlay.id = 'ai-input-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;align-items:center;justify-content:center;touch-action:none;';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100000;display:flex;align-items:center;justify-content:center;touch-action:none;';
 
         var box = document.createElement('div');
-        // --- CAMBIO: Más ancho (95% del ancho de pantalla) ---
-        var boxWidth = isMobile ? '95vw' : '400px'; 
-        // --- CAMBIO: Menos padding (4px) para reducir altura total ---
-        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:4px;width:' + boxWidth + ';max-width:450px;box-sizing:border-box;';
+        // MAXIMO ANCHO: 98% de la pantalla en móvil
+        var boxWidth = isMobile ? '98vw' : '450px'; 
+        // MINIMO ALTO: Padding de solo 2px
+        box.style.cssText = 'background:#1a1a2e;border:1px solid #e0c97f;border-radius:4px;padding:2px;width:' + boxWidth + ';max-width:500px;box-sizing:border-box;';
 
         var title = document.createElement('p');
         title.textContent = '¿Qué le dices?';
-        // --- CAMBIO: Margen mínimo para ahorrar espacio ---
-        title.style.cssText = 'color:#e0c97f;font-size:10px;margin:2px 0;text-align:center;text-transform:uppercase;';
+        // Título casi pegado
+        title.style.cssText = 'color:#e0c97f;font-size:9px;margin:1px 0;text-align:center;text-transform:uppercase;opacity:0.8;';
 
         var screen = document.createElement('input');
         screen.type = 'text';
         screen.readOnly = true;
         screen.setAttribute('autocorrect', 'off');
         screen.setAttribute('spellcheck', 'false');
-        // --- CAMBIO: Altura muy reducida (20px) ---
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:4px;padding:2px;height:20px;width:100%;color:#ffffff;font-size:11px;margin-bottom:4px;box-sizing:border-box;text-align:center;';
+        // Pantalla ultra-chata: 18px de alto
+        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:2px;padding:0 4px;height:18px;width:100%;color:#ffffff;font-size:11px;margin-bottom:2px;box-sizing:border-box;text-align:center;';
 
         var text = '';
         function updateScreen() { screen.value = text || ''; }
@@ -58,12 +58,11 @@ var AITextInput = AITextInput || {};
             ['CONFIRMAR']
         ];
 
-        // --- CAMBIO: Altura de botón reducida a 24px en móvil ---
-        var btnPadding = isMobile ? '2px 0' : '6px 0';
-        var btnFontSize = isMobile ? '10px' : '12px';
-        var btnHeight = isMobile ? '24px' : '32px';
+        // BOTONES ULTRA-CHATOS: 20px de altura en móvil
+        var btnFontSize = isMobile ? '9px' : '11px';
+        var btnHeight = isMobile ? '20px' : '28px';
 
-        var btnBase = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:' + btnPadding + ';font-size:' + btnFontSize + ';height:' + btnHeight + ';cursor:pointer;flex:1;margin:1px;box-sizing:border-box;touch-action:manipulation;';
+        var btnBase = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:2px;padding:0;font-size:' + btnFontSize + ';height:' + btnHeight + ';cursor:pointer;flex:1;margin:0.5px;box-sizing:border-box;touch-action:manipulation;line-height:1;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
@@ -74,10 +73,10 @@ var AITextInput = AITextInput || {};
                 btn.textContent = key;
                 
                 if (key === 'CONFIRMAR') {
-                    // --- CAMBIO: Altura reducida también para confirmar ---
-                    btn.style.cssText = btnBase + 'background:#e0c97f;color:#1a1a2e;font-weight:bold;width:100%;flex:none;margin-top:2px;height:26px;';
+                    // Confirmar más bajo también para mantener el estilo
+                    btn.style.cssText = btnBase + 'background:#e0c97f;color:#1a1a2e;font-weight:bold;width:100%;flex:none;margin-top:1px;height:22px;';
                 } else if (key === 'ESPACIO') {
-                    btn.style.cssText = btnBase + 'flex:2.2;';
+                    btn.style.cssText = btnBase + 'flex:2.5;';
                 } else if (key === '⌫') {
                     btn.style.cssText = btnBase + 'flex:1.2; background:#4e2a2a;'; 
                 } else {
