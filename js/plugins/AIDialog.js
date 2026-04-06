@@ -28,7 +28,7 @@ var AIDialog = AIDialog || {};
         setTimeout(function() {
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://79.72.55.106:5678/webhook/npc-dialog', true);
+            xhr.open('POST', 'https://marcovarasperez.duckdns.org/webhook/npc-dialog', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
 
             xhr.onload = function () {
