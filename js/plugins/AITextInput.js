@@ -5,59 +5,54 @@ var AITextInput = AITextInput || {};
     AITextInput.showInput = function(interpreter) {
         interpreter.setWaitMode('ai_input');
 
-        var overlay = document.createElement('div');
-        overlay.id = 'ai-input-overlay';
-        // Añadido 'touch-action: none' para evitar scroll accidental
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;';
-
-        var box = document.createElement('div');
-        box.style.cssText = 'background:#1a1a2e;border:2px solid #e0c97f;border-radius:8px;padding:12px;width:95%;max-width:450px;box-sizing:border-box;';
-
-        var title = document.createElement('p');
-        title.textContent = '¿Qué le dices?';
-        title.style.cssText = 'color:#e0c97f;font-size:16px;margin:0 0 8px 0;text-align:center;font-family:sans-serif;';
-
-        var screen = document.createElement('div');
-        screen.style.cssText = 'background:#0f0f1a;border:1px solid #e0c97f;border-radius:4px;padding:10px;min-height:40px;color:#ffffff;font-size:16px;margin-bottom:12px;word-break:break-all;font-family:monospace;';
+        // Limpieza previa por si acaso
+        var existing = document.getElementById('ai-input-overlay');
+        if (existing) document.body.removeChild(existing);
 
         var text = '';
+        var overlay = document.createElement('div');
+        overlay.id = 'ai-input-overlay';
+        
+        // ESTILOS CRÍTICOS PARA MÓVIL
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            -webkit-user-select: none;
+        `;
 
-        function updateScreen() {
-            screen.textContent = text || '';
+        var box = document.createElement('div');
+        box.style.cssText = 'background:#1a1a2e; border:2px solid #e0c97f; border-radius:8px; padding:10px; width:95%; max-width:400px; box-sizing:border-box;';
+
+        var screen = document.createElement('div');
+        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:8px; min-height:35px; color:#fff; font-size:16px; margin-bottom:10px; word-break:break-all; text-align:center;';
+        
+        function updateScreen() { screen.textContent = text; }
+
+        function onConfirm() {
+            if (text.trim() === '') return;
+            $gameVariables.setValue(2, text.trim());
+            document.body.removeChild(overlay);
+            interpreter.setWaitMode('');
         }
 
-        // Función para asignar eventos táctiles/click sin lag
-        function bindButton(btn, action) {
+        // GESTOR DE EVENTOS PARA MÓVIL (Sustituye al click)
+        function bind(btn, fn) {
+            // Usamos pointerdown que es el estándar moderno para móvil y PC
             btn.addEventListener('pointerdown', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                action();
-            });
-        }
-
-        function onKeyDown(e) {
-            if (e.key === 'Enter') {
-                confirm();
-            } else if (e.key === 'Backspace') {
-                text = text.slice(0, -1);
-                updateScreen();
-            } else if (e.key.length === 1 && text.length < 80) {
-                text += e.key;
-                updateScreen();
-            }
-            e.stopPropagation();
-        }
-
-        document.addEventListener('keydown', onKeyDown);
-
-        function confirm() {
-            if (text.trim() === '') return;
-            $gameVariables.setValue(2, text.trim());
-            document.removeEventListener('keydown', onKeyDown);
-            if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
-            }
-            interpreter.setWaitMode('');
+                fn();
+            }, { passive: false });
         }
 
         var rows = [
@@ -68,74 +63,55 @@ var AITextInput = AITextInput || {};
             ['ESPACIO','CONFIRMAR']
         ];
 
-        // Estilo base con touch-action para móviles
-        var btnStyle = 'background:#2a2a4e;color:#e0c97f;border:1px solid #e0c97f;border-radius:4px;padding:10px 2px;font-size:14px;cursor:pointer;flex:1;margin:2px;min-width:28px;touch-action:manipulation;user-select:none;-webkit-user-select:none;';
+        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:4px; padding:12px 2px; font-size:14px; font-weight:bold; flex:1; margin:2px; touch-action:manipulation;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
-            rowDiv.style.cssText = 'display:flex;justify-content:center;margin-bottom:4px;';
+            rowDiv.style.display = 'flex';
+            rowDiv.style.marginBottom = '4px';
 
             row.forEach(function(key) {
                 var btn = document.createElement('button');
                 btn.textContent = key;
+                btn.style.cssText = btnBase;
 
                 if (key === 'CONFIRMAR') {
-                    btn.style.cssText = 'background:#e0c97f;color:#1a1a2e;border:none;border-radius:4px;padding:10px 16px;font-size:14px;cursor:pointer;font-weight:bold;margin:2px;flex:2;touch-action:manipulation;';
-                    bindButton(btn, confirm);
+                    btn.style.background = '#e0c97f';
+                    btn.style.color = '#1a1a2e';
+                    btn.style.flex = '2';
+                    bind(btn, onConfirm);
                 } else if (key === 'ESPACIO') {
-                    btn.style.cssText = btnStyle + 'flex:3;';
-                    bindButton(btn, function() {
-                        if (text.length < 80) {
-                            text += ' ';
-                            updateScreen();
-                        }
-                    });
+                    btn.style.flex = '3';
+                    bind(btn, function() { if(text.length < 50) { text += ' '; updateScreen(); }});
                 } else if (key === '⌫') {
-                    btn.style.cssText = btnStyle + 'flex:1.5;';
-                    bindButton(btn, function() {
-                        text = text.slice(0, -1);
-                        updateScreen();
-                    });
+                    btn.style.flex = '1.5';
+                    bind(btn, function() { text = text.slice(0,-1); updateScreen(); });
                 } else {
-                    btn.style.cssText = btnStyle;
-                    bindButton(btn, function() {
-                        if (text.length < 80) {
-                            text += key.toLowerCase();
-                            updateScreen();
-                        }
-                    });
+                    bind(btn, function() { if(text.length < 50) { text += key.toLowerCase(); updateScreen(); }});
                 }
                 rowDiv.appendChild(btn);
             });
             box.appendChild(rowDiv);
         });
 
-        // Evitar que el toque cierre el teclado si se pulsa fuera de los botones
-        overlay.addEventListener('pointerdown', function(e) {
-            if (e.target === overlay) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
-        });
-
         box.insertBefore(screen, box.firstChild);
-        box.insertBefore(title, box.firstChild);
         overlay.appendChild(box);
+        
+        // AGREGAR AL FINAL DEL BODY
         document.body.appendChild(overlay);
     };
 
-    var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+    // Registro del comando
+    var _pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
-        _Game_Interpreter_pluginCommand.call(this, command, args);
-        if (command === 'TEXTINPUT') {
-            AITextInput.showInput(this);
-        }
+        _pluginCommand.call(this, command, args);
+        if (command === 'TEXTINPUT') AITextInput.showInput(this);
     };
 
+    // Manejo del Wait
     var _updateWaitMode = Game_Interpreter.prototype.updateWaitMode;
     Game_Interpreter.prototype.updateWaitMode = function() {
         if (this._waitMode === 'ai_input') {
-            // Si el overlay ya no existe, liberar el wait mode
             if (!document.getElementById('ai-input-overlay')) {
                 this._waitMode = '';
                 return false;
@@ -145,4 +121,4 @@ var AITextInput = AITextInput || {};
         return _updateWaitMode.call(this);
     };
 
-}());
+})();
