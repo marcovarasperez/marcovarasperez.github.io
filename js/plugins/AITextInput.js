@@ -10,26 +10,24 @@ AITextInput.showInput = function(interpreter) {
         
         overlay.style.cssText = `
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.85);
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.7);
             z-index: 20000;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-end; /* Lo pega a la parte inferior */
             justify-content: center;
+            padding-bottom: 10px; /* Margen con el borde inferior */
             touch-action: none;
         `;
 
         var box = document.createElement('div');
-        // Reducido max-width de 400 a 340px para que sea más pequeño
-        box.style.cssText = 'background:#1a1a2e; border:2px solid #e0c97f; border-radius:8px; padding:8px; width:90%; max-width:340px; box-sizing:border-box;';
+        // Reducimos el padding interno del cuadro a solo 5px
+        box.style.cssText = 'background:#1a1a2e; border:1px solid #e0c97f; border-radius:6px; padding:5px; width:95%; max-width:350px; box-sizing:border-box;';
 
         var screen = document.createElement('div');
-        // Padding reducido para ahorrar espacio
-        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:5px; min-height:30px; color:#fff; font-size:14px; margin-bottom:8px; word-break:break-all; text-align:center; font-family:monospace;';
+        // Altura mínima para la pantalla de texto
+        screen.style.cssText = 'background:#000; border:1px solid #e0c97f; border-radius:4px; padding:4px; min-height:24px; color:#fff; font-size:13px; margin-bottom:5px; word-break:break-all; text-align:center; font-family:monospace;';
         
         function updateScreen() { screen.textContent = text; }
 
@@ -56,13 +54,13 @@ AITextInput.showInput = function(interpreter) {
             ['ESPACIO','CONFIRMAR']
         ];
 
-        // Reducido padding de 12px a 8px y fuente a 13px
-        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:4px; padding:8px 1px; font-size:13px; font-weight:bold; flex:1; margin:1px; touch-action:manipulation; user-select:none;';
+        // Padding vertical de 6px (muy plano) y margen de 1px
+        var btnBase = 'background:#2a2a4e; color:#e0c97f; border:1px solid #e0c97f; border-radius:3px; padding:6px 0; font-size:12px; font-weight:bold; flex:1; margin:1px; touch-action:manipulation; user-select:none;';
 
         rows.forEach(function(row) {
             var rowDiv = document.createElement('div');
             rowDiv.style.display = 'flex';
-            rowDiv.style.marginBottom = '2px';
+            rowDiv.style.marginBottom = '1px'; // Espacio mínimo entre filas
 
             row.forEach(function(key) {
                 var btn = document.createElement('button');
@@ -72,14 +70,14 @@ AITextInput.showInput = function(interpreter) {
                 if (key === 'CONFIRMAR') {
                     btn.style.background = '#e0c97f';
                     btn.style.color = '#1a1a2e';
-                    btn.style.flex = '2.5';
-                    btn.style.fontSize = '11px'; // Un poco más pequeña para que quepa la palabra
+                    btn.style.flex = '2';
+                    btn.style.fontSize = '10px';
                     bind(btn, onConfirm);
                 } else if (key === 'ESPACIO') {
                     btn.style.flex = '3';
                     bind(btn, function() { if(text.length < 50) { text += ' '; updateScreen(); }});
                 } else if (key === '⌫') {
-                    btn.style.flex = '1.5';
+                    btn.style.flex = '1.2';
                     bind(btn, function() { text = text.slice(0,-1); updateScreen(); });
                 } else {
                     bind(btn, function() { if(text.length < 50) { text += key.toLowerCase(); updateScreen(); }});
