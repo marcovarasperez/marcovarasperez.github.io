@@ -25,10 +25,9 @@
  */
 
 (function() {
-// 🔥 FIX GLOBAL
-window.fitCanvas = function() {
-    applyFit();
-};
+
+window.fitCanvas = function() { applyFit(); };
+
     var parameters   = PluginManager.parameters('FullscreenPro');
     var screenW      = Number(parameters['Screen Width']    || 1280);
     var screenH      = Number(parameters['Screen Height']   || 720);
@@ -61,41 +60,40 @@ window.fitCanvas = function() {
     })();
 
     // ================================
-    // 3. Scaling — se parchea Graphics._updateCanvas
+    // 3. Scaling — estira el canvas y ACTUALIZA _realScale
     //
-    //    RPG Maker MV llama _updateCanvas cada vez que reposiciona
-    //    el canvas. Si solo aplicamos CSS desde fuera, el engine lo
-    //    sobreescribe en el siguiente frame. Hay que interceptarlo.
+    // _realScale es lo que usa Graphics.pageToCanvasX/Y para convertir
+    // coordenadas de ratón al espacio interno del canvas.
+    // Si no lo actualizamos, los clics quedan desplazados.
     // ================================
 
-    function calcFit() {
-        var ww = Math.max(window.innerWidth,  screen.width  || 0);
-        var wh = Math.max(window.innerHeight, screen.height || 0);
-        if (wh > ww) { var t = ww; ww = wh; wh = t; }
-        var scaledW = Math.floor(screenW * scale);
-        var scaledH = Math.floor(screenH * scale);
-        return {
-            scaledW: scaledW,
-            scaledH: scaledH,
-            left:    Math.floor((ww - scaledW) / 2),
-            top:     Math.floor((wh - scaledH) / 2)
-        };
-    }
-
     function applyFit() {
-    var c = Graphics._canvas;
-    if (!c) return;
+        var c = Graphics._canvas;
+        if (!c) return;
 
-    c.style.position = 'absolute';
-    c.style.margin   = '0';
+        var ww = window.innerWidth;
+        var wh = window.innerHeight;
 
-    // 🔥 OCUPAR TODA LA PANTALLA
-    c.style.width  = window.innerWidth + 'px';
-    c.style.height = window.innerHeight + 'px';
+        // Escala manteniendo proporción (letterbox si es necesario)
+        var scaleX = ww / screenW;
+        var scaleY = wh / screenH;
+        var scale  = Math.min(scaleX, scaleY);
 
-    c.style.left = '0px';
-    c.style.top  = '0px';
-}
+        var displayW = Math.floor(screenW * scale);
+        var displayH = Math.floor(screenH * scale);
+        var left     = Math.floor((ww - displayW) / 2);
+        var top      = Math.floor((wh - displayH) / 2);
+
+        c.style.position = 'absolute';
+        c.style.margin   = '0';
+        c.style.width    = displayW + 'px';
+        c.style.height   = displayH + 'px';
+        c.style.left     = left + 'px';
+        c.style.top      = top  + 'px';
+
+        // ✅ CLAVE: actualizar _realScale para que pageToCanvasX/Y funcione bien
+        Graphics._realScale = scale;
+    }
 
     var _orig_updateCanvas = Graphics._updateCanvas;
     Graphics._updateCanvas = function() {
@@ -229,12 +227,11 @@ window.fitCanvas = function() {
         });
     };
 
-   // ================================
-// 8. Eliminar logo de RPG Maker
-// ================================
-Graphics._paintUpperCanvas = function() {
-    this._clearUpperCanvas();
-};
-
+    // ================================
+    // 8. Eliminar logo de RPG Maker
+    // ================================
+    Graphics._paintUpperCanvas = function() {
+        this._clearUpperCanvas();
+    };
 
 })();
