@@ -1,619 +1,118 @@
-//=============================================================================
-// RelativeTouchPad.js — Solo joystick + botón A
-// Compatible con MV3D (cualquier versión) — fix moveByInput + Input.dir8
-//=============================================================================
 /*:
- * @plugindesc Joystick relativo + botón A. Compatible con MV3D.
- * @author Triacontane (modificado + parche MV3D)
- *
- * @param タッチ有効領域
- * @desc Área táctil válida en píxeles (x1,y1,x2,y2)
- * @default 0,0,816,624
- *
- * @param パッド画像ファイル
- * @desc Imagen del pad (sin extensión). En img/pictures/
- * @default
- * @require 1
- * @dir img/pictures/
- * @type file
- *
- * @param アロー画像ファイル
- * @desc Imagen de la flecha (sin extensión). En img/pictures/
- * @default
- * @require 1
- * @dir img/pictures/
- * @type file
- *
- * @param パッド画像不透明度
- * @desc Opacidad del pad (0-255)
- * @default 255
+ * @plugindesc Joystick táctil en el lado derecho para movimiento 3D (Compatible con MV3D).
+ * @author Gemini AI / RPG Maker Hybrid
+ * 
+ * @help
+ * Este plugin añade un joystick en la mitad derecha de la pantalla.
+ * Ideal para configuraciones donde la mano izquierda se usa para la cámara
+ * y la derecha para el movimiento, o viceversa en juegos 3D.
  */
 
-function Game_Relative_Pad() {
-    this.initialize.apply(this, arguments);
-}
+(function() {
+    let joystickData = { active: false, startX: 0, startY: 0, curX: 0, curY: 0 };
+    const JOYSTICK_RADIUS = 50; // Tamaño del joystick
+    const DEADZONE = 10;
 
-Game_Relative_Pad.disable         = false;
-Game_Relative_Pad.mapTouchDisable = true;
-Game_Relative_Pad.distanceNear    = 24;
-Game_Relative_Pad.distanceFar     = 144;
+    // Crear el contenedor visual del joystick
+    let container, knob;
 
-(function () {
-    var pluginName = 'RelativeTouchPad';
-
-    var getParamString = function(paramNames) {
-        var value = getParamOther(paramNames);
-        return value == null ? '' : value;
-    };
-
-    var getParamNumber = function(paramNames, min, max) {
-        var value = getParamOther(paramNames);
-        if (arguments.length < 2) min = -Infinity;
-        if (arguments.length < 3) max = Infinity;
-        return (parseInt(value, 10) || 0).clamp(min, max);
-    };
-
-    var getParamOther = function(paramNames) {
-        if (!Array.isArray(paramNames)) paramNames = [paramNames];
-        for (var i = 0; i < paramNames.length; i++) {
-            var name = PluginManager.parameters(pluginName)[paramNames[i]];
-            if (name) return name;
-        }
-        return null;
-    };
-
-    var getParamArrayString = function(paramNames) {
-        var values = getParamString(paramNames).split(',');
-        for (var i = 0; i < values.length; i++) values[i] = values[i].trim();
-        return values;
-    };
-
-    var getParamArrayNumber = function(paramNames, min, max) {
-        var values = getParamArrayString(paramNames);
-        if (arguments.length < 2) min = -Infinity;
-        if (arguments.length < 3) max = Infinity;
-        for (var i = 0; i < values.length; i++) values[i] = (parseInt(values[i], 10) || 0).clamp(min, max);
-        return values;
-    };
-
-    var getDiagonalInt = function(x, y) {
-        return Math.floor(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
-    };
-
-    var iterate = function(that, handler) {
-        Object.keys(that).forEach(function(key, index) {
-            handler.call(that, key, that[key], index);
-        });
-    };
-
-    //=============================================================================
-    // TouchInput
-    //=============================================================================
-    var _TouchInput_onTouchStart = TouchInput._onTouchStart;
-    TouchInput._onTouchStart = function(event) {
-        // Con MV3D: dejar pasar dos dedos para que MV3D gestione camara/zoom
-        if (typeof mv3d !== 'undefined' && event.touches.length >= 2) {
-            event.preventDefault();
-            return;
-        }
-        for (var i = 0; i < event.changedTouches.length; i++) {
-            var touch = event.changedTouches[i];
-            var x = Graphics.pageToCanvasX(touch.pageX);
-            var y = Graphics.pageToCanvasY(touch.pageY);
-            if (Graphics.isInsideCanvas(x, y)) {
-                if (event.touches.length === 1) {
-                    this._screenPressed = true;
-                    this._pressedTime = 0;
-                    this._onTrigger(x, y);
-                }
-                event.preventDefault();
-            }
-        }
-        if (window.cordova || window.navigator.standalone) {
-            event.preventDefault();
-        }
-    };
-
-    TouchInput._onRightButtonDown = function(event) {
-        // Bloquear boton derecho como cancelar
-    };
-
-    //=============================================================================
-    // Input
-    //=============================================================================
-    Input.submitKey = function(keyName) {
-        this._currentState[keyName] = true;
-        this._submitState[keyName] = Graphics.frameCount;
-    };
-
-    var _Input_clear = Input.clear;
-    Input.clear = function() {
-        _Input_clear.apply(this, arguments);
-        this._submitState = {};
-    };
-
-    var _Input_update = Input.update;
-    Input.update = function() {
-        this._suppressSubmit();
-        _Input_update.apply(this, arguments);
-        this._date = 0;
-    };
-
-    Input._suppressSubmit = function() {
-        iterate(this._submitState, function(keyName, frameCount) {
-            if (frameCount + 1 < Graphics.frameCount) {
-                this._currentState[keyName] = false;
-                delete this._submitState[keyName];
-            }
-        }.bind(this));
-    };
-
-    //=============================================================================
-    // Game_Temp
-    //=============================================================================
-    var _Game_Temp_initialize = Game_Temp.prototype.initialize;
-    Game_Temp.prototype.initialize = function() {
-        _Game_Temp_initialize.apply(this, arguments);
-        this._relativeTouchPad = new Game_Relative_Pad();
-    };
-
-    Game_Temp.prototype.getRelativeTouchPad = function() {
-        return this._relativeTouchPad;
-    };
-
-    //=============================================================================
-    // Game_Player
-    //=============================================================================
-    var _Game_Player_update = Game_Player.prototype.update;
-    Game_Player.prototype.update = function(sceneActive) {
-        this.getMovePad().update();
-        _Game_Player_update.apply(this, arguments);
-    };
-
-    // getInputDirection: para versiones de MV3D que si lo llaman
-    var _Game_Player_getInputDirection = Game_Player.prototype.getInputDirection;
-    Game_Player.prototype.getInputDirection = function() {
-        return _Game_Player_getInputDirection.apply(this, arguments) || this.getMovePad().getDir();
-    };
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // moveByInput — PUNTO CLAVE DE LA COMPATIBILIDAD CON MV3D
-    //
-    // MV3D sobreescribe moveByInput y lee Input.dir8 directamente,
-    // ignorando getInputDirection(). Por eso el joystick se ve pero no mueve.
-    //
-    // Solucion: justo antes de que MV3D lea Input.dir8, inyectamos la direccion
-    // del pad en Input._currentState para que Input.dir8 devuelva el valor
-    // correcto. Despues limpiamos para no interferir con otros frames.
-    // ─────────────────────────────────────────────────────────────────────────
-    var _Game_Player_moveByInput = Game_Player.prototype.moveByInput;
-    Game_Player.prototype.moveByInput = function() {
-        var pad = this.getMovePad();
-        var padActive = pad && pad.isActive() && !pad.isDistanceZero() && !pad.isDistanceNear();
-
-        if (padActive) {
-            var dir = pad.getDir(); // numpad: 1-9
-            if (dir !== 0) {
-                Input._currentState['down']  = (dir === 2 || dir === 1 || dir === 3);
-                Input._currentState['left']  = (dir === 4 || dir === 1 || dir === 7);
-                Input._currentState['right'] = (dir === 6 || dir === 3 || dir === 9);
-                Input._currentState['up']    = (dir === 8 || dir === 7 || dir === 9);
-            }
-        }
-
-        // Llama a moveByInput de MV3D (o el base de RMMV)
-        _Game_Player_moveByInput.apply(this, arguments);
-
-        // Limpiar estados simulados para no contaminar el siguiente frame
-        if (padActive) {
-            Input._currentState['down']  = false;
-            Input._currentState['left']  = false;
-            Input._currentState['right'] = false;
-            Input._currentState['up']    = false;
-        }
-    };
-
-    var _Game_Player_executeMove = Game_Player.prototype.executeMove;
-    Game_Player.prototype.executeMove = function(direction) {
-        var movePad = this.getMovePad();
-        // Zona muerta: solo girar el personaje sin mover
-        if (movePad.isActive() && movePad.isDistanceNear()) {
-            var turnDir = movePad.getDir4();
-            if (turnDir !== 0) this.setDirection(turnDir);
-            return;
-        }
-        if (direction % 2 === 0) {
-            _Game_Player_executeMove.apply(this, arguments);
-        } else if (direction !== 5) {
-            if (typeof mv3d !== 'undefined') {
-                // Dejar que MV3D gestione el diagonal en espacio 3D
-                _Game_Player_executeMove.apply(this, arguments);
-            } else {
-                this.executeDiagonalMove(direction);
-            }
-        }
-    };
-
-    // Movimiento diagonal 2D (solo sin MV3D)
-    Game_Player.prototype.executeDiagonalMove = function(d) {
-        var horizon  = d / 3 <= 1 ? d + 3 : d - 3;
-        var vertical = d % 3 === 0 ? d - 1 : d + 1;
-        var x2 = $gameMap.roundXWithDirection(this.x, horizon);
-        var y2 = $gameMap.roundYWithDirection(this.y, vertical);
-        if (this.isCollidedWithCharacters(x2, this.y) || this.isCollidedWithCharacters(this.x, y2)) {
-            return;
-        }
-        this.moveDiagonally(horizon, vertical);
-        if (!this.isMovementSucceeded()) this.moveStraight(horizon);
-        if (!this.isMovementSucceeded()) this.moveStraight(vertical);
-    };
-
-    var _Game_Player_updateDashing = Game_Player.prototype.updateDashing;
-    Game_Player.prototype.updateDashing = function() {
-        _Game_Player_updateDashing.apply(this, arguments);
-        if (this.getMovePad().isActive() && !$gameMap.isDashDisabled() && !this.isInVehicle()) {
-            this._dashing = this.getMovePad().isDistanceFar() || ConfigManager.alwaysDash;
-        }
-    };
-
-    Game_Player.prototype.getMovePad = function() {
-        return $gameTemp.getRelativeTouchPad();
-    };
-
-    //=============================================================================
-    // Scene_Map — deshabilitar toque de mapa
-    //=============================================================================
-    Scene_Map.prototype.isMapTouchOk = function() {
-        return false;
-    };
-
-    var paramTouchableRect = getParamArrayNumber(['タッチ有効領域', 'TouchableRect'], 0);
-
-    //=============================================================================
-    // Game_Relative_Pad
-    //=============================================================================
-    Game_Relative_Pad.prototype.constructor = Game_Relative_Pad;
-
-    Game_Relative_Pad.prototype.initialize = function() {
-        this.initMember();
-    };
-
-    Game_Relative_Pad.prototype.initMember = function() {
-        this._x            = 0;
-        this._y            = 0;
-        this._radian       = 0;
-        this._dir4         = 0;
-        this._dir8         = 0;
-        this._diagonalMove = true;
-        this.resetNeutral();
-    };
-
-    Game_Relative_Pad.prototype.update = function() {
-        this._x = TouchInput.x;
-        this._y = TouchInput.y;
-        if (!this.isActive()) this.updateNonActive();
-        if (this.isActive())  this.updateActive();
-    };
-
-    Game_Relative_Pad.prototype.updateNonActive = function() {
-        if (!Game_Relative_Pad.disable && $gamePlayer.canMove() &&
-            TouchInput.isTriggered() && this._inTouchableRect()) {
-            this.setNeutral();
-        }
-    };
-
-    Game_Relative_Pad.prototype.updateActive = function() {
-        if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
-            this.initMember();
-        } else {
-            this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
-
-            // Floating joystick
-            var maxRadius = Game_Relative_Pad.distanceFar;
-            var dist = this.getDistance();
-            if (dist > maxRadius) {
-                var angle = Math.atan2(this.getDeltaY(), this.getDeltaX());
-                var excess = dist - maxRadius;
-                this._neutralX -= Math.cos(angle) * excess;
-                this._neutralY -= Math.sin(angle) * excess;
-            }
-
-            this._dir4 = this._calculateDir4();
-            this._dir8 = this._calculateDir8();
-        }
-    };
-
-    Game_Relative_Pad.prototype.setNeutral = function() {
-        this._neutralX = this._x;
-        this._neutralY = this._y;
-    };
-
-    Game_Relative_Pad.prototype.resetNeutral = function() {
-        this._neutralX = null;
-        this._neutralY = null;
-    };
-
-    Game_Relative_Pad.prototype.isActive = function() {
-        return this._neutralX !== null && this._neutralY !== null;
-    };
-
-    Game_Relative_Pad.prototype.getRotation = function() {
-        return -this._radian + Math.PI / 2;
-    };
-
-    Game_Relative_Pad.prototype.getDir = function() {
-        return this._diagonalMove ? this._dir8 : this._dir4;
-    };
-
-    Game_Relative_Pad.prototype.getDir4 = function() {
-        return this._dir4;
-    };
-
-    Game_Relative_Pad.prototype._calculateDir4 = function() {
-        var pi4d = Math.PI / 4;
-        if (this.isDistanceZero())                                   return 0;
-        if (this._radian <  pi4d      || this._radian >= pi4d * 7)  return 6;
-        if (this._radian >= pi4d      && this._radian <  pi4d * 3)  return 8;
-        if (this._radian >= pi4d * 3  && this._radian <  pi4d * 5)  return 4;
-        if (this._radian >= pi4d * 5  && this._radian <  pi4d * 7)  return 2;
-    };
-
-    Game_Relative_Pad.prototype._calculateDir8 = function() {
-        var pi8d = Math.PI / 8;
-        if (this.isDistanceZero())                                     return 0;
-        if (this._radian <  pi8d       || this._radian >= pi8d * 15)  return 6;
-        if (this._radian >= pi8d       && this._radian <  pi8d * 3)   return 9;
-        if (this._radian >= pi8d * 3   && this._radian <  pi8d * 5)   return 8;
-        if (this._radian >= pi8d * 5   && this._radian <  pi8d * 7)   return 7;
-        if (this._radian >= pi8d * 7   && this._radian <  pi8d * 9)   return 4;
-        if (this._radian >= pi8d * 9   && this._radian <  pi8d * 11)  return 1;
-        if (this._radian >= pi8d * 11  && this._radian <  pi8d * 13)  return 2;
-        if (this._radian >= pi8d * 13  && this._radian <  pi8d * 15)  return 3;
-    };
-
-    Game_Relative_Pad.prototype.getDeltaX = function() {
-        return this._neutralX - this._x;
-    };
-
-    Game_Relative_Pad.prototype.getDeltaY = function() {
-        return this._neutralY - this._y;
-    };
-
-    Game_Relative_Pad.prototype.getDistanceX = function() {
-        return Math.abs(this.getDeltaX());
-    };
-
-    Game_Relative_Pad.prototype.getDistanceY = function() {
-        return Math.abs(this.getDeltaY());
-    };
-
-    Game_Relative_Pad.prototype.getNeutralX = function() {
-        return this._neutralX;
-    };
-
-    Game_Relative_Pad.prototype.getNeutralY = function() {
-        return this._neutralY;
-    };
-
-    Game_Relative_Pad.prototype.getDistance = function() {
-        return getDiagonalInt(this.getDistanceX(), this.getDistanceY());
-    };
-
-    Game_Relative_Pad.prototype.isDistanceZero = function() {
-        return this.getDistance() === 0;
-    };
-
-    Game_Relative_Pad.prototype.isDistanceNear = function() {
-        return this.getDistance() < Game_Relative_Pad.distanceNear;
-    };
-
-    Game_Relative_Pad.prototype.isDistanceFar = function() {
-        return this.getDistance() > Game_Relative_Pad.distanceFar;
-    };
-
-    Game_Relative_Pad.prototype._inTouchableRect = function() {
-        return this._x >= paramTouchableRect[0] && this._x <= paramTouchableRect[2] &&
-               this._y >= paramTouchableRect[1] && this._y <= paramTouchableRect[3];
-    };
-
-    //=============================================================================
-    // Spriteset_Map — crear el sprite del pad
-    //=============================================================================
-    var _Spriteset_Base_createUpperLayer = Spriteset_Base.prototype.createUpperLayer;
-    Spriteset_Base.prototype.createUpperLayer = function() {
-        _Spriteset_Base_createUpperLayer.apply(this, arguments);
-        if (this instanceof Spriteset_Map) this.createRelativePad();
-    };
-
-    Spriteset_Map.prototype.createRelativePad = function() {
-        this._relativePadSprite = new Sprite_Relative_Pad();
-        this.addChild(this._relativePadSprite);
-    };
-
-    //=============================================================================
-    // Sprite_Relative_Pad
-    //=============================================================================
-    function Sprite_Relative_Pad() {
-        this.initialize.apply(this, arguments);
+    function createJoystick() {
+        container = document.createElement('div');
+        container.style.cssText = `
+            position: absolute; bottom: 100px; right: 100px;
+            width: ${JOYSTICK_RADIUS * 2}px; height: ${JOYSTICK_RADIUS * 2}px;
+            background: rgba(255,255,255,0.2); border-radius: 50%;
+            display: none; z-index: 1000; touch-action: none;
+            border: 2px solid rgba(255,255,255,0.4);
+        `;
+        
+        knob = document.createElement('div');
+        knob.style.cssText = `
+            position: absolute; width: 40px; height: 40px;
+            background: white; border-radius: 50%; opacity: 0.7;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        `;
+        
+        container.appendChild(knob);
+        document.body.appendChild(container);
     }
 
-    Sprite_Relative_Pad.prototype             = Object.create(Sprite.prototype);
-    Sprite_Relative_Pad.prototype.constructor = Sprite_Relative_Pad;
-    Sprite_Relative_Pad.padImage              = null;
-    Sprite_Relative_Pad.arrorImage            = null;
-
-    var _Sprite_Relative_Pad_initialize = Sprite_Relative_Pad.prototype.initialize;
-    Sprite_Relative_Pad.prototype.initialize = function() {
-        _Sprite_Relative_Pad_initialize.apply(this, arguments);
-        this.anchor.x     = 0.5;
-        this.anchor.y     = 0.5;
-        this.opacity      = 0;
-        var fileName      = getParamString(['パッド画像ファイル', 'ImageNamePad']);
-        this.bitmap       = this.loadPictureOrEmpty(fileName, this.makeImagePad.bind(this));
-        this._padActive   = false;
-        this._arrowDiagonal = 0;
-        this.createTouchArrowSprite();
-        this.update();
+    const _Scene_Map_start = Scene_Map.prototype.start;
+    Scene_Map.prototype.start = function() {
+        _Scene_Map_start.call(this);
+        if (!container) createJoystick();
+        container.style.display = 'block';
+        window.addEventListener('touchstart', onTouchStart, {passive: false});
+        window.addEventListener('touchmove', onTouchMove, {passive: false});
+        window.addEventListener('touchend', onTouchEnd);
     };
 
-    Sprite_Relative_Pad.prototype.createTouchArrowSprite = function() {
-        var fileName      = getParamString(['アロー画像ファイル', 'ImageNameArrow']);
-        var sprite        = new Sprite();
-        sprite.anchor.x   = 0.5;
-        sprite.anchor.y   = 0.5;
-        sprite.bitmap     = this.loadPictureOrEmpty(fileName, this.makeArrowPad.bind(this));
-        this._arrowSprite = sprite;
-        this.addChild(this._arrowSprite);
+    const _Scene_Map_terminate = Scene_Map.prototype.terminate;
+    Scene_Map.prototype.terminate = function() {
+        _Scene_Map_terminate.call(this);
+        if (container) container.style.display = 'none';
+        window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchmove', onTouchMove);
+        window.removeEventListener('touchend', onTouchEnd);
     };
 
-    Sprite_Relative_Pad.prototype.loadPictureOrEmpty = function(fileName, makeImageHandler) {
-        return fileName ? ImageManager.loadPicture(fileName) : makeImageHandler();
-    };
-
-    Sprite_Relative_Pad.prototype.makeImagePad = function() {
-        if (!Sprite_Relative_Pad.padImage) {
-            var bitmap = new Bitmap(96, 96), size = bitmap.width / 2;
-            bitmap.drawCircle(size, size, size, 'rgba(255,255,255,0.5)');
-            Sprite_Relative_Pad.padImage = bitmap;
+    function onTouchStart(e) {
+        for (let i = 0; i < e.touches.length; i++) {
+            const touch = e.touches[i];
+            // Solo activar si el toque es en la mitad derecha
+            if (touch.clientX > window.innerWidth / 2) {
+                joystickData.active = true;
+                joystickData.startX = touch.clientX;
+                joystickData.startY = touch.clientY;
+                container.style.left = (touch.clientX - JOYSTICK_RADIUS) + "px";
+                container.style.top = (touch.clientY - JOYSTICK_RADIUS) + "px";
+                return;
+            }
         }
-        return Sprite_Relative_Pad.padImage;
-    };
+    }
 
-    Sprite_Relative_Pad.prototype.makeArrowPad = function() {
-        if (!Sprite_Relative_Pad.arrorImage) {
-            var bitmap = new Bitmap(96, 96), width = 24, size = bitmap.width / 2;
-            bitmap.drawCircle(size, width / 2, width / 2, 'rgba(128,128,128,1.0)');
-            Sprite_Relative_Pad.arrorImage = bitmap;
+    function onTouchMove(e) {
+        if (!joystickData.active) return;
+        e.preventDefault();
+        const touch = Array.from(e.touches).find(t => t.clientX > window.innerWidth / 4); 
+        if (!touch) return;
+
+        let dx = touch.clientX - joystickData.startX;
+        let dy = touch.clientY - joystickData.startY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        if (dist > JOYSTICK_RADIUS) {
+            dx *= JOYSTICK_RADIUS / dist;
+            dy *= JOYSTICK_RADIUS / dist;
         }
-        return Sprite_Relative_Pad.arrorImage;
-    };
 
-    Sprite_Relative_Pad.prototype.refresh = function() {
-        this._arrowDiagonal = getDiagonalInt(this._arrowSprite.width / 4, this._arrowSprite.height / 4);
-        this.opacity  = getParamNumber(['パッド画像不透明度', 'PadOpacity'], 0, 255);
-        this.scale.x  = 1.0;
-        this.scale.y  = 1.0;
-        this.visible  = true;
-        this._padActive = true;
-    };
+        joystickData.curX = dx;
+        joystickData.curY = dy;
+        knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    }
 
-    Sprite_Relative_Pad.prototype.update = function() {
-        if (!this.getMovePad().isActive()) {
-            if (this.opacity > 0) {
-                this.updateFadeout();
-                this._padActive = false;
+    function onTouchEnd() {
+        joystickData.active = false;
+        joystickData.curX = 0;
+        joystickData.curY = 0;
+        knob.style.transform = `translate(-50%, -50%)`;
+    }
+
+    // Inyectar el movimiento en el sistema de RPG Maker
+    const _Game_Player_executeMove = Game_Player.prototype.executeMove;
+    Game_Player.prototype.getInputDirection = function() {
+        if (joystickData.active) {
+            const dx = joystickData.curX;
+            const dy = joystickData.curY;
+            if (Math.abs(dx) < DEADZONE && Math.abs(dy) < DEADZONE) return 0;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                return dx > 0 ? 6 : 4;
             } else {
-                this.visible = false;
+                return dy > 0 ? 2 : 8;
             }
-        } else {
-            if (!this._padActive) this.refresh();
-            this.updatePlacement();
-            this.updateArrowSprite();
         }
+        return Input.dir8;
     };
-
-    Sprite_Relative_Pad.prototype.updatePlacement = function() {
-        this.x = this.getMovePad().getNeutralX();
-        this.y = this.getMovePad().getNeutralY();
-    };
-
-    Sprite_Relative_Pad.prototype.updateArrowSprite = function() {
-        if (this.getMovePad().isDistanceZero()) {
-            this._arrowSprite.visible = false;
-        } else {
-            this._arrowSprite.visible  = true;
-            this._arrowSprite.rotation = this.getMovePad().getRotation();
-            var scale = this.getMovePad().getDistance() / this._arrowDiagonal;
-            this._arrowSprite.scale.x  = scale;
-            this._arrowSprite.scale.y  = scale;
-            this._arrowSprite.opacity  = Math.min(255, 255 / (scale / 1.5));
-        }
-    };
-
-    Sprite_Relative_Pad.prototype.updateFadeout = function() {
-        this.opacity  -= 36;
-        this.scale.x  += 0.02;
-        this.scale.y  += 0.02;
-    };
-
-    Sprite_Relative_Pad.prototype.getMovePad = function() {
-        return $gameTemp.getRelativeTouchPad();
-    };
-
-    //=============================================================================
-    // Interfaz de Botones (Menu y Cancelar)
-    //=============================================================================
-    (function() {
-
-        var _actionCooldown = 0;
-
-        var _Scene_Map_update = Scene_Map.prototype.update;
-        Scene_Map.prototype.update = function() {
-            _Scene_Map_update.call(this);
-            if (_actionCooldown > 0) _actionCooldown--;
-        };
-
-        function createAnimatedButton(iconIndex, x, y, action, size) {
-            size = size || 96;
-            var btn = new Sprite_Button();
-            var pw  = Window_Base._iconWidth;
-            var ph  = Window_Base._iconHeight;
-            var bitmap = new Bitmap(size, size);
-            var sx = (iconIndex % 16) * pw;
-            var sy = Math.floor(iconIndex / 16) * ph;
-            bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, size, size);
-            btn.bitmap    = bitmap;
-            btn.x         = x - 110;
-            btn.y         = y;
-            btn.anchor.x  = 0;
-            btn.anchor.y  = 0;
-            btn.hitArea   = new PIXI.Rectangle(0, 0, size, size);
-            btn.update = function() {
-                Sprite_Button.prototype.update.call(this);
-                if (this._touching) {
-                    this.scale.set(0.9, 0.9);
-                    this.opacity = 180;
-                } else {
-                    this.scale.set(1.0, 1.0);
-                    this.opacity = 255;
-                }
-            };
-            btn.setClickHandler(action);
-            return btn;
-        }
-
-        var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
-        Scene_Map.prototype.createAllWindows = function() {
-            _Scene_Map_createAllWindows.call(this);
-            this._menuButton = createAnimatedButton(209, Graphics.width - 60, 60, function() {
-                if ($gamePlayer.canMove()) {
-                    SoundManager.playOk();
-                    SceneManager.push(Scene_Menu);
-                }
-            });
-            this.addChild(this._menuButton);
-        };
-
-        var _Scene_MenuBase_create = Scene_MenuBase.prototype.create;
-        Scene_MenuBase.prototype.create = function() {
-            _Scene_MenuBase_create.call(this);
-            if (!(this instanceof Scene_Map)) {
-                this._cancelButton = createAnimatedButton(74, Graphics.width - 60, 60, function() {
-                    SoundManager.playCancel();
-                    SceneManager.pop();
-                });
-                this.addChild(this._cancelButton);
-            }
-        };
-
-        var _Scene_MenuBase_terminate = Scene_MenuBase.prototype.terminate;
-        Scene_MenuBase.prototype.terminate = function() {
-            _Scene_MenuBase_terminate.call(this);
-            if (SceneManager._scene instanceof Scene_Map && SceneManager._scene._menuButton) {
-                SceneManager._scene._menuButton.visible = true;
-            }
-        };
-
-    })();
 
 })();
