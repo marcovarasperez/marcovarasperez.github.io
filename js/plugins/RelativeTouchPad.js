@@ -1,9 +1,10 @@
 //=============================================================================
 // RelativeTouchPad.js — Solo joystick + botón A
+// Compatible con MV3D (cualquier versión) — fix moveByInput + Input.dir8
 //=============================================================================
 /*:
- * @plugindesc Joystick relativo + botón A. Sin toque de mapa ni dos dedos.
- * @author Triacontane (modificado)
+ * @plugindesc Joystick relativo + botón A. Compatible con MV3D.
+ * @author Triacontane (modificado + parche MV3D)
  *
  * @param タッチ有効領域
  * @desc Área táctil válida en píxeles (x1,y1,x2,y2)
@@ -86,25 +87,25 @@ Game_Relative_Pad.distanceFar     = 144;
     };
 
     //=============================================================================
-    // TouchInput — bloquear dos dedos, botón derecho y toque de mapa
-    // Solo dejamos pasar el toque de un dedo para el joystick
+    // TouchInput
     //=============================================================================
-
-    // Bloquear dos dedos como cancelar/menú — eliminar el _onCancel
     var _TouchInput_onTouchStart = TouchInput._onTouchStart;
     TouchInput._onTouchStart = function(event) {
+        // Con MV3D: dejar pasar dos dedos para que MV3D gestione camara/zoom
+        if (typeof mv3d !== 'undefined' && event.touches.length >= 2) {
+            event.preventDefault();
+            return;
+        }
         for (var i = 0; i < event.changedTouches.length; i++) {
             var touch = event.changedTouches[i];
             var x = Graphics.pageToCanvasX(touch.pageX);
             var y = Graphics.pageToCanvasY(touch.pageY);
             if (Graphics.isInsideCanvas(x, y)) {
-                // Solo procesar si es UN dedo — ignorar dos o más
                 if (event.touches.length === 1) {
                     this._screenPressed = true;
                     this._pressedTime = 0;
                     this._onTrigger(x, y);
                 }
-                // Dos o más dedos: no hacer nada en absoluto
                 event.preventDefault();
             }
         }
@@ -113,9 +114,8 @@ Game_Relative_Pad.distanceFar     = 144;
         }
     };
 
-    // Bloquear botón derecho del ratón como cancelar
     TouchInput._onRightButtonDown = function(event) {
-        // No hacer nada — el botón derecho no cancela ni abre menú
+        // Bloquear boton derecho como cancelar
     };
 
     //=============================================================================
@@ -170,26 +170,71 @@ Game_Relative_Pad.distanceFar     = 144;
         _Game_Player_update.apply(this, arguments);
     };
 
+    // getInputDirection: para versiones de MV3D que si lo llaman
     var _Game_Player_getInputDirection = Game_Player.prototype.getInputDirection;
     Game_Player.prototype.getInputDirection = function() {
         return _Game_Player_getInputDirection.apply(this, arguments) || this.getMovePad().getDir();
     };
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // moveByInput — PUNTO CLAVE DE LA COMPATIBILIDAD CON MV3D
+    //
+    // MV3D sobreescribe moveByInput y lee Input.dir8 directamente,
+    // ignorando getInputDirection(). Por eso el joystick se ve pero no mueve.
+    //
+    // Solucion: justo antes de que MV3D lea Input.dir8, inyectamos la direccion
+    // del pad en Input._currentState para que Input.dir8 devuelva el valor
+    // correcto. Despues limpiamos para no interferir con otros frames.
+    // ─────────────────────────────────────────────────────────────────────────
+    var _Game_Player_moveByInput = Game_Player.prototype.moveByInput;
+    Game_Player.prototype.moveByInput = function() {
+        var pad = this.getMovePad();
+        var padActive = pad && pad.isActive() && !pad.isDistanceZero() && !pad.isDistanceNear();
+
+        if (padActive) {
+            var dir = pad.getDir(); // numpad: 1-9
+            if (dir !== 0) {
+                Input._currentState['down']  = (dir === 2 || dir === 1 || dir === 3);
+                Input._currentState['left']  = (dir === 4 || dir === 1 || dir === 7);
+                Input._currentState['right'] = (dir === 6 || dir === 3 || dir === 9);
+                Input._currentState['up']    = (dir === 8 || dir === 7 || dir === 9);
+            }
+        }
+
+        // Llama a moveByInput de MV3D (o el base de RMMV)
+        _Game_Player_moveByInput.apply(this, arguments);
+
+        // Limpiar estados simulados para no contaminar el siguiente frame
+        if (padActive) {
+            Input._currentState['down']  = false;
+            Input._currentState['left']  = false;
+            Input._currentState['right'] = false;
+            Input._currentState['up']    = false;
+        }
+    };
+
     var _Game_Player_executeMove = Game_Player.prototype.executeMove;
     Game_Player.prototype.executeMove = function(direction) {
         var movePad = this.getMovePad();
+        // Zona muerta: solo girar el personaje sin mover
         if (movePad.isActive() && movePad.isDistanceNear()) {
             var turnDir = movePad.getDir4();
             if (turnDir !== 0) this.setDirection(turnDir);
-        } else {
-            if (direction % 2 === 0) {
+            return;
+        }
+        if (direction % 2 === 0) {
+            _Game_Player_executeMove.apply(this, arguments);
+        } else if (direction !== 5) {
+            if (typeof mv3d !== 'undefined') {
+                // Dejar que MV3D gestione el diagonal en espacio 3D
                 _Game_Player_executeMove.apply(this, arguments);
-            } else if (direction !== 5) {
+            } else {
                 this.executeDiagonalMove(direction);
             }
         }
     };
 
+    // Movimiento diagonal 2D (solo sin MV3D)
     Game_Player.prototype.executeDiagonalMove = function(d) {
         var horizon  = d / 3 <= 1 ? d + 3 : d - 3;
         var vertical = d % 3 === 0 ? d - 1 : d + 1;
@@ -199,12 +244,8 @@ Game_Relative_Pad.distanceFar     = 144;
             return;
         }
         this.moveDiagonally(horizon, vertical);
-        if (!this.isMovementSucceeded()) {
-            this.moveStraight(horizon);
-        }
-        if (!this.isMovementSucceeded()) {
-            this.moveStraight(vertical);
-        }
+        if (!this.isMovementSucceeded()) this.moveStraight(horizon);
+        if (!this.isMovementSucceeded()) this.moveStraight(vertical);
     };
 
     var _Game_Player_updateDashing = Game_Player.prototype.updateDashing;
@@ -220,10 +261,10 @@ Game_Relative_Pad.distanceFar     = 144;
     };
 
     //=============================================================================
-    // Scene_Map — deshabilitar toque de mapa completamente
+    // Scene_Map — deshabilitar toque de mapa
     //=============================================================================
     Scene_Map.prototype.isMapTouchOk = function() {
-        return false; // Nunca mover al tocar el mapa
+        return false;
     };
 
     var paramTouchableRect = getParamArrayNumber(['タッチ有効領域', 'TouchableRect'], 0);
@@ -264,11 +305,10 @@ Game_Relative_Pad.distanceFar     = 144;
     Game_Relative_Pad.prototype.updateActive = function() {
         if (!$gamePlayer.canMove() || !TouchInput.isPressed() || !this._inTouchableRect()) {
             this.initMember();
-            // NO llamar submitOk aquí — el botón A ya gestiona el ok
         } else {
             this._radian = Math.atan2(this.getDeltaY(), this.getDeltaX()) * -1 + Math.PI;
 
-            // Floating joystick: reposicionar el punto neutro si el dedo se aleja mucho
+            // Floating joystick
             var maxRadius = Game_Relative_Pad.distanceFar;
             var dist = this.getDistance();
             if (dist > maxRadius) {
@@ -282,8 +322,6 @@ Game_Relative_Pad.distanceFar     = 144;
             this._dir8 = this._calculateDir8();
         }
     };
-
-    // submitOk eliminado del joystick — el botón A en Boton.js lo gestiona
 
     Game_Relative_Pad.prototype.setNeutral = function() {
         this._neutralX = this._x;
@@ -501,71 +539,52 @@ Game_Relative_Pad.distanceFar     = 144;
     Sprite_Relative_Pad.prototype.getMovePad = function() {
         return $gameTemp.getRelativeTouchPad();
     };
+
     //=============================================================================
-    // Interfaz de Botones Mejorada (Mochila, Cancelar y Botón A) - COMPATIBLE MV
+    // Interfaz de Botones (Menu y Cancelar)
     //=============================================================================
     (function() {
-        
+
         var _actionCooldown = 0;
 
-        // Actualizador de Cooldown global
         var _Scene_Map_update = Scene_Map.prototype.update;
         Scene_Map.prototype.update = function() {
             _Scene_Map_update.call(this);
             if (_actionCooldown > 0) _actionCooldown--;
         };
 
-       function createAnimatedButton(iconIndex, x, y, action, size = 96) {
-    // size: tamaño del botón y del icono (puedes aumentarlo)
-    var btn = new Sprite_Button();
-    var pw = Window_Base._iconWidth;
-    var ph = Window_Base._iconHeight;
-
-    // Creamos un bitmap del tamaño deseado
-    var bitmap = new Bitmap(size, size);
-
-    // Calculamos el source del icono
-    var sx = (iconIndex % 16) * pw;
-    var sy = Math.floor(iconIndex / 16) * ph;
-
-    // Dibujamos el icono escalado a todo el bitmap
-    bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, size, size);
-
-    btn.bitmap = bitmap;
-
-    // Posición del sprite
-    btn.x = x -110;
-    btn.y = y;
-
-    // No centrar el icono
-    btn.anchor.x = 0;
-    btn.anchor.y = 0;
-
-    // Hitbox igual al tamaño del bitmap
-    btn.hitArea = new PIXI.Rectangle(0, 0, size, size);
-
-    // Animación de pulsar
-    btn.update = function() {
-        Sprite_Button.prototype.update.call(this);
-        if (this._touching) {
-            this.scale.set(0.9, 0.9); // se encoge ligeramente al pulsar
-            this.opacity = 180;
-        } else {
-            this.scale.set(1.0, 1.0);
-            this.opacity = 255;
+        function createAnimatedButton(iconIndex, x, y, action, size) {
+            size = size || 96;
+            var btn = new Sprite_Button();
+            var pw  = Window_Base._iconWidth;
+            var ph  = Window_Base._iconHeight;
+            var bitmap = new Bitmap(size, size);
+            var sx = (iconIndex % 16) * pw;
+            var sy = Math.floor(iconIndex / 16) * ph;
+            bitmap.blt(ImageManager.loadSystem('IconSet'), sx, sy, pw, ph, 0, 0, size, size);
+            btn.bitmap    = bitmap;
+            btn.x         = x - 110;
+            btn.y         = y;
+            btn.anchor.x  = 0;
+            btn.anchor.y  = 0;
+            btn.hitArea   = new PIXI.Rectangle(0, 0, size, size);
+            btn.update = function() {
+                Sprite_Button.prototype.update.call(this);
+                if (this._touching) {
+                    this.scale.set(0.9, 0.9);
+                    this.opacity = 180;
+                } else {
+                    this.scale.set(1.0, 1.0);
+                    this.opacity = 255;
+                }
+            };
+            btn.setClickHandler(action);
+            return btn;
         }
-    };
 
-    btn.setClickHandler(action);
-    return btn;
-}
-
-        // ── Botones en el Mapa ──────────────────────────────────────
         var _Scene_Map_createAllWindows = Scene_Map.prototype.createAllWindows;
         Scene_Map.prototype.createAllWindows = function() {
             _Scene_Map_createAllWindows.call(this);
-            
-            // Botón Menú (Arriba Derecha)
             this._menuButton = createAnimatedButton(209, Graphics.width - 60, 60, function() {
                 if ($gamePlayer.canMove()) {
                     SoundManager.playOk();
@@ -573,20 +592,8 @@ Game_Relative_Pad.distanceFar     = 144;
                 }
             });
             this.addChild(this._menuButton);
-
-            /* Botón A (Abajo Derecha)
-            this._actionButton = createAnimatedButton(84, Graphics.width - 80, Graphics.height - 140, function() {
-                // Solo dispara la acción si no hay cooldown
-                if (_actionCooldown <= 0) {
-                    _actionCooldown = 20; // Bloqueo de 20 frames (aprox 0.3 seg)
-                    Input.submitKey('ok');
-                }
-            });
-            this.addChild(this._actionButton);
-            */
         };
 
-        // ── Botón Cancelar en Menús ──────────────────────────────────
         var _Scene_MenuBase_create = Scene_MenuBase.prototype.create;
         Scene_MenuBase.prototype.create = function() {
             _Scene_MenuBase_create.call(this);
@@ -599,7 +606,6 @@ Game_Relative_Pad.distanceFar     = 144;
             }
         };
 
-        // Limpieza de visibilidad
         var _Scene_MenuBase_terminate = Scene_MenuBase.prototype.terminate;
         Scene_MenuBase.prototype.terminate = function() {
             _Scene_MenuBase_terminate.call(this);
@@ -608,5 +614,6 @@ Game_Relative_Pad.distanceFar     = 144;
             }
         };
 
-    })();   
+    })();
+
 })();
