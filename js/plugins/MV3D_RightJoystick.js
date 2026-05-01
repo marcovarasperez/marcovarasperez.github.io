@@ -1,11 +1,10 @@
 /*:
- * @plugindesc Joystick Izquierdo (Movimiento) y Lado Derecho (Cámara) para MV3D.
+ * @plugindesc Joystick Izquierdo (Movimiento) y Bloqueo de Cámara en el lado izquierdo.
  * @author Gemini AI
  * 
  * @help
- * - Mitad Izquierda: Aparece el joystick y mueve al personaje.
- * - Mitad Derecha: Se ignora el joystick y MV3D rota la cámara.
- * - Elimina el movimiento por click para evitar conflictos.
+ * - Mitad Izquierda: Solo movimiento. La cámara NO se moverá aquí.
+ * - Mitad Derecha: Solo rotación de cámara. El personaje NO se moverá por clicks aquí.
  */
 
 (function() {
@@ -15,36 +14,23 @@
 
     let container, knob;
 
-    // --- 1. BLOQUEAR MOVIMIENTO POR CLICK (PATHFINDING) ---
-    // Esto es vital para que al tocar la derecha para rotar, el personaje no camine.
+    // --- 1. BLOQUEO DE CLICK-TO-MOVE (DERECHA) ---
     Scene_Map.prototype.processMapTouch = function() {};
 
     function createJoystick() {
         container = document.createElement('div');
         container.style.cssText = `
-            position: absolute; 
-            width: ${JOYSTICK_RADIUS * 2}px; 
-            height: ${JOYSTICK_RADIUS * 2}px;
-            background: rgba(255,255,255,0.1); 
-            border-radius: 50%;
-            display: none; 
-            z-index: 10000; 
-            touch-action: none;
-            border: 2px solid rgba(255,255,255,0.3); 
-            pointer-events: none;
+            position: absolute; width: ${JOYSTICK_RADIUS * 2}px; height: ${JOYSTICK_RADIUS * 2}px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+            display: none; z-index: 10000; touch-action: none;
+            border: 2px solid rgba(255,255,255,0.3); pointer-events: none;
         `;
         
         knob = document.createElement('div');
         knob.style.cssText = `
-            position: absolute; 
-            width: 40px; 
-            height: 40px;
-            background: white; 
-            border-radius: 50%; 
-            opacity: 0.6;
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%);
+            position: absolute; width: 40px; height: 40px;
+            background: white; border-radius: 50%; opacity: 0.6;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
             box-shadow: 0 0 8px rgba(0,0,0,0.5);
         `;
         
@@ -56,51 +42,55 @@
     Scene_Map.prototype.start = function() {
         _Scene_Map_start.call(this);
         if (!container) createJoystick();
-        window.addEventListener('touchstart', onTouchStart, {passive: false});
-        window.addEventListener('touchmove', onTouchMove, {passive: false});
-        window.addEventListener('touchend', onTouchEnd, {passive: false});
+        
+        // AGREGAMOS LOS EVENTOS EN MODO CAPTURA (true)
+        // Esto permite interceptar el toque antes que el motor 3D de MV3D.
+        window.addEventListener('touchstart', onTouchStart, {passive: false, capture: true});
+        window.addEventListener('touchmove', onTouchMove, {passive: false, capture: true});
+        window.addEventListener('touchend', onTouchEnd, {passive: false, capture: true});
+        window.addEventListener('touchcancel', onTouchEnd, {passive: false, capture: true});
     };
 
     const _Scene_Map_terminate = Scene_Map.prototype.terminate;
     Scene_Map.prototype.terminate = function() {
         _Scene_Map_terminate.call(this);
-        window.removeEventListener('touchstart', onTouchStart);
-        window.removeEventListener('touchmove', onTouchMove);
-        window.removeEventListener('touchend', onTouchEnd);
+        window.removeEventListener('touchstart', onTouchStart, true);
+        window.removeEventListener('touchmove', onTouchMove, true);
+        window.removeEventListener('touchend', onTouchEnd, true);
+        window.removeEventListener('touchcancel', onTouchEnd, true);
     };
 
     function onTouchStart(e) {
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             
-            // FILTRO: Solo actuar si el toque ocurre en la mitad IZQUIERDA
+            // SI ES LA MITAD IZQUIERDA
             if (touch.clientX < window.innerWidth / 2) {
-                // Importante: stopPropagation evita que MV3D rote la cámara con este dedo
-                e.stopPropagation();
+                // DETENCIÓN CRÍTICA: Esto evita que MV3D mueva la cámara en este lado.
+                e.stopImmediatePropagation();
                 
-                joystickData.active = true;
-                joystickData.identifier = touch.identifier;
-                joystickData.startX = touch.clientX;
-                joystickData.startY = touch.clientY;
-                
-                container.style.display = 'block';
-                // Posicionamos el joystick justo bajo el dedo
-                container.style.left = (touch.clientX - JOYSTICK_RADIUS) + "px";
-                container.style.top = (touch.clientY - JOYSTICK_RADIUS) + "px";
-                return;
+                if (!joystickData.active) {
+                    joystickData.active = true;
+                    joystickData.identifier = touch.identifier;
+                    joystickData.startX = touch.clientX;
+                    joystickData.startY = touch.clientY;
+                    
+                    container.style.display = 'block';
+                    container.style.left = (touch.clientX - JOYSTICK_RADIUS) + "px";
+                    container.style.top = (touch.clientY - JOYSTICK_RADIUS) + "px";
+                }
             }
         }
     }
 
     function onTouchMove(e) {
-        if (!joystickData.active) return;
-
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             
+            // Si el toque que se mueve es el del joystick (en la izquierda)
             if (touch.identifier === joystickData.identifier) {
-                // Bloqueamos el evento para que no afecte a la cámara
-                e.stopPropagation();
+                // Seguimos bloqueando para que no haya tirones de cámara.
+                e.stopImmediatePropagation();
                 
                 let dx = touch.clientX - joystickData.startX;
                 let dy = touch.clientY - joystickData.startY;
@@ -120,7 +110,11 @@
 
     function onTouchEnd(e) {
         for (let i = 0; i < e.changedTouches.length; i++) {
-            if (e.changedTouches[i].identifier === joystickData.identifier) {
+            const touch = e.changedTouches[i];
+            if (touch.identifier === joystickData.identifier) {
+                // Al levantar el dedo en la izquierda, bloqueamos la última señal para la cámara.
+                e.stopImmediatePropagation();
+                
                 joystickData.active = false;
                 joystickData.identifier = null;
                 joystickData.curX = 0;
@@ -130,7 +124,7 @@
         }
     }
 
-    // --- INTEGRACIÓN CON EL MOVIMIENTO ---
+    // --- INTEGRACIÓN CON EL MOVIMIENTO DE RPG MAKER ---
     const _Game_Player_getInputDirection = Game_Player.prototype.getInputDirection;
     Game_Player.prototype.getInputDirection = function() {
         if (joystickData.active) {
@@ -138,14 +132,12 @@
             const dy = joystickData.curY;
             if (Math.sqrt(dx*dx + dy*dy) < DEADZONE) return 0;
 
-            // Determinamos la dirección (4 direcciones)
             if (Math.abs(dx) > Math.abs(dy)) {
-                return dx > 0 ? 6 : 4; // Derecha o Izquierda
+                return dx > 0 ? 6 : 4; 
             } else {
-                return dy > 0 ? 2 : 8; // Abajo o Arriba
+                return dy > 0 ? 2 : 8;
             }
         }
-        // Si no hay joystick, usamos el input normal (teclado/pad)
         return _Game_Player_getInputDirection ? _Game_Player_getInputDirection.call(this) : Input.dir8;
     };
 
