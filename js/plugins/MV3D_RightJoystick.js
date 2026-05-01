@@ -1,10 +1,11 @@
 /*:
- * @plugindesc Joystick Izquierdo (Movimiento) y Bloqueo de Cámara en el lado izquierdo.
+ * @plugindesc Shield total para MV3D: Mitad Izquierda (Solo Joystick), Mitad Derecha (Solo Cámara).
  * @author Gemini AI
  * 
  * @help
- * - Mitad Izquierda: Solo movimiento. La cámara NO se moverá aquí.
- * - Mitad Derecha: Solo rotación de cámara. El personaje NO se moverá por clicks aquí.
+ * - BLOQUEO IZQUIERDO: Cualquier toque en la izquierda no llegará a MV3D.
+ * - JOYSTICK: Aparece dinámicamente en la zona bloqueada.
+ * - SIN CLICK-TO-MOVE: Se desactiva el movimiento por click para no interferir.
  */
 
 (function() {
@@ -14,7 +15,7 @@
 
     let container, knob;
 
-    // --- 1. BLOQUEO DE CLICK-TO-MOVE (DERECHA) ---
+    // --- 1. DESACTIVAR CLICK-TO-MOVE NATIVO ---
     Scene_Map.prototype.processMapTouch = function() {};
 
     function createJoystick() {
@@ -22,7 +23,7 @@
         container.style.cssText = `
             position: absolute; width: ${JOYSTICK_RADIUS * 2}px; height: ${JOYSTICK_RADIUS * 2}px;
             background: rgba(255,255,255,0.1); border-radius: 50%;
-            display: none; z-index: 10000; touch-action: none;
+            display: none; z-index: 100000; touch-action: none;
             border: 2px solid rgba(255,255,255,0.3); pointer-events: none;
         `;
         
@@ -43,31 +44,32 @@
         _Scene_Map_start.call(this);
         if (!container) createJoystick();
         
-        // AGREGAMOS LOS EVENTOS EN MODO CAPTURA (true)
-        // Esto permite interceptar el toque antes que el motor 3D de MV3D.
-        window.addEventListener('touchstart', onTouchStart, {passive: false, capture: true});
-        window.addEventListener('touchmove', onTouchMove, {passive: false, capture: true});
-        window.addEventListener('touchend', onTouchEnd, {passive: false, capture: true});
-        window.addEventListener('touchcancel', onTouchEnd, {passive: false, capture: true});
+        // INTERCEPCIÓN AGRESIVA (Fase de captura: true)
+        // Escuchamos en el documento para atrapar el evento antes que Babylon.js/MV3D
+        document.addEventListener('touchstart', onTouchStart, {passive: false, capture: true});
+        document.addEventListener('touchmove', onTouchMove, {passive: false, capture: true});
+        document.addEventListener('touchend', onTouchEnd, {passive: false, capture: true});
+        document.addEventListener('touchcancel', onTouchEnd, {passive: false, capture: true});
     };
 
     const _Scene_Map_terminate = Scene_Map.prototype.terminate;
     Scene_Map.prototype.terminate = function() {
         _Scene_Map_terminate.call(this);
-        window.removeEventListener('touchstart', onTouchStart, true);
-        window.removeEventListener('touchmove', onTouchMove, true);
-        window.removeEventListener('touchend', onTouchEnd, true);
-        window.removeEventListener('touchcancel', onTouchEnd, true);
+        document.removeEventListener('touchstart', onTouchStart, true);
+        document.removeEventListener('touchmove', onTouchMove, true);
+        document.removeEventListener('touchend', onTouchEnd, true);
+        document.removeEventListener('touchcancel', onTouchEnd, true);
     };
 
     function onTouchStart(e) {
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             
-            // SI ES LA MITAD IZQUIERDA
+            // SI EL DEDO ESTÁ EN LA MITAD IZQUIERDA
             if (touch.clientX < window.innerWidth / 2) {
-                // DETENCIÓN CRÍTICA: Esto evita que MV3D mueva la cámara en este lado.
+                // ESTO "MATA" EL EVENTO PARA MV3D:
                 e.stopImmediatePropagation();
+                // Opcional: e.preventDefault(); // Descomentar si el navegador hace scroll
                 
                 if (!joystickData.active) {
                     joystickData.active = true;
@@ -87,9 +89,9 @@
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             
-            // Si el toque que se mueve es el del joystick (en la izquierda)
+            // Si es el dedo que controla el joystick
             if (touch.identifier === joystickData.identifier) {
-                // Seguimos bloqueando para que no haya tirones de cámara.
+                // Bloqueamos la propagación para que MV3D no mueva la cámara
                 e.stopImmediatePropagation();
                 
                 let dx = touch.clientX - joystickData.startX;
@@ -104,6 +106,9 @@
                 joystickData.curX = dx;
                 joystickData.curY = dy;
                 knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            } else if (touch.clientX < window.innerWidth / 2) {
+                // Bloqueo preventivo para cualquier otro dedo en la zona izquierda
+                e.stopImmediatePropagation();
             }
         }
     }
@@ -112,31 +117,27 @@
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             if (touch.identifier === joystickData.identifier) {
-                // Al levantar el dedo en la izquierda, bloqueamos la última señal para la cámara.
                 e.stopImmediatePropagation();
-                
                 joystickData.active = false;
                 joystickData.identifier = null;
                 joystickData.curX = 0;
                 joystickData.curY = 0;
                 container.style.display = 'none';
+            } else if (touch.clientX < window.innerWidth / 2) {
+                e.stopImmediatePropagation();
             }
         }
     }
 
-    // --- INTEGRACIÓN CON EL MOVIMIENTO DE RPG MAKER ---
+    // --- CONEXIÓN CON EL MOVIMIENTO ---
     const _Game_Player_getInputDirection = Game_Player.prototype.getInputDirection;
     Game_Player.prototype.getInputDirection = function() {
         if (joystickData.active) {
             const dx = joystickData.curX;
             const dy = joystickData.curY;
             if (Math.sqrt(dx*dx + dy*dy) < DEADZONE) return 0;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                return dx > 0 ? 6 : 4; 
-            } else {
-                return dy > 0 ? 2 : 8;
-            }
+            if (Math.abs(dx) > Math.abs(dy)) return dx > 0 ? 6 : 4;
+            return dy > 0 ? 2 : 8;
         }
         return _Game_Player_getInputDirection ? _Game_Player_getInputDirection.call(this) : Input.dir8;
     };
