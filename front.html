@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFG</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0d0d1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            color: #eee;
+        }
+
+        .caja {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 40px;
+            width: 360px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #e94560;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 28px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .tab.activo {
+            color: #e94560;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .panel { display: none; }
+        .panel.activo { display: block; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 14px;
+            background: #0f3460;
+            border: 1px solid #1a4a8a;
+            border-radius: 6px;
+            color: #eee;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        input:focus { border-color: #e94560; }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #e94560;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #c73652; }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        .mensaje {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.88rem;
+            min-height: 20px;
+        }
+
+        .error  { color: #e94560; }
+        .exito  { color: #4ecca3; }
+    </style>
+</head>
+<body>
+
+<div class="caja">
+    <h1>TFG</h1>
+    <p class="subtitulo">Inicia sesión para continuar tu aventura</p>
+
+    <div class="tabs">
+        <div class="tab activo" onclick="cambiarTab('login')">Iniciar sesión</div>
+        <div class="tab"       onclick="cambiarTab('register')">Registrarse</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="panel-login" class="panel activo">
+        <input type="text"     id="login-user" placeholder="Usuario" />
+        <input type="password" id="login-pass" placeholder="Contraseña" />
+        <button id="btn-login" onclick="hacerLogin()">Entrar al juego</button>
+        <p class="mensaje" id="msg-login"></p>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="panel-register" class="panel">
+        <input type="text"     id="reg-user" placeholder="Usuario" />
+        <input type="password" id="reg-pass" placeholder="Contraseña" />
+        <button id="btn-reg" onclick="hacerRegister()">Crear cuenta</button>
+        <p class="mensaje" id="msg-reg"></p>
+    </div>
+</div>
+
+<script>
+    const API = "https://TU-APP.railway.app"; // 👈 Cambia esto por tu URL de Spring Boot
+
+    // Si ya hay token válido, ir directo al juego
+    const tokenGuardado = localStorage.getItem("rpg_token");
+    if (tokenGuardado) {
+        window.location.href = "/game.html";
+    }
+
+    function cambiarTab(tab) {
+        document.querySelectorAll(".tab").forEach((t, i) => {
+            t.classList.toggle("activo", (i === 0 && tab === "login") || (i === 1 && tab === "register"));
+        });
+        document.getElementById("panel-login").classList.toggle("activo", tab === "login");
+        document.getElementById("panel-register").classList.toggle("activo", tab === "register");
+    }
+
+    async function hacerLogin() {
+        const username = document.getElementById("login-user").value.trim();
+        const password = document.getElementById("login-pass").value;
+        const msg      = document.getElementById("msg-login");
+        const btn      = document.getElementById("btn-login");
+
+        if (!username || !password) {
+            mostrarMensaje(msg, "Rellena todos los campos", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Entrando...";
+
+        try {
+            const res  = await fetch(`${API}/api/v1/usuario/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                // Guardar token y saveData para que el juego los use
+                localStorage.setItem("rpg_token",   data.token);
+                localStorage.setItem("rpg_usuario",  data.username);
+                if (data.saveData) {
+                    // Guardarlo en el formato que espera RPG Maker MV
+                    localStorage.setItem("RPGFileC", data.saveData);
+                }
+                mostrarMensaje(msg, `¡Bienvenido ${data.username}! Cargando...`, "exito");
+                setTimeout(() => window.location.href = "/game.html", 800);
+            } else {
+                mostrarMensaje(msg, data.error || "Error al iniciar sesión", "error");
+                btn.disabled = false;
+                btn.textContent = "Entrar al juego";
+            }
+        } catch (e) {
+            mostrarMensaje(msg, "No se pudo conectar con el servidor", "error");
+            btn.disabled = false;
+            btn.textContent = "Entrar al juego";
+        }
+    }
+
+    async function hacerRegister() {
+        const username = document.getElementById("reg-user").value.trim();
+        const password = document.getElementById("reg-pass").value;
+        const msg      = document.getElementById("msg-reg");
+        const btn      = document.getElementById("btn-reg");
+
+        if (!username || !password) {
+            mostrarMensaje(msg, "Rellena todos los campos", "error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Creando cuenta...";
+
+        try {
+            const res  = await fetch(`${API}/api/v1/usuario/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                mostrarMensaje(msg, "¡Cuenta creada! Redirigiendo...", "exito");
+                localStorage.setItem("rpg_token",  data.token);
+                localStorage.setItem("rpg_usuario", data.username);
+                setTimeout(() => window.location.href = "/game.html", 800);
+            } else {
+                mostrarMensaje(msg, data.error || "Error al registrarse", "error");
+                btn.disabled = false;
+                btn.textContent = "Crear cuenta";
+            }
+        } catch (e) {
+            mostrarMensaje(msg, "No se pudo conectar con el servidor", "error");
+            btn.disabled = false;
+            btn.textContent = "Crear cuenta";
+        }
+    }
+
+    function mostrarMensaje(el, texto, tipo) {
+        el.textContent = texto;
+        el.className = "mensaje " + tipo;
+    }
+</script>
+</body>
+</html>
