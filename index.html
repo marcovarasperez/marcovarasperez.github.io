@@ -3,173 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFG - Login</title>
+    <title>TFG - Galactic Interface</title>
     <style>
-        /* Estilos generales */
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #e94560;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #0d0d1a;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Segoe UI', sans-serif;
-            color: #eee;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
         }
 
+        /* Fondo animado sutil */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 200%; height: 200%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.1;
+            animation: move 100s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes move { from { transform: translate(0,0); } to { transform: translate(-50%, -50%); } }
+
         .caja {
-            background: #16213e;
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            padding: 40px;
-            width: 360px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px;
+            width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
         }
 
         h1 {
             text-align: center;
-            color: #e94560;
+            font-size: 2.2rem;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #818cf8, #e066ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
-            font-size: 1.6rem;
         }
 
         .subtitulo {
             text-align: center;
-            color: #888;
-            font-size: 0.85rem;
-            margin-bottom: 28px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
         }
 
-        /* Sistema de Tabs */
+        /* Tabs modernas */
         .tabs {
             display: flex;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 4px;
+            border-radius: 12px;
             margin-bottom: 24px;
-            border-bottom: 1px solid #0f3460;
         }
 
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             cursor: pointer;
-            color: #888;
-            transition: color 0.2s;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
         }
 
         .tab.activo {
-            color: #e94560;
-            border-bottom: 2px solid #e94560;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        .panel { display: none; }
+        .panel { display: none; animation: fadeIn 0.4s ease forwards; }
         .panel.activo { display: block; }
 
-        /* Formularios */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Inputs Estilizados */
+        .input-group { position: relative; margin-bottom: 20px; }
+
         input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 14px;
-            background: #0f3460;
-            border: 1px solid #1a4a8a;
-            border-radius: 6px;
-            color: #eee;
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-        input:focus { border-color: #e94560; }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            background: #e94560;
-            border: none;
-            border-radius: 6px;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             color: white;
             font-size: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
+            outline: none;
+            transition: all 0.2s;
         }
 
-        button:hover { background: #c73652; }
-        button:disabled { background: #555; cursor: not-allowed; }
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Botón con efecto de brillo */
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        button:active { transform: translateY(0); }
+
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .mensaje {
             text-align: center;
-            margin-top: 14px;
-            font-size: 0.88rem;
+            margin-top: 20px;
+            font-size: 0.85rem;
             min-height: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
         }
 
-        .error  { color: #e94560; }
-        .exito  { color: #4ecca3; }
+        .error { display: block; background: rgba(233, 69, 96, 0.1); color: var(--accent); border: 1px solid rgba(233, 69, 96, 0.2); }
+        .exito { display: block; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="caja">
-    <h1>TFG</h1>
-    <p class="subtitulo">Inicia sesión para continuar tu aventura</p>
+    <h1>CYBER RPG</h1>
+    <p class="subtitulo">Accede al nexo de datos del TFG</p>
 
     <div class="tabs">
-        <div class="tab activo" id="tab-login" onclick="cambiarTab('login')">Iniciar sesión</div>
-        <div class="tab" id="tab-register" onclick="cambiarTab('register')">Registrarse</div>
+        <div class="tab activo" id="tab-login" onclick="cambiarTab('login')">LOGIN</div>
+        <div class="tab" id="tab-register" onclick="cambiarTab('register')">REGISTRO</div>
     </div>
 
     <div id="panel-login" class="panel activo">
-        <input type="text" id="login-user" placeholder="Usuario" />
-        <input type="password" id="login-pass" placeholder="Contraseña" />
-        <button id="btn-login" onclick="hacerLogin()">Entrar al juego</button>
+        <div class="input-group">
+            <input type="text" id="login-user" placeholder="Nombre de usuario" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <input type="password" id="login-pass" placeholder="Contraseña">
+        </div>
+        <button id="btn-login" onclick="hacerLogin()">INICIAR SESIÓN</button>
         <p class="mensaje" id="msg-login"></p>
     </div>
 
     <div id="panel-register" class="panel">
-        <input type="text" id="reg-user" placeholder="Usuario" />
-        <input type="email" id="reg-email" placeholder="Correo electrónico" /> 
-        <input type="password" id="reg-pass" placeholder="Contraseña" />
-        <button id="btn-reg" onclick="hacerRegister()">Crear cuenta</button>
+        <div class="input-group">
+            <input type="text" id="reg-user" placeholder="Nombre de usuario" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <input type="email" id="reg-email" placeholder="Correo electrónico">
+        </div>
+        <div class="input-group">
+            <input type="password" id="reg-pass" placeholder="Contraseña">
+        </div>
+        <button id="btn-reg" onclick="hacerRegister()">CREAR CUENTA</button>
         <p class="mensaje" id="msg-reg"></p>
     </div>
 </div>
 
 <script>
-    // URL de tu API en Oracle Cloud a través de DuckDNS
     const API_BASE_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
 
-    // Función para cambiar entre pestañas de Login y Registro
     function cambiarTab(tab) {
         document.getElementById("tab-login").classList.toggle("activo", tab === 'login');
         document.getElementById("tab-register").classList.toggle("activo", tab === 'register');
         document.getElementById("panel-login").classList.toggle("activo", tab === 'login');
         document.getElementById("panel-register").classList.toggle("activo", tab === 'register');
         
-        // Limpiar mensajes previos
-        document.getElementById("msg-login").textContent = "";
-        document.getElementById("msg-reg").textContent = "";
+        document.getElementById("msg-login").style.display = "none";
+        document.getElementById("msg-reg").style.display = "none";
     }
 
     function mostrarMensaje(elId, texto, tipo) {
         const el = document.getElementById(elId);
-        el.textContent = texto;
-        el.className = "mensaje " + tipo;
+        if (el) {
+            el.textContent = texto;
+            el.className = "mensaje " + tipo;
+            el.style.display = "block";
+        }
     }
 
-    // Lógica de Inicio de Sesión
     async function hacerLogin() {
         const usuario = document.getElementById("login-user").value.trim();
         const password = document.getElementById("login-pass").value;
         const btn = document.getElementById("btn-login");
 
-        if (!usuario || !password) {
-            mostrarMensaje("msg-login", "Rellena todos los campos", "error");
-            return;
-        }
+        if (!usuario || !password) return mostrarMensaje("msg-login", "⚠️ Completa todos los campos", "error");
 
         btn.disabled = true;
-        btn.textContent = "Conectando...";
+        btn.textContent = "VERIFICANDO...";
 
         try {
             const response = await fetch(`${API_BASE_URL}/login`, {
@@ -180,53 +243,32 @@
 
             if (response.ok) {
                 const jugador = await response.json();
-                mostrarMensaje("msg-login", `¡Bienvenido ${jugador.usuario}!`, "exito");
-                
-                // Guardar sesión localmente
+                mostrarMensaje("msg-login", "✅ Acceso concedido", "exito");
                 localStorage.setItem("rpg_usuario", jugador.usuario);
-                
-                setTimeout(() => {
-                    window.location.href = "game.html"; 
-                }, 1000);
+                setTimeout(() => { window.location.href = "game.html"; }, 1000);
             } else {
-                mostrarMensaje("msg-login", "Usuario o contraseña incorrectos", "error");
-                btn.disabled = false;
-                btn.textContent = "Entrar al juego";
+                mostrarMensaje("msg-login", "❌ Credenciales inválidas", "error");
             }
         } catch (error) {
-            console.error("Error:", error);
-            mostrarMensaje("msg-login", "Error de conexión con el servidor", "error");
+            mostrarMensaje("msg-login", "📡 Error de red: Servidor offline", "error");
+        } finally {
             btn.disabled = false;
-            btn.textContent = "Entrar al juego";
+            btn.textContent = "INICIAR SESIÓN";
         }
     }
 
-    // Lógica de Registro de nuevo usuario
     async function hacerRegister() {
         const usuario = document.getElementById("reg-user").value.trim();
         const email = document.getElementById("reg-email").value.trim();
         const password = document.getElementById("reg-pass").value;
         const btn = document.getElementById("btn-reg");
 
-        if (!usuario || !email || !password) {
-            mostrarMensaje("msg-reg", "Rellena todos los campos", "error");
-            return;
-        }
+        if (!usuario || !email || !password) return mostrarMensaje("msg-reg", "⚠️ Datos incompletos", "error");
 
         btn.disabled = true;
-        btn.textContent = "Creando cuenta...";
+        btn.textContent = "PROCESANDO...";
 
-        // Objeto con los datos que espera tu Backend
-        const nuevoJugador = {
-            usuario: usuario,
-            password: password,
-            email: email, 
-            idMapa: 1,
-            x: 10,
-            y: 10,
-            bit: 0,
-            tiempoJuego: 0
-        };
+        const nuevoJugador = { usuario, password, email, idMapa: 1, x: 10, y: 10, bit: 0, tiempoJuego: 0 };
 
         try {
             const response = await fetch(`${API_BASE_URL}/registro`, {
@@ -236,20 +278,18 @@
             });
 
             if (response.ok) {
-                mostrarMensaje("msg-reg", "¡Cuenta creada! Revisa tu email para el código.", "exito");
+                mostrarMensaje("msg-reg", "✅ Registro exitoso. ¡Bienvenido!", "exito");
                 setTimeout(() => cambiarTab('login'), 2000);
             } else if (response.status === 409) {
-                // Manejo específico para el error de usuario/email duplicado
-                mostrarMensaje("msg-reg", "El usuario o email ya está en uso", "error");
+                mostrarMensaje("msg-reg", "🚫 Usuario o email ya registrados", "error");
             } else {
-                mostrarMensaje("msg-reg", "Error al registrarse", "error");
+                mostrarMensaje("msg-reg", "⚠️ Error del servidor: " + response.status, "error");
             }
         } catch (error) {
-            console.error("Error:", error);
-            mostrarMensaje("msg-reg", "Error de conexión", "error");
+            mostrarMensaje("msg-reg", "📡 Error de conexión", "error");
         } finally {
             btn.disabled = false;
-            btn.textContent = "Crear cuenta";
+            btn.textContent = "CREAR CUENTA";
         }
     }
 </script>
