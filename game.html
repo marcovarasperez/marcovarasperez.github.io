@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="icon" href="icon/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon/icon.png">
+    <link rel="stylesheet" type="text/css" href="fonts/gamefont.css">
+    <title>TFG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: black;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            width: 100vw !important;
+            height: 100vh !important;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+
+<body style="background-color: black">
+    <script type="text/javascript" src="js/libs/pixi.js"></script>
+    <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
+    <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
+    <script type="text/javascript" src="js/libs/fpsmeter.js"></script>
+    <script type="text/javascript" src="js/libs/lz-string.js"></script>
+    <script type="text/javascript" src="js/libs/iphone-inline-video.browser.js"></script>
+    <script type="text/javascript" src="js/rpg_core.js"></script>
+    <script type="text/javascript" src="js/rpg_managers.js"></script>
+    <script type="text/javascript" src="js/rpg_objects.js"></script>
+    <script type="text/javascript" src="js/rpg_scenes.js"></script>
+    <script type="text/javascript" src="js/rpg_sprites.js"></script>
+    <script type="text/javascript" src="js/rpg_windows.js"></script>
+    <script type="text/javascript" src="js/plugins.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+<script>
+    const API_BASE_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
+
+    // Función para registrar un nuevo jugador (Registro)
+    async function registrarEnServidor(datosJugador) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/registro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosJugador)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Error al registrar:", error);
+        }
+    }
+
+    // Función para hacer login
+    async function loginEnServidor(usuario, password) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+            if (response.ok) {
+                const jugador = await response.json();
+                console.log("Login correcto:", jugador);
+                return jugador;
+            } else {
+                alert("Usuario o contraseña incorrectos");
+            }
+        } catch (error) {
+            console.error("Error en el login:", error);
+        }
+    }
+</script>
+ <script>
+    window.addEventListener('load', function() {
+
+        function resize(canvas) {
+            var winW = window.innerWidth;
+            var winH = window.innerHeight;
+            var gameW = 1280;
+            var gameH = 720;
+            var scaleX = winW / gameW;
+            var scaleY = winH / gameH;
+            var scale = Math.min(scaleX, scaleY);
+
+            var w = Math.floor(gameW * scale);
+            var h = Math.floor(gameH * scale);
+            var left = Math.floor((winW - w) / 2);
+            var top  = Math.floor((winH - h) / 2);
+
+            canvas.style.setProperty('width',    w    + 'px', 'important');
+            canvas.style.setProperty('height',   h    + 'px', 'important');
+            canvas.style.setProperty('left',     left + 'px', 'important');
+            canvas.style.setProperty('top',      top  + 'px', 'important');
+            canvas.style.setProperty('position', 'absolute',  'important');
+            canvas.style.setProperty('margin',   '0',         'important');
+        }
+
+        var canvas = document.querySelector('canvas');
+
+        if (canvas) {
+            resize(canvas);
+            // Observar cambios en el style del canvas y corregirlos
+            var observer = new MutationObserver(function() {
+                resize(canvas);
+            });
+            observer.observe(canvas, { attributes: true, attributeFilter: ['style'] });
+        } else {
+            // Si el canvas aún no existe, esperar a que aparezca
+            var bodyObserver = new MutationObserver(function() {
+                var c = document.querySelector('canvas');
+                if (c) {
+                    bodyObserver.disconnect();
+                    resize(c);
+                    var observer = new MutationObserver(function() { resize(c); });
+                    observer.observe(c, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
+            bodyObserver.observe(document.body, { childList: true, subtree: true });
+        }
+
+        window.addEventListener('resize', function() {
+            var c = document.querySelector('canvas');
+            if (c) resize(c);
+        });
+    });
+</script>
+</body>
+
+</html>
