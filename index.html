@@ -50,6 +50,43 @@
     <script type="text/javascript" src="js/rpg_windows.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+<script>
+    const API_BASE_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
+
+    // Función para registrar un nuevo jugador (Registro)
+    async function registrarEnServidor(datosJugador) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/registro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datosJugador)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Error al registrar:", error);
+        }
+    }
+
+    // Función para hacer login
+    async function loginEnServidor(usuario, password) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+            if (response.ok) {
+                const jugador = await response.json();
+                console.log("Login correcto:", jugador);
+                return jugador;
+            } else {
+                alert("Usuario o contraseña incorrectos");
+            }
+        } catch (error) {
+            console.error("Error en el login:", error);
+        }
+    }
+</script>
  <script>
     window.addEventListener('load', function() {
 
