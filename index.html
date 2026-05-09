@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TFG - Login</title>
     <style>
+        /* Estilos generales */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -40,6 +41,7 @@
             margin-bottom: 28px;
         }
 
+        /* Sistema de Tabs */
         .tabs {
             display: flex;
             margin-bottom: 24px;
@@ -64,6 +66,7 @@
         .panel { display: none; }
         .panel.activo { display: block; }
 
+        /* Formularios */
         input {
             width: 100%;
             padding: 12px;
@@ -133,15 +136,17 @@
 </div>
 
 <script>
-    // URL Final configurada a través de tu Nginx con SSL
+    // URL de tu API en Oracle Cloud a través de DuckDNS
     const API_BASE_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
 
+    // Función para cambiar entre pestañas de Login y Registro
     function cambiarTab(tab) {
         document.getElementById("tab-login").classList.toggle("activo", tab === 'login');
         document.getElementById("tab-register").classList.toggle("activo", tab === 'register');
         document.getElementById("panel-login").classList.toggle("activo", tab === 'login');
         document.getElementById("panel-register").classList.toggle("activo", tab === 'register');
         
+        // Limpiar mensajes previos
         document.getElementById("msg-login").textContent = "";
         document.getElementById("msg-reg").textContent = "";
     }
@@ -152,6 +157,7 @@
         el.className = "mensaje " + tipo;
     }
 
+    // Lógica de Inicio de Sesión
     async function hacerLogin() {
         const usuario = document.getElementById("login-user").value.trim();
         const password = document.getElementById("login-pass").value;
@@ -175,8 +181,13 @@
             if (response.ok) {
                 const jugador = await response.json();
                 mostrarMensaje("msg-login", `¡Bienvenido ${jugador.usuario}!`, "exito");
+                
+                // Guardar sesión localmente
                 localStorage.setItem("rpg_usuario", jugador.usuario);
-                setTimeout(() => { window.location.href = "game.html"; }, 1000);
+                
+                setTimeout(() => {
+                    window.location.href = "game.html"; 
+                }, 1000);
             } else {
                 mostrarMensaje("msg-login", "Usuario o contraseña incorrectos", "error");
                 btn.disabled = false;
@@ -190,9 +201,10 @@
         }
     }
 
+    // Lógica de Registro de nuevo usuario
     async function hacerRegister() {
         const usuario = document.getElementById("reg-user").value.trim();
-        const email = document.getElementById("reg-email").value.trim(); // Captura el email real
+        const email = document.getElementById("reg-email").value.trim();
         const password = document.getElementById("reg-pass").value;
         const btn = document.getElementById("btn-reg");
 
@@ -204,10 +216,11 @@
         btn.disabled = true;
         btn.textContent = "Creando cuenta...";
 
+        // Objeto con los datos que espera tu Backend
         const nuevoJugador = {
             usuario: usuario,
             password: password,
-            email: email, // Envía el email introducido por el usuario
+            email: email, 
             idMapa: 1,
             x: 10,
             y: 10,
@@ -225,8 +238,11 @@
             if (response.ok) {
                 mostrarMensaje("msg-reg", "¡Cuenta creada! Revisa tu email para el código.", "exito");
                 setTimeout(() => cambiarTab('login'), 2000);
+            } else if (response.status === 409) {
+                // Manejo específico para el error de usuario/email duplicado
+                mostrarMensaje("msg-reg", "El usuario o email ya está en uso", "error");
             } else {
-                mostrarMensaje("msg-reg", "Error al registrar: Usuario o email ya en uso", "error");
+                mostrarMensaje("msg-reg", "Error al registrarse", "error");
             }
         } catch (error) {
             console.error("Error:", error);
