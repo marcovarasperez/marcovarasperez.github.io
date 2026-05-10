@@ -258,51 +258,53 @@
     }
 
     async function hacerRegister() {
-    const usuario = document.getElementById("reg-user").value.trim();
-    const email = document.getElementById("reg-email").value.trim();
-    const password = document.getElementById("reg-pass").value;
-    const btn = document.getElementById("btn-reg");
+        const usuario = document.getElementById("reg-user").value.trim();
+        const email = document.getElementById("reg-email").value.trim();
+        const password = document.getElementById("reg-pass").value;
+        const btn = document.getElementById("btn-reg");
 
-    if (!usuario || !email || !password) {
-        return mostrarMensaje("msg-reg", "⚠️ Completa todos los campos", "error");
-    }
-
-    btn.disabled = true;
-    btn.textContent = "PROCESANDO...";
-
-    const datos = {
-        usuario: usuario,
-        password: password,
-        email: email,
-        idMapa: 1, x: 10, y: 10, bit: 0, tiempoJuego: 0
-    };
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/registro`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datos)
-        });
-
-        // IMPORTANTE: Leemos el texto de la respuesta para saber qué validación falló
-        const mensajeServidor = await response.text();
-
-        if (response.ok) {
-            mostrarMensaje("msg-reg", "✅ Registro exitoso", "exito");
-            setTimeout(() => cambiarTab('login'), 2000);
-        } else if (response.status === 409) {
-            // Aquí el servidor te dirá: "La contraseña debe tener al menos un número", etc.
-            mostrarMensaje("msg-reg", "❌ " + mensajeServidor, "error");
-        } else {
-            mostrarMensaje("msg-reg", "⚠️ Error: " + response.status, "error");
+        if (!usuario || !email || !password) {
+            return mostrarMensaje("msg-reg", "⚠️ Completa todos los campos", "error");
         }
-    } catch (error) {
-        mostrarMensaje("msg-reg", "📡 Error de conexión", "error");
-    } finally {
-        btn.disabled = false;
-        btn.textContent = "CREAR CUENTA";
+
+        btn.disabled = true;
+        btn.textContent = "PROCESANDO...";
+
+        // ENVIAMOS SOLO LO NECESARIO
+        // El servidor se encarga de poner el Mapa 1, X:10, Y:10, etc.
+        const datos = {
+            usuario: usuario,
+            password: password,
+            email: email
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/registro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            // Obtenemos el texto del error si existe
+            const textoRespuesta = await response.text();
+
+            if (response.ok) {
+                mostrarMensaje("msg-reg", "✅ Registro exitoso. ¡Inicia sesión!", "exito");
+                setTimeout(() => cambiarTab('login'), 2000);
+            } else if (response.status === 409) {
+                // El 409 ahora te dirá EXACTAMENTE qué está repetido
+                mostrarMensaje("msg-reg", "❌ " + (textoRespuesta || "Usuario o Email ya en uso"), "error");
+            } else {
+                mostrarMensaje("msg-reg", "⚠️ Error del servidor: " + response.status, "error");
+            }
+        } catch (error) {
+            console.error("Error completo:", error);
+            mostrarMensaje("msg-reg", "📡 Error de conexión con el servidor", "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "CREAR CUENTA";
+        }
     }
-}
 </script>
 </body>
 </html>

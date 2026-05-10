@@ -21,24 +21,21 @@ public class tfgservice {
     private tfgvalidator validator;
 
     // ── REGISTRO ──────────────────────────────────────────────────────────────
-    public tfgentity registrar(tfgdto dto) {
-        validator.validarRegistro(dto);
+public void registrar(tfgdto dto) {
+    System.out.println("Intentando registrar usuario: " + dto.getUsuario());
 
-        if (repository.existsByUsuario(dto.getUsuario())) {
-            throw new RuntimeException("Ya existe una cuenta con el usuario: " + dto.getUsuario());
-        }
-        if (repository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Ya existe una cuenta con el email: " + dto.getEmail());
-        }
-
-        tfgentity nuevo = new tfgentity(
-            dto.getUsuario(),
-            BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt(12)), // cifrado
-            dto.getEmail()
-        );
-
-        return repository.save(nuevo);
+    if (repository.existsByUsuario(dto.getUsuario())) {
+        throw new RuntimeException("CONFL_USER");
     }
+    tfgentity nuevaEntidad = new tfgentity(
+        dto.getUsuario(), 
+        dto.getPassword(), 
+        dto.getEmail()
+    );
+
+    // 3. Guardar (Hibernate se encargará de los valores por defecto)
+    repository.save(nuevaEntidad);
+}
 
     // ── LOGIN ─────────────────────────────────────────────────────────────────
     public tfgentity login(String usuario, String password) {
