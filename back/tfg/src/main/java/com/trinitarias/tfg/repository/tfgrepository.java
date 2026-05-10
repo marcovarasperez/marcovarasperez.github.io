@@ -29,11 +29,11 @@ public interface tfgrepository extends JpaRepository<tfgentity, Long> {
     // count()                       → SELECT COUNT(*) FROM DatosJugador
 
     // ── EXISTS ───────────────────────────────────────────────────────────────
-    @Query(value = "SELECT COUNT(*) > 0 FROM DatosJugador WHERE usuario = :usuario", nativeQuery = true)
-    boolean existsByUsuario(String usuario);
+    @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM DatosJugador WHERE usuario = :usuario", nativeQuery = true)
+boolean existsByUsuario(String usuario);
 
-    @Query(value = "SELECT COUNT(*) > 0 FROM DatosJugador WHERE email = :email", nativeQuery = true)
-    boolean existsByEmail(String email);
+@Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END FROM DatosJugador WHERE email = :email", nativeQuery = true)
+boolean existsByEmail(String email);
 
     // Heredado de JpaRepository:
     // existsById(Long id)           → SELECT COUNT(*) WHERE id = ?
