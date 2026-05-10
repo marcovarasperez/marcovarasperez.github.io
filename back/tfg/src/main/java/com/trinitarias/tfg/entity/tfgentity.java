@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 @Entity
-@Table(name = "DatosJugador")
+@Table(name = "datos_jugador")
 public class tfgentity {
 
     @Id
@@ -25,56 +25,55 @@ public class tfgentity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // --- VALORES POR DEFECTO PARA EL INICIO DEL JUEGO ---
-    private int idMapa = 1; 
-    private int x = 10;     
-    private int y = 10;     
+    private int idMapa = 1;
+    private int x = 10;
+    private int y = 10;
     private long bit = 0;
     private double tiempoJuego = 0.0;
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_interruptores", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_interruptores", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "id_interruptor")
     @Column(name = "valor")
     private Map<Integer, Integer> interruptores = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_variables", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_variables", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "id_variable")
     @Column(name = "valor")
     private Map<Integer, Integer> variables = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_personajes", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_personajes", joinColumns = @JoinColumn(name = "jugador_id"))
     @Column(name = "personaje_id")
     private List<Integer> personajesId = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_nivel_personaje", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_nivel_personaje", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "personaje_id")
     @Column(name = "nivel")
     private Map<Integer, Integer> nivelPersonaje = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_inventario_objetos", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_inventario_objetos", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "objeto_id")
     @Column(name = "cantidad")
     private Map<Integer, Integer> inventarioObjetos = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_inventario_armas", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_inventario_armas", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "arma_id")
     @Column(name = "cantidad")
     private Map<Integer, Integer> inventarioArmas = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_inventario_armaduras", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_inventario_armaduras", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "armadura_id")
     @Column(name = "cantidad")
     private Map<Integer, Integer> inventarioArmaduras = new HashMap<>();
 
     @ElementCollection
-    @CollectionTable(name = "DatosJugador_objetos_clave", joinColumns = @JoinColumn(name = "jugador_id"))
+    @CollectionTable(name = "datos_jugador_objetos_clave", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "objeto_id")
     @Column(name = "cantidad")
     private Map<Integer, Integer> objetosClave = new HashMap<>();
@@ -87,18 +86,14 @@ public class tfgentity {
     @Column(columnDefinition = "TEXT")
     private Map<Integer, List<Integer>> habilidadesPersonaje = new HashMap<>();
 
-    // Constructor vacío requerido por JPA
     public tfgentity() { }
 
-    // Constructor para registro (solo datos esenciales)
     public tfgentity(String usuario, String password, String email) {
         this.usuario = usuario;
         this.password = password;
         this.email = email;
-        // El resto de campos usarán los valores asignados arriba automáticamente
     }
 
-    // --- GETTERS Y SETTERS ---
     public Long getId() { return id; }
     public String getUsuario() { return usuario; }
     public void setUsuario(String usuario) { this.usuario = usuario; }
@@ -116,34 +111,24 @@ public class tfgentity {
     public void setBit(long bit) { this.bit = bit; }
     public double getTiempoJuego() { return tiempoJuego; }
     public void setTiempoJuego(double tiempoJuego) { this.tiempoJuego = tiempoJuego; }
-    
     public Map<Integer, Integer> getInterruptores() { return interruptores; }
     public void setInterruptores(Map<Integer, Integer> interruptores) { this.interruptores = interruptores; }
-    
     public Map<Integer, Integer> getVariables() { return variables; }
     public void setVariables(Map<Integer, Integer> variables) { this.variables = variables; }
-    
     public List<Integer> getPersonajesId() { return personajesId; }
     public void setPersonajesId(List<Integer> personajesId) { this.personajesId = personajesId; }
-    
     public Map<Integer, Integer> getNivelPersonaje() { return nivelPersonaje; }
     public void setNivelPersonaje(Map<Integer, Integer> nivelPersonaje) { this.nivelPersonaje = nivelPersonaje; }
-    
     public Map<Integer, Integer> getInventarioObjetos() { return inventarioObjetos; }
     public void setInventarioObjetos(Map<Integer, Integer> inventarioObjetos) { this.inventarioObjetos = inventarioObjetos; }
-    
     public Map<Integer, Integer> getInventarioArmas() { return inventarioArmas; }
     public void setInventarioArmas(Map<Integer, Integer> inventarioArmas) { this.inventarioArmas = inventarioArmas; }
-    
     public Map<Integer, Integer> getInventarioArmaduras() { return inventarioArmaduras; }
     public void setInventarioArmaduras(Map<Integer, Integer> inventarioArmaduras) { this.inventarioArmaduras = inventarioArmaduras; }
-    
     public Map<Integer, Integer> getObjetosClave() { return objetosClave; }
     public void setObjetosClave(Map<Integer, Integer> objetosClave) { this.objetosClave = objetosClave; }
-    
     public Map<Integer, List<Integer>> getEquipoPersonaje() { return equipoPersonaje; }
     public void setEquipoPersonaje(Map<Integer, List<Integer>> equipoPersonaje) { this.equipoPersonaje = equipoPersonaje; }
-    
     public Map<Integer, List<Integer>> getHabilidadesPersonaje() { return habilidadesPersonaje; }
     public void setHabilidadesPersonaje(Map<Integer, List<Integer>> habilidadesPersonaje) { this.habilidadesPersonaje = habilidadesPersonaje; }
 
@@ -153,7 +138,7 @@ public class tfgentity {
 
         @Override
         public String convertToDatabaseColumn(Map<Integer, List<Integer>> attribute) {
-            if (attribute == null) return "{}"; // Evitamos nulos en DB para JSON
+            if (attribute == null) return "{}";
             try {
                 return objectMapper.writeValueAsString(attribute);
             } catch (Exception e) {
@@ -163,7 +148,7 @@ public class tfgentity {
 
         @Override
         public Map<Integer, List<Integer>> convertToEntityAttribute(String dbData) {
-            if (dbData == null || dbData.isEmpty()) return new HashMap<>(); 
+            if (dbData == null || dbData.isEmpty()) return new HashMap<>();
             try {
                 return objectMapper.readValue(dbData, new TypeReference<Map<Integer, List<Integer>>>() {});
             } catch (Exception e) {
