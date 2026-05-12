@@ -7,26 +7,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh; }
-        
-        /* Ocultar el ojo nativo del navegador */
-        input::-ms-reveal, input::-ms-clear { display: none; }
-
-        .settings-card { 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(10px); 
-            border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.05); 
+        body {
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
+                        url('./img/fondo.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh;
         }
-
-        .nav-link { color: #94a3b8; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
-        .nav-link:hover { background: rgba(255,255,255,0.05); }
-        .nav-link.active { background: #6366f1 !important; color: white; font-weight: 600; }
-
-        .form-control { background: #0f172a; border: 1px solid #334155; color: white; padding-right: 45px; }
-        .form-control:disabled { background: #1e293b; color: #64748b; border-color: transparent; }
-
-        /* Nuevo botón de ver contraseña (Círculo minimalista) */
+        input::-ms-reveal, input::-ms-clear { display: none; }
+        .settings-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 24px; border: 1px solid rgba(255,255,255,0.05);
+            max-width: 650px; margin: auto;
+        }
+        .form-control { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; }
+        .form-control:focus { background: #0f172a; color: white; border-color: #6366f1; box-shadow: none; }
         .pass-wrapper { position: relative; }
         .toggle-btn {
             position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
@@ -34,158 +29,114 @@
             border-radius: 50%; cursor: pointer; padding: 0; transition: 0.2s;
         }
         .toggle-btn.active { background: #6366f1; border-color: #6366f1; box-shadow: 0 0 8px #6366f1; }
-
-        .btn-save { background: #6366f1; color: white; font-weight: 600; border: none; padding: 12px; border-radius: 10px; }
-        .btn-save:hover { background: #4f46e5; }
+        .btn-save { background: #6366f1; color: white; font-weight: 700; border: none; padding: 14px; border-radius: 12px; transition: 0.3s; }
+        .btn-save:hover { background: #4f46e5; transform: translateY(-2px); }
+        .section-title { border-left: 4px solid #6366f1; padding-left: 15px; margin-bottom: 20px; font-weight: 800; }
+        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0; }
     </style>
 </head>
 <body>
-
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h2 class="fw-800 m-0 text-white">Configuración</h2>
-            <p class="text-secondary m-0">Gestiona tus datos y seguridad</p>
-        </div>
-        <a href="menu.html" class="btn btn-outline-light px-4" style="border-radius: 10px;">Volver al Menú</a>
+    <div class="text-center mb-5">
+        <h2 class="fw-800 text-white">Configuración de Cuenta</h2>
+        <p class="text-secondary">Actualiza tu identidad y seguridad en un solo lugar</p>
     </div>
-
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="settings-card p-3">
-                <nav class="nav flex-column">
-                    <a class="nav-link active" id="l-perfil" onclick="cambiarSeccion('perfil')">👤 Perfil</a>
-                    <a class="nav-link" id="l-seguridad" onclick="cambiarSeccion('seguridad')">🔒 Seguridad</a>
-                    <hr class="border-secondary my-3">
-                    <a class="nav-link text-danger" onclick="confirmarEliminar()">⚠️ Eliminar Cuenta</a>
-                </nav>
+    <div class="settings-card p-4 p-md-5">
+        <div class="section-title">DATOS DE PERFIL</div>
+        <div class="mb-3">
+            <label class="form-label small text-secondary fw-600">Nombre de Usuario</label>
+            <input type="text" id="edit-user" class="form-control" placeholder="Nuevo nombre de usuario">
+        </div>
+        <div class="mb-3">
+            <label class="form-label small text-secondary fw-600">Correo Electrónico</label>
+            <input type="email" id="edit-email" class="form-control" placeholder="ejemplo@correo.com">
+        </div>
+        <div class="divider"></div>
+        <div class="section-title">CAMBIAR CONTRASEÑA</div>
+        <div class="mb-3">
+            <label class="form-label small text-secondary fw-600">Contraseña Actual</label>
+            <div class="pass-wrapper">
+                <input type="password" id="pass-actual" class="form-control" placeholder="Obligatorio para cualquier cambio">
+                <button class="toggle-btn" onclick="togglePass('pass-actual', this)"></button>
             </div>
         </div>
-
-        <div class="col-md-8">
-            <div class="settings-card p-4">
-                
-                <div id="section-perfil">
-                    <h5 class="mb-4">Datos del Jugador</h5>
-                    <div class="mb-3">
-                        <label class="form-label small text-secondary">Nombre de Usuario</label>
-                        <input type="text" id="display-user" class="form-control" disabled>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small text-secondary">Nuevo Email</label>
-                        <input type="email" id="edit-email" class="form-control" placeholder="ejemplo@correo.com">
-                    </div>
-                    <button class="btn btn-save w-100" onclick="guardarPerfil()">Actualizar Email</button>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label small text-secondary fw-600">Nueva Contraseña</label>
+                <div class="pass-wrapper">
+                    <input type="password" id="pass-nueva" class="form-control" placeholder="Mín. 8 caracteres">
+                    <button class="toggle-btn" onclick="togglePass('pass-nueva', this)"></button>
                 </div>
-
-                <div id="section-seguridad" class="d-none">
-                    <h5 class="mb-4">Cambio de Contraseña</h5>
-                    <div class="mb-4">
-                        <label class="form-label small text-secondary">Nueva Contraseña</label>
-                        <div class="pass-wrapper">
-                            <input type="password" id="pass-nueva" class="form-control" placeholder="Mínimo 8 caracteres">
-                            <button class="toggle-btn" onclick="togglePass('pass-nueva', this)"></button>
-                        </div>
-                    </div>
-                    <div class="alert alert-info py-2 small">
-                        Se te solicitará tu contraseña actual para confirmar los cambios.
-                    </div>
-                    <button class="btn btn-save w-100" onclick="actualizarSeguridad()">Cambiar Contraseña</button>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label small text-secondary fw-600">Repetir Nueva Contraseña</label>
+                <div class="pass-wrapper">
+                    <input type="password" id="pass-repetir" class="form-control" placeholder="Repite la contraseña">
+                    <button class="toggle-btn" onclick="togglePass('pass-repetir', this)"></button>
                 </div>
-
+            </div>
+        </div>
+        <div class="mt-5">
+            <button class="btn btn-save w-100 mb-3" onclick="actualizarTodo()">GUARDAR TODOS LOS CAMBIOS</button>
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="menu.html" class="text-secondary text-decoration-none small">← Volver al Menú</a>
+                <button class="btn btn-link text-danger btn-sm p-0 text-decoration-none" onclick="confirmarEliminar()">Eliminar cuenta permanentemente</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     const API_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
     const usuarioLogueado = localStorage.getItem("rpg_usuario");
-
-    // Verificar sesión al entrar
-    if (!usuarioLogueado) {
-        window.location.href = "index.html";
-    } else {
-        document.getElementById("display-user").value = usuarioLogueado;
-    }
-
-    // Función para alternar visibilidad de contraseña (Círculo)
+    if (!usuarioLogueado) window.location.href = "index.html";
+    else document.getElementById("edit-user").value = usuarioLogueado;
     function togglePass(id, btn) {
         const input = document.getElementById(id);
-        if (input.type === "password") {
-            input.type = "text";
-            btn.classList.add('active');
-        } else {
-            input.type = "password";
-            btn.classList.remove('active');
-        }
+        input.type = input.type === "password" ? "text" : "password";
+        btn.classList.toggle('active');
     }
-
-    // Cambiar entre pestañas
-    function cambiarSeccion(sec) {
-        document.getElementById('section-perfil').classList.toggle('d-none', sec !== 'perfil');
-        document.getElementById('section-seguridad').classList.toggle('d-none', sec !== 'seguridad');
-        document.getElementById('l-perfil').classList.toggle('active', sec === 'perfil');
-        document.getElementById('l-seguridad').classList.toggle('active', sec === 'seguridad');
-    }
-
-    // --- TUS FUNCIONES DEL BACKEND ---
-
-    async function guardarPerfil() {
-        const nuevoEmail = document.getElementById("edit-email").value;
-        if (!nuevoEmail) return alert("Introduce un email válido");
-
-        try {
-            const res = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, {
-                method: 'PATCH'
-            });
-
-            if (res.ok) {
-                alert("¡Email actualizado!");
-                document.getElementById("edit-email").value = "";
-            } else {
-                const err = await res.text();
-                alert("Error: " + err);
-            }
-        } catch (e) { alert("Error de conexión"); }
-    }
-
-    async function actualizarSeguridad() {
+    async function actualizarTodo() {
+        const nuevoUser = document.getElementById("edit-user").value.trim();
+        const nuevoEmail = document.getElementById("edit-email").value.trim();
+        const passActual = document.getElementById("pass-actual").value;
         const passNueva = document.getElementById("pass-nueva").value;
-        if (passNueva.length < 8) return alert("La contraseña debe tener al menos 8 caracteres");
-
-        const passActual = prompt("Introduce tu contraseña ACTUAL para confirmar el cambio:");
-        if (!passNueva || !passActual) return alert("Rellena los campos");
-
+        const passRepetir = document.getElementById("pass-repetir").value;
+        if (!passActual) return alert("Debes introducir tu contraseña actual para confirmar cambios.");
+        if (passNueva || passRepetir) {
+            if (passNueva !== passRepetir) return alert("Las nuevas contraseñas no coinciden.");
+            if (passNueva.length < 8) return alert("La nueva contraseña debe tener al menos 8 caracteres.");
+        }
         try {
-            const url = `${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`;
-            const res = await fetch(url, { method: 'PATCH' });
-
-            if (res.ok) {
-                alert("¡Contraseña cambiada con éxito!");
-                document.getElementById("pass-nueva").value = "";
-            } else {
-                const err = await res.text();
-                alert("Error: " + err);
+            if (nuevoEmail) {
+                const resEmail = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { method: 'PATCH' });
+                if (!resEmail.ok) throw new Error(await resEmail.text());
             }
-        } catch (e) { alert("Error de conexión"); }
+            if (passNueva) {
+                const urlPass = `${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`;
+                const resPass = await fetch(urlPass, { method: 'PATCH' });
+                if (!resPass.ok) throw new Error(await resPass.text());
+            }
+            if (nuevoUser !== usuarioLogueado) {
+                const resUser = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/usuario?usuarioNuevo=${encodeURIComponent(nuevoUser)}`, { method: 'PATCH' });
+                if (!resUser.ok) throw new Error(await resUser.text());
+                localStorage.setItem("rpg_usuario", nuevoUser);
+            }
+            alert("✅ ¡Cuenta actualizada correctamente!");
+            location.reload();
+        } catch (e) { alert("❌ Error: " + e.message); }
     }
-
     async function confirmarEliminar() {
-        if(confirm("¿Estás realmente seguro? Esta acción borrará permanentemente todo tu progreso.")) {
+        const passConfirm = prompt("Para eliminar tu cuenta, introduce tu contraseña:");
+        if (!passConfirm) return;
+        if(confirm("¿Estás realmente seguro? Esta acción es irreversible.")) {
             try {
                 const res = await fetch(`${API_URL}/eliminar/usuario/${usuarioLogueado}`, { method: 'DELETE' });
-                if(res.ok) {
-                    localStorage.clear();
-                    window.location.href = "index.html";
-                } else {
-                    alert("No se pudo eliminar la cuenta");
-                }
-            } catch (e) { alert("Error al conectar con el servidor"); }
+                if(res.ok) { localStorage.clear(); window.location.href = "index.html"; }
+                else { alert("No se pudo eliminar la cuenta."); }
+            } catch (e) { alert("Error de conexión"); }
         }
     }
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
