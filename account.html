@@ -3,181 +3,574 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFG RPG - Mi Cuenta</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>TFG RPG — Mi Cuenta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #f0d080;
+            --dark-bg: #05080f;
+            --card-bg: rgba(8, 12, 22, 0.85);
+            --border: rgba(201,168,76,0.28);
+            --text: #e8dcc8;
+            --text-dim: #9a8a6a;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
-                        url('./img/fondo/fondo.png') no-repeat center center fixed;
-            background-size: cover;
-            color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh;
-            display: flex; align-items: center;
-        }
-        .settings-card {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            max-width: 600px; margin: auto; padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-        .form-control { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; }
-        .form-control:focus { background: #0f172a; color: white; border-color: #6366f1; box-shadow: none; }
-        .section-title { border-left: 4px solid #6366f1; padding-left: 15px; margin-bottom: 20px; font-weight: 800; font-size: 0.9rem; color: #818cf8; }
-        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0; }
-        .btn-save { background: #6366f1; border: none; font-weight: 700; padding: 14px; transition: 0.3s; }
-        .btn-save:hover { background: #4f46e5; transform: translateY(-2px); }
-        .password-wrapper {
+            background: var(--dark-bg);
+            font-family: 'Crimson Text', Georgia, serif;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
             position: relative;
+            padding: 40px 16px;
         }
-        .password-wrapper .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #94a3b8;
-            z-index: 10;
+
+        .bg-image { position: fixed; inset: 0; z-index: 0; background: url('./img/fondo/fondo.png') no-repeat center center / cover; }
+        .bg-overlay { position: fixed; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(5,8,15,0.78) 0%, rgba(5,8,15,0.65) 50%, rgba(5,8,15,0.82) 100%); }
+        .bg-vignette { position: fixed; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%); }
+        #particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+
+        .page-wrapper {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 580px;
+            animation: fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
         }
-        .password-wrapper .toggle-password:hover { color: #6366f1; }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--gold); }
+        .back-link svg { transition: transform 0.2s; }
+        .back-link:hover svg { transform: translateX(-3px); }
+
+        /* Page title */
+        .page-title-block {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .page-eyebrow {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.75;
+            margin-bottom: 6px;
+        }
+        .page-title {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.4rem, 4vw, 1.9rem);
+            font-weight: 700;
+            background: linear-gradient(160deg, #f0d080 0%, #c9a84c 45%, #8b6914 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Card */
+        .settings-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 40px 36px;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 80px rgba(201,168,76,0.03);
+        }
+        .settings-card::before {
+            content: ''; position: absolute; top: 8px; left: 8px;
+            width: 24px; height: 24px;
+            border: 1px solid rgba(201,168,76,0.45);
+            border-right: none; border-bottom: none;
+        }
+        .settings-card::after {
+            content: ''; position: absolute; bottom: 8px; right: 8px;
+            width: 24px; height: 24px;
+            border: 1px solid rgba(201,168,76,0.45);
+            border-left: none; border-top: none;
+        }
+        .corner-extra-tl { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-left: none; border-bottom: none; }
+        .corner-extra-br { position: absolute; bottom: 8px; left: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-right: none; border-top: none; }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+            margin-top: 32px;
+        }
+        .section-header:first-child { margin-top: 0; }
+        .section-header .sec-icon {
+            width: 32px; height: 32px;
+            background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.25);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; flex-shrink: 0;
+        }
+        .section-header .sec-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+        .section-header .sec-line {
+            flex: 1; height: 1px;
+            background: linear-gradient(to right, rgba(201,168,76,0.3), transparent);
+        }
+
+        /* Divider */
+        .divider { height: 1px; background: rgba(201,168,76,0.12); margin: 30px 0; }
+
+        /* Form elements */
+        .field-group { margin-bottom: 18px; }
+        .field-label {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 7px;
+        }
+        .field-wrapper { position: relative; }
+        .field-input {
+            width: 100%;
+            background: rgba(201,168,76,0.04);
+            border: 1px solid rgba(201,168,76,0.18);
+            border-radius: 2px;
+            padding: 11px 44px 11px 14px;
+            color: var(--text);
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            transition: all 0.25s;
+            outline: none;
+        }
+        .field-input:focus {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.07);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.07), 0 0 14px rgba(201,168,76,0.08);
+        }
+        .field-input:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .field-input::placeholder { color: rgba(154,138,106,0.45); }
+        .field-note {
+            display: block;
+            font-size: 0.78rem;
+            font-style: italic;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        /* Two-column grid */
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+        /* Toggle password button */
+        .toggle-eye {
+            position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-dim);
+            cursor: pointer; padding: 4px; transition: color 0.2s;
+            display: flex;
+        }
+        .toggle-eye:hover { color: var(--gold); }
+        .icon { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* Password strength */
+        .strength-bar {
+            display: flex; gap: 4px; margin-top: 8px;
+        }
+        .strength-bar .seg {
+            flex: 1; height: 3px; border-radius: 2px;
+            background: rgba(201,168,76,0.1);
+            transition: background 0.3s;
+        }
+        .strength-bar .seg.fill-weak   { background: #c44; }
+        .strength-bar .seg.fill-ok     { background: #c9a84c; }
+        .strength-bar .seg.fill-strong { background: #4a9; }
+
+        /* Save button */
+        .btn-save {
+            width: 100%;
+            padding: 13px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
+            background-size: 200% 100%;
+            border: none; border-radius: 2px;
+            color: #0d0d0d;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 0.22em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .btn-save::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+            transform: translateX(-100%); transition: transform 0.4s;
+        }
+        .btn-save:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.3); transform: translateY(-1px); }
+        .btn-save:hover::before { transform: translateX(100%); }
+        .btn-save:active { transform: translateY(0); }
+        .btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+        /* Delete button */
+        .btn-delete {
+            background: none; border: none;
+            color: rgba(220,80,80,0.65);
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer; transition: color 0.25s;
+            padding: 6px 0; text-decoration: none;
+            display: inline-block;
+        }
+        .btn-delete:hover { color: #e86060; }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed; top: 24px; right: 24px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(8,12,22,0.95);
+            border: 1px solid;
+            border-radius: 3px;
+            padding: 12px 18px;
+            font-family: 'Crimson Text', serif;
+            font-size: 0.95rem;
+            min-width: 240px;
+            display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
+            pointer-events: all;
+        }
+        .toast.success { border-color: rgba(74,180,120,0.5); color: #8de8b0; }
+        .toast.danger  { border-color: rgba(200,60,60,0.5);  color: #f4a4a4; }
+        @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideOut { to { opacity:0; transform: translateX(20px); } }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: rgba(10,14,24,0.98);
+            border: 1px solid rgba(200,60,60,0.35);
+            border-radius: 4px;
+            padding: 36px;
+            max-width: 360px; width: 90%;
+            text-align: center;
+            animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .modal-icon { font-size: 2rem; margin-bottom: 14px; }
+        .modal-title { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.08em; color: #f0d080; margin-bottom: 10px; }
+        .modal-desc { color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-actions button { flex: 1; padding: 10px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; border: 1px solid; }
+        .btn-cancel { background: none; border-color: var(--border); color: var(--text-dim); }
+        .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-confirm { background: rgba(185,40,40,0.2); border-color: rgba(185,40,40,0.5); color: #f4a4a4; }
+        .btn-confirm:hover { background: rgba(185,40,40,0.35); }
+
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
     </style>
 </head>
 <body>
-<div class="container py-4">
+
+<div class="bg-image"></div>
+<div class="bg-overlay"></div>
+<div class="bg-vignette"></div>
+<canvas id="particles"></canvas>
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Confirm delete modal -->
+<div class="modal-overlay" id="modal-delete">
+    <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-title">Eliminar Cuenta</div>
+        <div class="modal-desc">Esta acción es <strong>irreversible</strong>. Se borrarán todos tus datos de progreso y acceso al juego.</div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+            <button class="btn-confirm" id="btn-confirm-delete" onclick="ejecutarEliminar()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<div class="page-wrapper">
+
+    <a href="menu.html" class="back-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver al Menú
+    </a>
+
+    <div class="page-title-block">
+        <div class="page-eyebrow">Panel de Control</div>
+        <div class="page-title">Mi Cuenta</div>
+    </div>
+
     <div class="settings-card">
-        <div class="text-center mb-4">
-            <h2 class="fw-800 text-white">Configuración de Cuenta</h2>
-            <p class="text-secondary small">Actualiza tu identidad y seguridad en un solo lugar</p>
+        <div class="corner-extra-tl"></div>
+        <div class="corner-extra-br"></div>
+
+        <!-- Profile section -->
+        <div class="section-header">
+            <div class="sec-icon">🛡️</div>
+            <div class="sec-label">Datos de Perfil</div>
+            <div class="sec-line"></div>
         </div>
 
-        <div class="section-title text-uppercase">Datos de Perfil</div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Nombre de Usuario</label>
-            <input type="text" id="edit-user" class="form-control" readonly disabled>
-            <small class="text-secondary">El nombre de usuario no se puede modificar</small>
+        <div class="field-group">
+            <label class="field-label" for="edit-user">Nombre de Héroe</label>
+            <div class="field-wrapper">
+                <input type="text" id="edit-user" class="field-input" disabled placeholder="—">
+            </div>
+            <span class="field-note">El nombre de héroe no puede modificarse</span>
         </div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Correo Electrónico</label>
-            <input type="email" id="edit-email" class="form-control" placeholder="nuevo@correo.com">
+
+        <div class="field-group">
+            <label class="field-label" for="edit-email">Correo del Gremio</label>
+            <div class="field-wrapper">
+                <input type="email" id="edit-email" class="field-input" placeholder="nuevo@correo.com" autocomplete="email">
+            </div>
         </div>
 
         <div class="divider"></div>
 
-        <div class="section-title text-uppercase">Seguridad</div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Contraseña Actual</label>
-            <div class="password-wrapper">
-                <input type="password" id="pass-actual" class="form-control" placeholder="Obligatorio para confirmar">
-                <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-actual', this)"></i>
+        <!-- Security section -->
+        <div class="section-header">
+            <div class="sec-icon">🔐</div>
+            <div class="sec-label">Seguridad</div>
+            <div class="sec-line"></div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label" for="pass-actual">Contraseña Actual</label>
+            <div class="field-wrapper">
+                <input type="password" id="pass-actual" class="field-input" placeholder="Obligatoria para confirmar cualquier cambio" autocomplete="current-password">
+                <button class="toggle-eye" type="button" onclick="togglePass('pass-actual', this)" aria-label="Ver contraseña">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
             </div>
         </div>
-        <div class="row g-2">
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Nueva Contraseña</label>
-                <div class="password-wrapper">
-                    <input type="password" id="pass-nueva" class="form-control">
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-nueva', this)"></i>
+
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label" for="pass-nueva">Nueva Contraseña</label>
+                <div class="field-wrapper">
+                    <input type="password" id="pass-nueva" class="field-input" placeholder="••••••••" autocomplete="new-password" oninput="updateStrength(this.value)">
+                    <button class="toggle-eye" type="button" onclick="togglePass('pass-nueva', this)" aria-label="Ver contraseña">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <div class="strength-bar">
+                    <div class="seg" id="str1"></div>
+                    <div class="seg" id="str2"></div>
+                    <div class="seg" id="str3"></div>
+                    <div class="seg" id="str4"></div>
                 </div>
             </div>
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Repetir Nueva</label>
-                <div class="password-wrapper">
-                    <input type="password" id="pass-repetir" class="form-control">
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-repetir', this)"></i>
+            <div class="field-group">
+                <label class="field-label" for="pass-repetir">Repetir Nueva</label>
+                <div class="field-wrapper">
+                    <input type="password" id="pass-repetir" class="field-input" placeholder="••••••••" autocomplete="new-password">
+                    <button class="toggle-eye" type="button" onclick="togglePass('pass-repetir', this)" aria-label="Ver contraseña">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <button class="btn btn-primary w-100 mt-5 btn-save" onclick="actualizarTodo()">GUARDAR CAMBIOS</button>
-        
-        <div class="text-center mt-4">
-            <a href="menu.html" class="text-secondary small text-decoration-none">← Cancelar y volver</a>
-            <br><br>
-            <button class="btn btn-link text-danger btn-sm text-decoration-none" onclick="confirmarEliminar()">Eliminar cuenta permanentemente</button>
+        <button class="btn-save" id="btn-save" onclick="guardarCambios()">✦ &nbsp; Guardar Cambios</button>
+
+        <div class="divider" style="margin-top: 28px;"></div>
+
+        <div style="text-align:center;">
+            <button class="btn-delete" onclick="abrirModal()">⚠ Eliminar cuenta permanentemente</button>
         </div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
-    const usuarioLogueado = localStorage.getItem("rpg_usuario");
+    const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
+    const usuario = localStorage.getItem('rpg_usuario');
+    if (!usuario) { window.location.href = 'index.html'; }
 
-    if (!usuarioLogueado) window.location.href = "index.html";
-    else document.getElementById("edit-user").value = usuarioLogueado;
+    document.getElementById('edit-user').value = usuario;
 
-    function togglePassword(inputId, iconElement) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            iconElement.classList.remove("fa-eye");
-            iconElement.classList.add("fa-eye-slash");
-        } else {
-            input.type = "password";
-            iconElement.classList.remove("fa-eye-slash");
-            iconElement.classList.add("fa-eye");
+    // ─── Toast ───────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${type === 'success' ? '✦' : '✖'}</span><span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3200);
+    }
+
+    // ─── Password strength ───────────────────────────────────────────────────
+    function updateStrength(val) {
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score++;
+        if (/[^a-zA-Z0-9]/.test(val)) score++;
+        const cls = score <= 1 ? 'fill-weak' : score <= 2 ? 'fill-ok' : 'fill-strong';
+        for (let i = 1; i <= 4; i++) {
+            const seg = document.getElementById('str' + i);
+            seg.className = 'seg ' + (i <= score ? cls : '');
         }
     }
 
-    async function actualizarTodo() {
-        const nuevoEmail = document.getElementById("edit-email").value.trim();
-        const passActual = document.getElementById("pass-actual").value;
-        const passNueva = document.getElementById("pass-nueva").value;
-        const passRepetir = document.getElementById("pass-repetir").value;
+    // ─── Toggle password visibility ──────────────────────────────────────────
+    function togglePass(id, btn) {
+        const inp = document.getElementById(id);
+        const show = inp.type === 'password';
+        inp.type = show ? 'text' : 'password';
+        btn.innerHTML = show
+            ? `<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+            : `<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    }
 
-        if (!passActual) return alert("Debes introducir tu contraseña actual.");
-        
-        if (passNueva && passNueva !== passRepetir) return alert("Las nuevas contraseñas no coinciden.");
+    // ─── Modal ───────────────────────────────────────────────────────────────
+    function abrirModal() { document.getElementById('modal-delete').classList.add('open'); }
+    function closeModal() { document.getElementById('modal-delete').classList.remove('open'); }
+
+    // ─── Save changes ────────────────────────────────────────────────────────
+    async function guardarCambios() {
+        const nuevoEmail = document.getElementById('edit-email').value.trim();
+        const passActual = document.getElementById('pass-actual').value;
+        const passNueva  = document.getElementById('pass-nueva').value;
+        const passRepetir = document.getElementById('pass-repetir').value;
+
+        if (!passActual) return showToast('Debes introducir tu contraseña actual.', 'danger');
+        if (passNueva && passNueva !== passRepetir) return showToast('Las nuevas contraseñas no coinciden.', 'danger');
+        if (!nuevoEmail && !passNueva) return showToast('No hay cambios que guardar.', 'danger');
+
+        const btn = document.getElementById('btn-save');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+
+        let exito = true;
 
         try {
-            // Actualizar Email
             if (nuevoEmail) {
-                const resEmail = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { 
-                    method: 'PATCH' 
-                });
-                if (!resEmail.ok) {
-                    const error = await resEmail.text();
-                    throw new Error(error || "Error al actualizar email");
+                const r = await fetch(`${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { method: 'PATCH' });
+                if (r.ok) {
+                    showToast('Correo actualizado correctamente.', 'success');
+                    document.getElementById('edit-email').value = '';
+                } else {
+                    const err = await r.text();
+                    showToast(err || 'Error al actualizar el correo.', 'danger');
+                    exito = false;
                 }
-                alert("✅ Email actualizado correctamente");
-                document.getElementById("edit-email").value = "";
             }
-            
-            // Actualizar Password
+
             if (passNueva) {
-                const resPass = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`, { 
-                    method: 'PATCH' 
-                });
-                if (!resPass.ok) {
-                    const error = await resPass.text();
-                    throw new Error(error || "Contraseña actual incorrecta");
+                const r = await fetch(
+                    `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`,
+                    { method: 'PATCH' }
+                );
+                if (r.ok) {
+                    showToast('Contraseña actualizada correctamente.', 'success');
+                    document.getElementById('pass-actual').value = '';
+                    document.getElementById('pass-nueva').value  = '';
+                    document.getElementById('pass-repetir').value = '';
+                    updateStrength('');
+                } else {
+                    const err = await r.text();
+                    showToast(err || 'Contraseña actual incorrecta.', 'danger');
+                    exito = false;
                 }
-                alert("✅ Contraseña actualizada correctamente");
-                document.getElementById("pass-actual").value = "";
-                document.getElementById("pass-nueva").value = "";
-                document.getElementById("pass-repetir").value = "";
             }
-
-            if (!nuevoEmail && !passNueva) {
-                alert("No se realizó ningún cambio");
-            }
-        } catch (e) { 
-            alert("❌ " + e.message); 
+        } catch {
+            showToast('No se pudo conectar con el servidor.', 'danger');
+            exito = false;
         }
+
+        btn.disabled = false;
+        btn.innerHTML = '✦ &nbsp; Guardar Cambios';
     }
 
-    async function confirmarEliminar() {
-        if(confirm("⚠️ ¿Borrar cuenta? Esta acción es irreversible. ⚠️")) {
-            const res = await fetch(`${API_URL}/eliminar/usuario/${usuarioLogueado}`, { method: 'DELETE' });
-            if(res.ok) { 
-                localStorage.clear(); 
-                alert("Cuenta eliminada correctamente");
-                window.location.href = "index.html"; 
+    // ─── Delete account ──────────────────────────────────────────────────────
+    async function ejecutarEliminar() {
+        const btn = document.getElementById('btn-confirm-delete');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        try {
+            const r = await fetch(`${API_BASE}/eliminar/usuario/${encodeURIComponent(usuario)}`, { method: 'DELETE' });
+            if (r.ok) {
+                closeModal();
+                showToast('Cuenta eliminada. Hasta la próxima, héroe.', 'success');
+                setTimeout(() => { localStorage.clear(); window.location.href = 'index.html'; }, 1800);
             } else {
-                alert("Error al eliminar la cuenta");
+                showToast('Error al eliminar la cuenta.', 'danger');
+                btn.disabled = false;
+                btn.innerHTML = 'Eliminar';
             }
+        } catch {
+            showToast('No se pudo conectar con el servidor.', 'danger');
+            btn.disabled = false;
+            btn.innerHTML = 'Eliminar';
         }
     }
+
+    // ─── Particles ───────────────────────────────────────────────────────────
+    (function() {
+        const canvas = document.getElementById('particles');
+        const ctx    = canvas.getContext('2d');
+        let W, H, pts = [];
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        for (let i = 0; i < 45; i++) pts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1+0.3, spd:Math.random()*0.2+0.05, drift:(Math.random()-0.5)*0.08 });
+        function frame() {
+            ctx.clearRect(0,0,W,H);
+            pts.forEach(p => {
+                const a = 0.15 + 0.45 * Math.abs(Math.sin(Date.now()*0.0008 + p.x));
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle = `rgba(201,168,76,${a})`; ctx.fill();
+                p.y -= p.spd; p.x += p.drift;
+                if (p.y < -5) { p.y = H+5; p.x = Math.random()*W; }
+                if (p.x < 0 || p.x > W) p.drift *= -1;
+            });
+            requestAnimationFrame(frame);
+        }
+        frame();
+    })();
 </script>
 </body>
 </html>

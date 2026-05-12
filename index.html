@@ -3,159 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFG RPG - Acceso</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>TFG RPG — Acceso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        :root { --card-bg: rgba(30, 41, 59, 0.85); --primary-glow: #6366f1; }
+        :root {
+            --gold: #c9a84c;
+            --gold-light: #f0d080;
+            --gold-dim: rgba(201,168,76,0.15);
+            --crimson: #8b1a1a;
+            --dark-bg: #05080f;
+            --card-bg: rgba(8, 12, 22, 0.82);
+            --border: rgba(201,168,76,0.3);
+            --text: #e8dcc8;
+            --text-dim: #9a8a6a;
+            --indigo: #6366f1;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         input::-ms-reveal, input::-ms-clear { display: none; }
 
         body {
-            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)),
-                        url('./img/fondo/fondo.png') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Inter', sans-serif;
-            color: #f8fafc;
+            background: var(--dark-bg);
+            font-family: 'Crimson Text', Georgia, serif;
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             align-items: center;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-
-        .nav-pills .nav-link { color: #94a3b8; font-weight: 600; border-radius: 10px; }
-        .nav-pills .nav-link.active { background-color: var(--primary-glow); color: white; }
-
-        .form-control { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
-        .form-control:focus { background: rgba(15, 23, 42, 1); color: white; border-color: var(--primary-glow); box-shadow: none; }
-
-        .btn-primary { background: var(--primary-glow); border: none; font-weight: 700; padding: 12px; transition: 0.3s; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
-
-        .gradient-text {
-            background: linear-gradient(to right, #818cf8, #e066ff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800; font-size: 2.5rem;
-        }
-        
-        .password-wrapper {
+            justify-content: center;
+            overflow: hidden;
             position: relative;
         }
-        .password-wrapper .toggle-password {
+
+        /* Background layers */
+        .bg-image {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('./img/fondo/fondo.png') no-repeat center center / cover;
+        }
+        .bg-overlay {
+            position: fixed; inset: 0; z-index: 1;
+            background: linear-gradient(
+                to bottom,
+                rgba(5, 8, 15, 0.75) 0%,
+                rgba(5, 8, 15, 0.65) 50%,
+                rgba(5, 8, 15, 0.85) 100%
+            );
+        }
+        .bg-vignette {
+            position: fixed; inset: 0; z-index: 2;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%);
+        }
+
+        /* Particles canvas */
+        #particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+
+        /* Main container */
+        .main-wrapper {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 480px;
+            padding: 20px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo/Title section */
+        .hero-title {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .hero-title .logo-text {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            background: linear-gradient(160deg, #f0d080 0%, #c9a84c 40%, #8b6914 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(201,168,76,0.4));
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .hero-title .logo-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.35em;
+            color: var(--gold);
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+        .hero-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            justify-content: center;
+        }
+        .hero-divider::before, .hero-divider::after {
+            content: '';
+            flex: 1;
+            max-width: 80px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold));
+        }
+        .hero-divider::after { background: linear-gradient(to left, transparent, var(--gold)); }
+        .hero-divider .diamond {
+            width: 6px; height: 6px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        /* Card */
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 40px 36px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 0 0 1px rgba(201,168,76,0.05) inset,
+                0 30px 60px rgba(0,0,0,0.6),
+                0 0 80px rgba(201,168,76,0.04);
+        }
+
+        /* Corner ornaments */
+        .auth-card::before, .auth-card::after {
+            content: '';
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            width: 24px; height: 24px;
+            border-color: var(--gold);
+            border-style: solid;
+            opacity: 0.6;
+        }
+        .auth-card::before {
+            top: 8px; left: 8px;
+            border-width: 1px 0 0 1px;
+        }
+        .auth-card::after {
+            bottom: 8px; right: 8px;
+            border-width: 0 1px 1px 0;
+        }
+        .corner-br, .corner-tl {
+            position: absolute;
+            width: 24px; height: 24px;
+            border-color: var(--gold);
+            border-style: solid;
+            opacity: 0.6;
+        }
+        .corner-tl { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+        .corner-br { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+
+        /* Tabs */
+        .tab-nav {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-dim);
             cursor: pointer;
-            color: #94a3b8;
-            z-index: 10;
+            transition: all 0.3s;
+            position: relative;
+            margin-bottom: -1px;
         }
-        .password-wrapper .toggle-password:hover {
-            color: #6366f1;
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 2px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transition: transform 0.3s;
         }
+        .tab-btn.active {
+            color: var(--gold-light);
+        }
+        .tab-btn.active::after { transform: scaleX(1); }
+        .tab-btn:hover:not(.active) { color: var(--text); }
+
+        /* Tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: panelIn 0.35s ease both; }
+        @keyframes panelIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form elements */
+        .field-group { margin-bottom: 18px; }
+        .field-label {
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 7px;
+        }
+        .field-wrapper { position: relative; }
+        .field-input {
+            width: 100%;
+            background: rgba(201,168,76,0.04);
+            border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 2px;
+            padding: 12px 44px 12px 14px;
+            color: var(--text);
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            transition: all 0.25s;
+            outline: none;
+        }
+        .field-input:focus {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.07);
+            box-shadow: 0 0 0 3px rgba(201,168,76,0.08), 0 0 16px rgba(201,168,76,0.1);
+        }
+        .field-input::placeholder { color: rgba(154,138,106,0.5); }
+        .toggle-eye {
+            position: absolute;
+            right: 13px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+            font-size: 0.85rem;
+            display: flex;
+        }
+        .toggle-eye:hover { color: var(--gold); }
+
+        /* SVG icons */
+        .icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* Submit button */
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            margin-top: 6px;
+            background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
+            background-size: 200% 100%;
+            border: none;
+            border-radius: 2px;
+            color: #0d0d0d;
+            font-family: 'Cinzel', serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.4s;
+        }
+        .btn-primary:hover {
+            background-position: right center;
+            box-shadow: 0 4px 20px rgba(201,168,76,0.35);
+            transform: translateY(-1px);
+        }
+        .btn-primary:hover::before { transform: translateX(100%); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Feedback area */
+        .feedback-box {
+            display: none;
+            margin-top: 18px;
+            padding: 10px 14px;
+            border-radius: 2px;
+            font-size: 0.9rem;
+            font-family: 'Crimson Text', serif;
+            border-left: 3px solid;
+        }
+        .feedback-box.show { display: flex; align-items: center; gap: 8px; }
+        .feedback-box.success { background: rgba(34,85,34,0.25); border-color: #4a9; color: #8de8b0; }
+        .feedback-box.danger  { background: rgba(90,20,20,0.35); border-color: #c44; color: #f4a4a4; }
+        .feedback-box.info    { background: rgba(40,50,90,0.4);  border-color: #66a; color: #aac0ff; }
+
+        /* Loading spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-6 col-lg-5">
-            <div class="auth-card text-center">
-                <h1 class="gradient-text mb-4">TFG RPG</h1>
-                <ul class="nav nav-pills nav-fill mb-4" id="pills-tab">
-                    <li class="nav-item">
-                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#panel-login">LOGIN</button>
-                    </li>
-                    <li class="nav-item">
-                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#panel-reg">REGISTRO</button>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="panel-login">
-                        <input type="text" id="login-user" class="form-control mb-3" placeholder="Usuario">
-                        <div class="password-wrapper mb-3">
-                            <input type="password" id="login-pass" class="form-control" placeholder="Contraseña">
-                            <i class="fas fa-eye toggle-password" onclick="togglePassword('login-pass', this)"></i>
-                        </div>
-                        <button class="btn btn-primary w-100" onclick="hacerLogin()">ENTRAR</button>
-                    </div>
-                    <div class="tab-pane fade" id="panel-reg">
-                        <input type="text" id="reg-user" class="form-control mb-3" placeholder="Nuevo Usuario">
-                        <input type="email" id="reg-email" class="form-control mb-3" placeholder="Email">
-                        <div class="password-wrapper mb-3">
-                            <input type="password" id="reg-pass" class="form-control" placeholder="Contraseña">
-                            <i class="fas fa-eye toggle-password" onclick="togglePassword('reg-pass', this)"></i>
-                        </div>
-                        <button class="btn btn-primary w-100" onclick="hacerRegister()">CREAR CUENTA</button>
-                    </div>
-                </div>
-                <div id="alerta" class="alert mt-4 d-none small"></div>
-            </div>
+
+<div class="bg-image"></div>
+<div class="bg-overlay"></div>
+<div class="bg-vignette"></div>
+<canvas id="particles"></canvas>
+
+<div class="main-wrapper">
+    <div class="hero-title">
+        <div class="logo-text">TFG RPG</div>
+        <div class="hero-divider"><div class="diamond"></div></div>
+        <div class="logo-sub">Crónicas del Héroe</div>
+    </div>
+
+    <div class="auth-card">
+        <div class="corner-tl"></div>
+        <div class="corner-br"></div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('login', this)">Iniciar Sesión</button>
+            <button class="tab-btn"        onclick="switchTab('reg',   this)">Crear Cuenta</button>
         </div>
+
+        <!-- LOGIN -->
+        <div class="tab-panel active" id="panel-login">
+            <div class="field-group">
+                <label class="field-label" for="login-user">Nombre de Héroe</label>
+                <div class="field-wrapper">
+                    <input type="text" id="login-user" class="field-input" placeholder="Tu nombre de aventurero" autocomplete="username">
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="login-pass">Contraseña Secreta</label>
+                <div class="field-wrapper">
+                    <input type="password" id="login-pass" class="field-input" placeholder="••••••••" autocomplete="current-password">
+                    <button class="toggle-eye" type="button" onclick="togglePass('login-pass', this)" aria-label="Mostrar contraseña">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button class="btn-primary" id="btn-login" onclick="hacerLogin()">⚔ &nbsp; Entrar al Reino</button>
+        </div>
+
+        <!-- REGISTRO -->
+        <div class="tab-panel" id="panel-reg">
+            <div class="field-group">
+                <label class="field-label" for="reg-user">Nombre de Héroe</label>
+                <div class="field-wrapper">
+                    <input type="text" id="reg-user" class="field-input" placeholder="Escoge tu nombre legendario" autocomplete="username">
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="reg-email">Correo del Gremio</label>
+                <div class="field-wrapper">
+                    <input type="email" id="reg-email" class="field-input" placeholder="correo@aventura.com" autocomplete="email">
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="reg-pass">Contraseña Secreta</label>
+                <div class="field-wrapper">
+                    <input type="password" id="reg-pass" class="field-input" placeholder="••••••••" autocomplete="new-password">
+                    <button class="toggle-eye" type="button" onclick="togglePass('reg-pass', this)" aria-label="Mostrar contraseña">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+            </div>
+            <button class="btn-primary" id="btn-reg" onclick="hacerRegister()">✦ &nbsp; Forjar mi Destino</button>
+        </div>
+
+        <div class="feedback-box" id="feedback-area"></div>
     </div>
 </div>
 
 <script>
     const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
 
-    function togglePassword(inputId, iconElement) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            iconElement.classList.remove("fa-eye");
-            iconElement.classList.add("fa-eye-slash");
-        } else {
-            input.type = "password";
-            iconElement.classList.remove("fa-eye-slash");
-            iconElement.classList.add("fa-eye");
+    // ─── Particles ──────────────────────────────────────────────────────────
+    (function initParticles() {
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [];
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const N = 55;
+        for (let i = 0; i < N; i++) {
+            particles.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 1.2 + 0.3,
+                a: Math.random(),
+                speed: Math.random() * 0.25 + 0.06,
+                drift: (Math.random() - 0.5) * 0.12
+            });
+        }
+
+        function frame() {
+            ctx.clearRect(0, 0, W, H);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(201,168,76,${p.a * 0.55})`;
+                ctx.fill();
+                p.y -= p.speed;
+                p.x += p.drift;
+                p.a = 0.3 + 0.7 * Math.sin(Date.now() * 0.001 + p.x);
+                if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+                if (p.x < 0 || p.x > W) p.drift *= -1;
+            });
+            requestAnimationFrame(frame);
+        }
+        frame();
+    })();
+
+    // ─── UI Helpers ─────────────────────────────────────────────────────────
+    function switchTab(name, el) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('panel-' + name).classList.add('active');
+        hideFeedback();
     }
 
-    function feedback(msg, tipo) {
-        const al = document.getElementById('alerta');
-        al.textContent = msg; al.className = `alert mt-4 alert-${tipo}`; al.classList.remove('d-none');
+    function togglePass(id, btn) {
+        const inp = document.getElementById(id);
+        const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        btn.innerHTML = isPass
+            ? `<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+            : `<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
     }
 
+    function showFeedback(msg, type) {
+        const box = document.getElementById('feedback-area');
+        const icons = { success: '✦', danger: '✖', info: '◆' };
+        box.className = `feedback-box show ${type}`;
+        box.innerHTML = `<span>${icons[type] || '●'}</span><span>${msg}</span>`;
+    }
+    function hideFeedback() {
+        const box = document.getElementById('feedback-area');
+        box.className = 'feedback-box';
+        box.innerHTML = '';
+    }
+    function setLoading(btnId, loading, text) {
+        const btn = document.getElementById(btnId);
+        btn.disabled = loading;
+        btn.innerHTML = loading ? '<span class="spinner"></span>' : text;
+    }
+
+    // ─── API ────────────────────────────────────────────────────────────────
     async function hacerLogin() {
-        const usuario = document.getElementById("login-user").value;
-        const password = document.getElementById("login-pass").value;
+        const usuario  = document.getElementById('login-user').value.trim();
+        const password = document.getElementById('login-pass').value;
+        if (!usuario || !password) return showFeedback('Completa todos los campos.', 'danger');
+
+        setLoading('btn-login', true);
         try {
             const res = await fetch(`${API_BASE}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario, password })
             });
-            if (res.ok) { 
-                localStorage.setItem("rpg_usuario", usuario); 
-                window.location.href = "menu.html"; 
-            } else { feedback("❌ Credenciales incorrectas", "danger"); }
-        } catch (e) { feedback("📡 Error de conexión", "danger"); }
+            if (res.ok) {
+                localStorage.setItem('rpg_usuario', usuario);
+                showFeedback('Bienvenido de vuelta, ' + usuario + '…', 'success');
+                setTimeout(() => { window.location.href = 'menu.html'; }, 900);
+            } else {
+                showFeedback('Credenciales incorrectas. Inténtalo de nuevo.', 'danger');
+                setLoading('btn-login', false, '⚔ &nbsp; Entrar al Reino');
+            }
+        } catch {
+            showFeedback('No se pudo conectar con el servidor.', 'danger');
+            setLoading('btn-login', false, '⚔ &nbsp; Entrar al Reino');
+        }
     }
 
     async function hacerRegister() {
-        const usuario = document.getElementById("reg-user").value;
-        const email = document.getElementById("reg-email").value;
-        const password = document.getElementById("reg-pass").value;
+        const usuario  = document.getElementById('reg-user').value.trim();
+        const email    = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-pass').value;
+        if (!usuario || !email || !password) return showFeedback('Completa todos los campos.', 'danger');
+        if (password.length < 4) return showFeedback('La contraseña es demasiado corta.', 'danger');
+
+        setLoading('btn-reg', true);
         try {
             const res = await fetch(`${API_BASE}/registro`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ usuario, email, password })
             });
-            if (res.ok) { 
-                feedback("✅ Registro completado", "success"); 
-                setTimeout(() => location.reload(), 1500);
-            } else { feedback("❌ Error: " + await res.text(), "danger"); }
-        } catch (e) { feedback("📡 Error de servidor", "danger"); }
+            if (res.ok) {
+                showFeedback('¡Cuenta creada! Ya puedes iniciar sesión.', 'success');
+                setTimeout(() => {
+                    document.querySelectorAll('.tab-btn')[0].click();
+                    setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
+                }, 1500);
+            } else {
+                const err = await res.text();
+                showFeedback(err || 'Error al registrar. Inténtalo de nuevo.', 'danger');
+                setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
+            }
+        } catch {
+            showFeedback('No se pudo conectar con el servidor.', 'danger');
+            setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
+        }
     }
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const loginActive = document.getElementById('panel-login').classList.contains('active');
+        if (loginActive) hacerLogin(); else hacerRegister();
+    });
+
+    // Redirect if already logged in
+    if (localStorage.getItem('rpg_usuario')) window.location.href = 'menu.html';
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
