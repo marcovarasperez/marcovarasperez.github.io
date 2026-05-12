@@ -9,68 +9,78 @@
     <style>
         body {
             background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
-                        url('./img/fondo.png') no-repeat center center fixed;
+                        url('img/fondo.png') no-repeat center center fixed;
             background-size: cover;
-            color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh;
-            display: flex; align-items: center;
+            color: #f8fafc; font-family: 'Inter', sans-serif; 
+            min-height: 100vh; display: flex; align-items: center; margin: 0;
         }
         .settings-card {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(15px);
             border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            max-width: 600px; margin: auto; padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            max-width: 650px; margin: auto; padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
         .form-control { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; }
-        .form-control:focus { background: #0f172a; color: white; border-color: #6366f1; box-shadow: none; }
-        .section-title { border-left: 4px solid #6366f1; padding-left: 15px; margin-bottom: 20px; font-weight: 800; font-size: 0.9rem; color: #818cf8; }
-        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0; }
-        .btn-save { background: #6366f1; border: none; font-weight: 700; padding: 14px; transition: 0.3s; }
-        .btn-save:hover { background: #4f46e5; transform: translateY(-2px); }
+        .form-control:focus { border-color: #6366f1; box-shadow: none; background: #0f172a; color: white; }
+        
+        .section-title { border-left: 4px solid #6366f1; padding-left: 15px; margin-bottom: 20px; font-weight: 800; color: #818cf8; font-size: 0.9rem; letter-spacing: 1px; }
+        
+        .pass-group { position: relative; }
+        .eye-btn {
+            position: absolute; right: 12px; top: 38px; cursor: pointer; color: #94a3b8;
+        }
+
+        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0; }
+        .btn-save { background: #6366f1; border: none; font-weight: 700; padding: 15px; transition: 0.3s; }
+        .btn-save:hover { background: #4f46e5; transform: scale(1.02); }
     </style>
 </head>
 <body>
-<div class="container py-4">
+<div class="container py-5">
     <div class="settings-card">
-        <div class="text-center mb-4">
+        <div class="text-center mb-5">
             <h2 class="fw-800 text-white">Configuración de Cuenta</h2>
-            <p class="text-secondary small">Actualiza tu identidad y seguridad en un solo lugar</p>
+            <p class="text-secondary">Actualiza tu identidad y seguridad en un solo lugar</p>
         </div>
 
         <div class="section-title text-uppercase">Datos de Perfil</div>
         <div class="mb-3">
             <label class="form-label small text-secondary fw-600">Nombre de Usuario</label>
-            <input type="text" id="edit-user" class="form-control" placeholder="Nombre actual">
+            <input type="text" id="edit-user" class="form-control">
         </div>
         <div class="mb-3">
             <label class="form-label small text-secondary fw-600">Correo Electrónico</label>
-            <input type="email" id="edit-email" class="form-control" placeholder="nuevo@correo.com">
+            <input type="email" id="edit-email" class="form-control">
         </div>
 
         <div class="divider"></div>
 
-        <div class="section-title text-uppercase">Seguridad</div>
-        <div class="mb-3">
+        <div class="section-title text-uppercase">Seguridad y Contraseña</div>
+        <div class="mb-4 pass-group">
             <label class="form-label small text-secondary fw-600">Contraseña Actual</label>
-            <input type="password" id="pass-actual" class="form-control" placeholder="Obligatorio para confirmar">
+            <input type="password" id="pass-actual" class="form-control" placeholder="Necesaria para cualquier cambio">
+            <span class="eye-btn" onclick="ver('pass-actual')">👁️</span>
         </div>
-        <div class="row g-2">
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Nueva</label>
+
+        <div class="row g-3">
+            <div class="col-md-6 pass-group">
+                <label class="form-label small text-secondary fw-600">Nueva Contraseña</label>
                 <input type="password" id="pass-nueva" class="form-control">
+                <span class="eye-btn" onclick="ver('pass-nueva')">👁️</span>
             </div>
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Repetir</label>
+            <div class="col-md-6 pass-group">
+                <label class="form-label small text-secondary fw-600">Repetir Nueva</label>
                 <input type="password" id="pass-repetir" class="form-control">
+                <span class="eye-btn" onclick="ver('pass-repetir')">👁️</span>
             </div>
         </div>
 
-        <button class="btn btn-primary w-100 mt-5 btn-save" onclick="actualizarTodo()">GUARDAR TODOS LOS CAMBIOS</button>
+        <button class="btn btn-primary btn-save w-100 mt-5" onclick="guardarCambios()">GUARDAR TODOS LOS CAMBIOS</button>
         
         <div class="text-center mt-4">
-            <a href="menu.html" class="text-secondary small text-decoration-none">← Cancelar y volver</a>
-            <br><br>
-            <button class="btn btn-link text-danger btn-sm text-decoration-none" onclick="confirmarEliminar()">Eliminar cuenta permanentemente</button>
+            <a href="menu.html" class="text-secondary small text-decoration-none">← Cancelar y volver al menú</a>
+            <hr class="opacity-10">
+            <button class="btn btn-link text-danger btn-sm text-decoration-none" onclick="eliminarCuenta()">Eliminar cuenta permanentemente</button>
         </div>
     </div>
 </div>
@@ -80,44 +90,54 @@
     const usuarioLogueado = localStorage.getItem("rpg_usuario");
 
     if (!usuarioLogueado) window.location.href = "index.html";
-    else document.getElementById("edit-user").value = usuarioLogueado;
+    document.getElementById("edit-user").value = usuarioLogueado;
 
-    async function actualizarTodo() {
+    function ver(id) {
+        const el = document.getElementById(id);
+        el.type = el.type === "password" ? "text" : "password";
+    }
+
+    async function guardarCambios() {
         const nuevoUser = document.getElementById("edit-user").value.trim();
         const nuevoEmail = document.getElementById("edit-email").value.trim();
-        const passActual = document.getElementById("pass-actual").value;
-        const passNueva = document.getElementById("pass-nueva").value;
-        const passRepetir = document.getElementById("pass-repetir").value;
+        const pActual = document.getElementById("pass-actual").value;
+        const pNueva = document.getElementById("pass-nueva").value;
+        const pRepetir = document.getElementById("pass-repetir").value;
 
-        if (!passActual) return alert("Debes introducir tu contraseña actual.");
-        
-        if (passNueva && passNueva !== passRepetir) return alert("Las nuevas contraseñas no coinciden.");
+        if (!pActual) return alert("❌ Debes introducir tu contraseña actual para confirmar.");
 
         try {
-            // Actualizar Email
+            // 1. Actualizar Email
             if (nuevoEmail) {
                 await fetch(`${API_URL}/actualizar/${usuarioLogueado}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { method: 'PATCH' });
             }
-            // Actualizar Password
-            if (passNueva) {
-                const resP = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`, { method: 'PATCH' });
+
+            // 2. Actualizar Password
+            if (pNueva) {
+                if (pNueva !== pRepetir) return alert("❌ Las nuevas contraseñas no coinciden");
+                const resP = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(pActual)}&passwordNueva=${encodeURIComponent(pNueva)}`, { method: 'PATCH' });
                 if (!resP.ok) throw new Error("Contraseña actual incorrecta");
             }
-            // Actualizar Usuario
-            if (nuevoUser !== usuarioLogueado) {
-                await fetch(`${API_URL}/actualizar/${usuarioLogueado}/usuario?usuarioNuevo=${encodeURIComponent(nuevoUser)}`, { method: 'PATCH' });
-                localStorage.setItem("rpg_usuario", nuevoUser);
+
+            // 3. Actualizar Usuario
+            if (nuevoUser && nuevoUser !== usuarioLogueado) {
+                const resU = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/usuario?usuarioNuevo=${encodeURIComponent(nuevoUser)}`, { method: 'PATCH' });
+                if (resU.ok) localStorage.setItem("rpg_usuario", nuevoUser);
             }
 
-            alert("✅ ¡Cambios guardados!");
+            alert("✅ ¡Cambios aplicados correctamente!");
             location.reload();
-        } catch (e) { alert("❌ " + e.message); }
+
+        } catch (e) { alert("❌ Error: " + e.message); }
     }
 
-    async function confirmarEliminar() {
-        if(confirm("¿Borrar cuenta? Esta acción es irreversible.")) {
+    async function eliminarCuenta() {
+        if (confirm("⚠️ ¿Estás seguro? Se borrará todo tu progreso para siempre.")) {
             const res = await fetch(`${API_URL}/eliminar/usuario/${usuarioLogueado}`, { method: 'DELETE' });
-            if(res.ok) { localStorage.clear(); window.location.href = "index.html"; }
+            if (res.ok) {
+                localStorage.clear();
+                window.location.href = "index.html";
+            }
         }
     }
 </script>
