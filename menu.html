@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFG RPG - Menú</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            transition: 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            height: 100%;
+        }
+
+        .menu-card:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: #6366f1;
+            transform: translateY(-10px);
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold mb-2">Bienvenido, <span id="user-name" class="text-primary">Héroe</span></h1>
+    <p class="text-secondary mb-5">Gestiona tu perfil o adéntrate en la aventura</p>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-12 col-md-5">
+            <a href="game.html" class="card menu-card p-4">
+                <div class="card-body">
+                    <div class="icon-circle text-primary">⚔️</div>
+                    <h2 class="h4 fw-bold">Jugar</h2>
+                    <p class="text-secondary">Entra al mundo RPG y continúa tu progreso.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-md-5">
+            <a href="index.html?action=config" class="card menu-card p-4">
+                <div class="card-body">
+                    <div class="icon-circle text-info">⚙️</div>
+                    <h2 class="h4 fw-bold">Mi Cuenta</h2>
+                    <p class="text-secondary">Cambia tu email, contraseña o gestiona tu cuenta.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <button class="btn btn-outline-danger px-4" onclick="logout()">Cerrar Sesión</button>
+    </div>
+</div>
+
+<script>
+    const user = localStorage.getItem("rpg_usuario");
+    if(!user) window.location.href = "index.html";
+    document.getElementById("user-name").textContent = user;
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>
