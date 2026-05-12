@@ -1,53 +1,129 @@
-// Busca la función guardarPerfil() y cámbiala por esta:
-async function guardarPerfil() {
-    const usuario = localStorage.getItem("rpg_usuario");
-    const nuevoEmail = document.getElementById("edit-email").value;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFG RPG - Mi Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh; }
+        input::-ms-reveal { display: none; }
+        .settings-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .nav-link { color: #94a3b8; cursor: pointer; border-radius: 8px; margin-bottom: 5px; }
+        .nav-link.active { background: #6366f1 !important; color: white; }
+        .form-control { background: #0f172a; border: 1px solid #334155; color: white; }
+        .form-control:disabled { background: #1e293b; color: #64748b; }
+        .pass-container { position: relative; }
+        .toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background:none; border:none; color:#94a3b8; }
+        .btn-save { background: #6366f1; color: white; font-weight: 600; }
+    </style>
+</head>
+<body>
 
-    if (!nuevoEmail) return alert("Introduce un email válido");
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="menu.html" class="btn btn-outline-secondary btn-sm">← Volver al Menú</a>
+        <h2 class="fw-800 m-0">Configuración</h2>
+    </div>
 
-    try {
-        const res = await fetch(`https://marcovarasperez.duckdns.org/api/jugadores/actualizar/${usuario}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, {
-            method: 'PATCH'
-        });
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="settings-card p-3">
+                <nav class="nav flex-column">
+                    <a class="nav-link active" id="btn-perfil" onclick="showSection('perfil')">👤 Perfil</a>
+                    <a class="nav-link" id="btn-seguridad" onclick="showSection('seguridad')">🔒 Seguridad</a>
+                    <hr class="border-secondary">
+                    <a class="nav-link text-danger" onclick="confirmarEliminar()">⚠️ Eliminar Cuenta</a>
+                </nav>
+            </div>
+        </div>
 
-        if (res.ok) {
-            alert("¡Email actualizado!");
-        } else {
-            const err = await res.text();
-            alert("Error: " + err);
-        }
-    } catch (e) { alert("Error de conexión"); }
-}
+        <div class="col-md-8">
+            <div class="settings-card p-4">
+                <div id="section-perfil">
+                    <h4 class="mb-4">Editar Perfil</h4>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Nombre de Usuario (No editable)</label>
+                        <input type="text" id="user-static" class="form-control" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Nuevo Correo Electrónico</label>
+                        <input type="email" id="edit-email" class="form-control" placeholder="nuevo@correo.com">
+                    </div>
+                    <button class="btn btn-save w-100" onclick="guardarEmail()">Actualizar Email</button>
+                </div>
 
-// Busca la función de actualizar contraseña y usa esta:
-async function actualizarSeguridad() {
-    const usuario = localStorage.getItem("rpg_usuario");
-    const passNueva = document.getElementById("pass-nueva").value;
-    const passActual = prompt("Introduce tu contraseña ACTUAL para confirmar el cambio:");
+                <div id="section-seguridad" class="d-none">
+                    <h4 class="mb-4">Cambiar Contraseña</h4>
+                    <div class="mb-3 pass-container">
+                        <label class="form-label small text-secondary">Nueva Contraseña</label>
+                        <input type="password" id="pass-nueva" class="form-control">
+                        <button class="toggle-pass" onclick="togglePass('pass-nueva')">👁️</button>
+                    </div>
+                    <p class="small text-warning">※ Se te pedirá la contraseña actual para confirmar.</p>
+                    <button class="btn btn-save w-100" onclick="actualizarPassword()">Cambiar Contraseña</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    if (!passNueva || !passActual) return alert("Rellena los campos");
+<script>
+    const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
+    const user = localStorage.getItem("rpg_usuario");
 
-    try {
-        const url = `https://marcovarasperez.duckdns.org/api/jugadores/actualizar/${usuario}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`;
-        const res = await fetch(url, { method: 'PATCH' });
+    if(!user) window.location.href = "index.html";
+    document.getElementById("user-static").value = user;
 
-        if (res.ok) {
-            alert("¡Contraseña cambiada con éxito!");
-        } else {
-            const err = await res.text();
-            alert("Error: " + err);
-        }
-    } catch (e) { alert("Error de conexión"); }
-}
+    function togglePass(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === "password" ? "text" : "password";
+    }
 
-// Para eliminar cuenta:
-async function confirmarEliminar() {
-    const usuario = localStorage.getItem("rpg_usuario");
-    if(confirm("¿Estás seguro? Se borrará todo.")) {
-        const res = await fetch(`https://marcovarasperez.duckdns.org/api/jugadores/eliminar/usuario/${usuario}`, { method: 'DELETE' });
-        if(res.ok) {
-            localStorage.clear();
-            window.location.href = "index.html";
+    function showSection(sec) {
+        document.getElementById('section-perfil').classList.toggle('d-none', sec !== 'perfil');
+        document.getElementById('section-seguridad').classList.toggle('d-none', sec !== 'seguridad');
+        document.getElementById('btn-perfil').classList.toggle('active', sec === 'perfil');
+        document.getElementById('btn-seguridad').classList.toggle('active', sec === 'seguridad');
+    }
+
+    async function guardarEmail() {
+        const email = document.getElementById("edit-email").value;
+        if(!email) return alert("Escribe un email");
+        
+        try {
+            const res = await fetch(`${API_BASE}/actualizar/${user}/email?emailNuevo=${encodeURIComponent(email)}`, { method: 'PATCH' });
+            if(res.ok) alert("✅ Email actualizado");
+            else alert("❌ " + await res.text());
+        } catch (e) { alert("Error de conexión"); }
+    }
+
+    async function actualizarPassword() {
+        const nueva = document.getElementById("pass-nueva").value;
+        if(nueva.length < 8) return alert("Mínimo 8 caracteres");
+        
+        const actual = prompt("Introduce tu contraseña ACTUAL para confirmar:");
+        if(!actual) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/actualizar/${user}/password?passwordActual=${encodeURIComponent(actual)}&passwordNueva=${encodeURIComponent(nueva)}`, { method: 'PATCH' });
+            if(res.ok) alert("✅ Contraseña cambiada");
+            else alert("❌ " + await res.text());
+        } catch (e) { alert("Error de conexión"); }
+    }
+
+    async function confirmarEliminar() {
+        if(confirm("¿ELIMINAR CUENTA? Perderás todo el progreso.")) {
+            try {
+                const res = await fetch(`${API_BASE}/eliminar/usuario/${user}`, { method: 'DELETE' });
+                if(res.ok) {
+                    localStorage.clear();
+                    window.location.href = "index.html";
+                }
+            } catch (e) { alert("Error al eliminar"); }
         }
     }
-}
+</script>
+</body>
+</html>
