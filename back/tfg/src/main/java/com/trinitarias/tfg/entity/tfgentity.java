@@ -32,6 +32,12 @@ public class tfgentity {
     private double tiempoJuego = 0.0;
 
     @ElementCollection
+    @CollectionTable(name = "slots_guardado", joinColumns = @JoinColumn(name = "jugador_id"))
+    @MapKeyColumn(name = "slot_id")
+    @Column(name = "datos", columnDefinition = "TEXT")
+    private Map<Integer, String> slotsGuardado = new HashMap<>();
+
+    @ElementCollection
     @CollectionTable(name = "datos_jugador_interruptores", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "id_interruptor")
     @Column(name = "valor")
