@@ -44,45 +44,104 @@
             font-size: 2.5rem;
             margin: 0 auto 1.5rem;
         }
+
+        /* Clase para ocultar secciones */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
 
 <div class="container py-5 text-center">
-    <h1 class="display-4 fw-bold mb-2">Bienvenido, <span id="user-name" class="text-primary">Héroe</span></h1>
-    <p class="text-secondary mb-5">Gestiona tu perfil o adéntrate en la aventura</p>
+    
+    <div id="main-menu">
+        <h1 class="display-4 fw-bold mb-2">Bienvenido, <span id="user-name" class="text-primary">Héroe</span></h1>
+        <p class="text-secondary mb-5">Gestiona tu perfil o adéntrate en la aventura</p>
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-12 col-md-5">
-            <a href="game.html" class="card menu-card p-4">
-                <div class="card-body">
-                    <div class="icon-circle text-primary">⚔️</div>
-                    <h2 class="h4 fw-bold">Jugar</h2>
-                    <p class="text-secondary">Entra al mundo RPG y continúa tu progreso.</p>
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-md-5">
+                <a href="game.html" class="card menu-card p-4">
+                    <div class="card-body">
+                        <div class="icon-circle text-primary">⚔️</div>
+                        <h2 class="h4 fw-bold">Jugar</h2>
+                        <p class="text-secondary">Entra al mundo RPG y continúa tu progreso.</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-12 col-md-5">
+                <div onclick="toggleSettings(true)" class="card menu-card p-4">
+                    <div class="card-body">
+                        <div class="icon-circle text-info">⚙️</div>
+                        <h2 class="h4 fw-bold">Mi Cuenta</h2>
+                        <p class="text-secondary">Cambia tu email, contraseña o gestiona tu cuenta.</p>
+                    </div>
                 </div>
-            </a>
+            </div>
         </div>
 
-        <div class="col-12 col-md-5">
-            <a href="index.html?action=config" class="card menu-card p-4">
-                <div class="card-body">
-                    <div class="icon-circle text-info">⚙️</div>
-                    <h2 class="h4 fw-bold">Mi Cuenta</h2>
-                    <p class="text-secondary">Cambia tu email, contraseña o gestiona tu cuenta.</p>
-                </div>
-            </a>
+        <div class="mt-5">
+            <button class="btn btn-outline-danger px-4" onclick="logout()">Cerrar Sesión</button>
         </div>
     </div>
 
-    <div class="mt-5">
-        <button class="btn btn-outline-danger px-4" onclick="logout()">Cerrar Sesión</button>
+    <div id="settings-menu" class="hidden">
+        <h1 class="display-4 fw-bold mb-2">Configuración</h1>
+        <p class="text-secondary mb-5">¿Qué deseas modificar de tu cuenta?</p>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-md-4">
+                <div class="card menu-card p-3" onclick="alert('Cambiar Email')">
+                    <div class="card-body">
+                        <div class="h3">📧</div>
+                        <h3 class="h5">Cambiar Email</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card menu-card p-3" onclick="alert('Cambiar Contraseña')">
+                    <div class="card-body">
+                        <div class="h3">🔑</div>
+                        <h3 class="h5">Contraseña</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card menu-card p-3" onclick="alert('Eliminar Cuenta')">
+                    <div class="card-body">
+                        <div class="h3">🗑️</div>
+                        <h3 class="h5 text-danger">Eliminar</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <button class="btn btn-secondary px-4" onclick="toggleSettings(false)">Volver al Menú</button>
+        </div>
     </div>
+
 </div>
 
 <script>
     const user = localStorage.getItem("rpg_usuario");
     if(!user) window.location.href = "index.html";
     document.getElementById("user-name").textContent = user;
+
+    // Función para intercambiar los menús
+    function toggleSettings(showSettings) {
+        const mainMenu = document.getElementById("main-menu");
+        const settingsMenu = document.getElementById("settings-menu");
+
+        if (showSettings) {
+            mainMenu.classList.add("hidden");
+            settingsMenu.classList.remove("hidden");
+        } else {
+            mainMenu.classList.remove("hidden");
+            settingsMenu.classList.add("hidden");
+        }
+    }
 
     function logout() {
         localStorage.clear();

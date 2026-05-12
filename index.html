@@ -83,9 +83,6 @@
                     <li class="nav-item">
                         <button class="nav-link" id="tab-reg" data-bs-toggle="pill" data-bs-target="#panel-reg">REGISTRO</button>
                     </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-config" data-bs-toggle="pill" data-bs-target="#panel-config">AJUSTES</button>
-                    </li>
                 </ul>
 
                 <div class="tab-content mt-3">
@@ -114,21 +111,6 @@
                         </div>
                         <button class="btn btn-primary w-100 py-2" onclick="hacerRegister()">CREAR CUENTA</button>
                     </div>
-
-                    <div class="tab-pane fade" id="panel-config">
-                        <div id="config-guest" class="text-center py-3">
-                            <p class="text-secondary small">Debes iniciar sesión para editar tu perfil.</p>
-                            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('tab-login').click()">Ir al Login</button>
-                        </div>
-                        <div id="config-user" style="display:none;">
-                            <label class="small text-secondary mb-1">Nuevo Email</label>
-                            <input type="email" id="edit-email" class="form-control mb-3" placeholder="email@ejemplo.com">
-                            <label class="small text-secondary mb-1">Nueva Contraseña</label>
-                            <input type="password" id="edit-pass" class="form-control mb-3" placeholder="Opcional">
-                            <button class="btn btn-primary w-100 mb-2" onclick="editarCuenta()">ACTUALIZAR</button>
-                            <button class="btn btn-outline-danger w-100 btn-sm mt-3" onclick="eliminarCuenta()">ELIMINAR CUENTA</button>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="alerta-global" class="alert mt-4 d-none"></div>
@@ -148,18 +130,11 @@
         al.classList.remove('d-none');
     }
 
-    // Lógica para mostrar ajustes si está logueado
-    document.getElementById('tab-config').addEventListener('shown.bs.tab', () => {
-        const user = localStorage.getItem("rpg_usuario");
-        if(user) {
-            document.getElementById('config-guest').style.display = 'none';
-            document.getElementById('config-user').style.display = 'block';
-        }
-    });
-
     async function hacerLogin() {
         const usuario = document.getElementById("login-user").value;
         const password = document.getElementById("login-pass").value;
+
+        if(!usuario || !password) return feedback("⚠️ Rellena todos los campos", "warning");
 
         try {
             const res = await fetch(`${API_BASE_URL}/login`, {
@@ -175,27 +150,39 @@
             } else {
                 feedback("❌ Error: Usuario o contraseña incorrectos", "danger");
             }
-        } catch (e) { feedback("📡 Error de conexión", "danger"); }
-    }
-
-    // Funciones restantes (Register, Edit, Delete) simplificadas para brevedad
-    // Siguen la misma lógica fetch que ya tienes
-    async function eliminarCuenta() {
-        if(confirm("¿Estás seguro de eliminar tu progreso?")) {
-            const user = localStorage.getItem("rpg_usuario");
-            const res = await fetch(`${API_BASE_URL}/${user}`, { method: 'DELETE' });
-            if(res.ok) { localStorage.clear(); location.reload(); }
+        } catch (e) { 
+            feedback("📡 Error de conexión con el servidor", "danger"); 
         }
     }
 
-    // Detectar si venimos de menu.html para editar
-    window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('action') === 'config') {
-            const trigger = document.querySelector('#tab-config');
-            bootstrap.Tab.getOrCreateInstance(trigger).show();
+    async function hacerRegister() {
+        const usuario = document.getElementById("reg-user").value;
+        const email = document.getElementById("reg-email").value;
+        const password = document.getElementById("reg-pass").value;
+
+        if(!usuario || !email || !password) return feedback("⚠️ Rellena todos los campos", "warning");
+
+        try {
+            const res = await fetch(`${API_BASE_URL}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, email, password })
+            });
+
+            if (res.ok) {
+                feedback("✨ ¡Cuenta creada! Ya puedes loguearte", "success");
+                document.getElementById('tab-login').click();
+            } else {
+                feedback("❌ Error al crear la cuenta. ¿Usuario duplicado?", "danger");
+            }
+        } catch (e) { 
+            feedback("📡 Error de conexión", "danger"); 
         }
-    };
+    }
+
+    function mostrarOlvide() {
+        alert("Por favor, contacta con el administrador para recuperar tu acceso.");
+    }
 </script>
 </body>
 </html>
