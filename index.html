@@ -2,313 +2,163 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Core Delta — Acceso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #c9a84c;
-            --gold-light: #f0d080;
-            --gold-dim: rgba(201,168,76,0.15);
-            --crimson: #8b1a1a;
-            --dark-bg: #05080f;
-            --card-bg: rgba(8, 12, 22, 0.82);
-            --border: rgba(201,168,76,0.3);
-            --text: #e8dcc8;
-            --text-dim: #9a8a6a;
-            --indigo: #6366f1;
+            --gold: #c9a84c; --gold-light: #f0d080;
+            --dark-bg: #05080f; --card-bg: rgba(8,12,22,0.88);
+            --border: rgba(201,168,76,0.3); --text: #e8dcc8; --text-dim: #9a8a6a;
         }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         input::-ms-reveal, input::-ms-clear { display: none; }
+
+        html, body {
+            /* Scroll siempre habilitado */
+            height: 100%;
+            overflow-x: hidden;
+        }
 
         body {
             background: var(--dark-bg);
             font-family: 'Crimson Text', Georgia, serif;
             color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
             position: relative;
         }
 
-        /* Background layers */
-        .bg-image {
-            position: fixed; inset: 0; z-index: 0;
-            background: url('./img/fondo/fondo.png') no-repeat center center / cover;
+        .bg-image   { position:fixed; inset:0; z-index:0; background:url('./img/fondo/fondo.png') no-repeat center center / cover; }
+        .bg-overlay { position:fixed; inset:0; z-index:1; background:linear-gradient(to bottom,rgba(5,8,15,.75) 0%,rgba(5,8,15,.65) 50%,rgba(5,8,15,.85) 100%); }
+        .bg-vignette{ position:fixed; inset:0; z-index:2; background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.7) 100%); }
+        #particles  { position:fixed; inset:0; z-index:3; pointer-events:none; }
+
+        /*
+         * page-content:
+         * - En móvil: padding arriba/abajo, flujo normal, scroll automático.
+         * - En pantallas altas (≥700px): flex centrado vertical.
+         */
+        .page-content {
+            position: relative;
+            z-index: 10;
+            padding: 32px 0 40px;
         }
-        .bg-overlay {
-            position: fixed; inset: 0; z-index: 1;
-            background: linear-gradient(
-                to bottom,
-                rgba(5, 8, 15, 0.75) 0%,
-                rgba(5, 8, 15, 0.65) 50%,
-                rgba(5, 8, 15, 0.85) 100%
-            );
-        }
-        .bg-vignette {
-            position: fixed; inset: 0; z-index: 2;
-            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%);
+        @media (min-height: 700px) {
+            .page-content {
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+            }
         }
 
-        /* Particles canvas */
-        #particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
-
-        /* Main container */
-        .main-wrapper {
-            position: relative; z-index: 10;
-            width: 100%; max-width: 480px;
-            padding: 20px;
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        /* Logo */
+        .logo-text {
+            font-family:'Cinzel Decorative',serif;
+            font-size:clamp(1.8rem,8vw,2.8rem);
+            font-weight:700;
+            background:linear-gradient(160deg,#f0d080 0%,#c9a84c 40%,#8b6914 80%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            filter:drop-shadow(0 0 20px rgba(201,168,76,.4));
+            line-height:1;
         }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .logo-sub {
+            font-family:'Cinzel',serif;
+            font-size:clamp(.58rem,2vw,.75rem);
+            letter-spacing:.35em; color:var(--gold); opacity:.7; text-transform:uppercase;
         }
-
-        /* Logo/Title section */
-        .hero-title {
-            text-align: center;
-            margin-bottom: 36px;
-        }
-        .hero-title .logo-text {
-            font-family: 'Cinzel Decorative', serif;
-            font-size: 2.8rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            background: linear-gradient(160deg, #f0d080 0%, #c9a84c 40%, #8b6914 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 0 20px rgba(201,168,76,0.4));
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .hero-title .logo-sub {
-            font-family: 'Cinzel', serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.35em;
-            color: var(--gold);
-            opacity: 0.7;
-            text-transform: uppercase;
-        }
-        .hero-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 16px 0;
-            justify-content: center;
-        }
-        .hero-divider::before, .hero-divider::after {
-            content: '';
-            flex: 1;
-            max-width: 80px;
-            height: 1px;
-            background: linear-gradient(to right, transparent, var(--gold));
-        }
-        .hero-divider::after { background: linear-gradient(to left, transparent, var(--gold)); }
-        .hero-divider .diamond {
-            width: 6px; height: 6px;
-            background: var(--gold);
-            transform: rotate(45deg);
-            flex-shrink: 0;
-        }
+        .hero-divider { display:flex; align-items:center; gap:12px; margin:12px auto; max-width:200px; }
+        .hero-divider::before { content:''; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
+        .hero-divider::after  { content:''; flex:1; height:1px; background:linear-gradient(to left,transparent,var(--gold)); }
+        .diamond { width:6px; height:6px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
 
         /* Card */
         .auth-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px) saturate(1.5);
-            -webkit-backdrop-filter: blur(20px) saturate(1.5);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 40px 36px;
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                0 0 0 1px rgba(201,168,76,0.05) inset,
-                0 30px 60px rgba(0,0,0,0.6),
-                0 0 80px rgba(201,168,76,0.04);
+            background:var(--card-bg);
+            backdrop-filter:blur(20px) saturate(1.5); -webkit-backdrop-filter:blur(20px);
+            border:1px solid var(--border); border-radius:4px;
+            padding:clamp(20px,5vw,40px) clamp(16px,5vw,36px);
+            position:relative;
+            box-shadow:0 30px 60px rgba(0,0,0,.6);
+            animation:fadeInUp .8s cubic-bezier(.16,1,.3,1) both;
         }
-
-        /* Corner ornaments */
-        .auth-card::before, .auth-card::after {
-            content: '';
-            position: absolute;
-            width: 24px; height: 24px;
-            border-color: var(--gold);
-            border-style: solid;
-            opacity: 0.6;
-        }
-        .auth-card::before {
-            top: 8px; left: 8px;
-            border-width: 1px 0 0 1px;
-        }
-        .auth-card::after {
-            bottom: 8px; right: 8px;
-            border-width: 0 1px 1px 0;
-        }
-        .corner-br, .corner-tl {
-            position: absolute;
-            width: 24px; height: 24px;
-            border-color: var(--gold);
-            border-style: solid;
-            opacity: 0.6;
-        }
-        .corner-tl { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
-        .corner-br { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+        .auth-card::before { content:''; position:absolute; top:8px; left:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-right:none; border-bottom:none; }
+        .auth-card::after  { content:''; position:absolute; bottom:8px; right:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-left:none; border-top:none; }
+        .c-tr { position:absolute; top:8px; right:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-left:none; border-bottom:none; }
+        .c-bl { position:absolute; bottom:8px; left:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-right:none; border-top:none; }
 
         /* Tabs */
-        .tab-nav {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
+        .tab-nav { display:flex; margin-bottom:24px; border-bottom:1px solid var(--border); }
         .tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 10px 16px;
-            font-family: 'Cinzel', serif;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            margin-bottom: -1px;
+            flex:1; background:none; border:none; padding:12px 6px;
+            font-family:'Cinzel',serif; font-size:clamp(.58rem,2.5vw,.7rem);
+            font-weight:600; letter-spacing:.15em; text-transform:uppercase;
+            color:var(--text-dim); cursor:pointer; transition:all .3s;
+            position:relative; margin-bottom:-1px;
+            min-height:44px; /* táctil */
         }
-        .tab-btn::after {
-            content: '';
-            position: absolute;
-            bottom: -1px; left: 0; right: 0;
-            height: 2px;
-            background: var(--gold);
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-        .tab-btn.active {
-            color: var(--gold-light);
-        }
-        .tab-btn.active::after { transform: scaleX(1); }
-        .tab-btn:hover:not(.active) { color: var(--text); }
+        .tab-btn::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px; background:var(--gold); transform:scaleX(0); transition:transform .3s; }
+        .tab-btn.active { color:var(--gold-light); }
+        .tab-btn.active::after { transform:scaleX(1); }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; animation:panelIn .3s ease both; }
+        @keyframes panelIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-        /* Tab panels */
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; animation: panelIn 0.35s ease both; }
-        @keyframes panelIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Form elements */
-        .field-group { margin-bottom: 18px; }
+        /* Fields */
+        .field-group { margin-bottom:18px; }
         .field-label {
-            display: block;
-            font-family: 'Cinzel', serif;
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 7px;
+            display:block; font-family:'Cinzel',serif;
+            font-size:clamp(.55rem,2vw,.62rem);
+            letter-spacing:.18em; text-transform:uppercase;
+            color:var(--text-dim); margin-bottom:6px;
         }
-        .field-wrapper { position: relative; }
+        .field-wrapper { position:relative; }
         .field-input {
-            width: 100%;
-            background: rgba(201,168,76,0.04);
-            border: 1px solid rgba(201,168,76,0.2);
-            border-radius: 2px;
-            padding: 12px 44px 12px 14px;
-            color: var(--text);
-            font-family: 'Crimson Text', serif;
-            font-size: 1rem;
-            transition: all 0.25s;
-            outline: none;
+            width:100%; background:rgba(201,168,76,.04);
+            border:1px solid rgba(201,168,76,.2); border-radius:2px;
+            padding:13px 46px 13px 14px;
+            color:var(--text); font-family:'Crimson Text',serif;
+            font-size:clamp(1rem,3.5vw,1.05rem);
+            transition:all .25s; outline:none;
+            -webkit-appearance:none; /* evita estilos iOS */
+            min-height:50px;
         }
-        .field-input:focus {
-            border-color: var(--gold);
-            background: rgba(201,168,76,0.07);
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.08), 0 0 16px rgba(201,168,76,0.1);
-        }
-        .field-input::placeholder { color: rgba(154,138,106,0.5); }
+        .field-input:focus { border-color:var(--gold); background:rgba(201,168,76,.07); box-shadow:0 0 0 3px rgba(201,168,76,.08); }
+        .field-input::placeholder { color:rgba(154,138,106,.5); }
+
+        /* Toggle password — área táctil completa */
         .toggle-eye {
-            position: absolute;
-            right: 13px; top: 50%;
-            transform: translateY(-50%);
-            background: none; border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            padding: 4px;
-            transition: color 0.2s;
-            font-size: 0.85rem;
-            display: flex;
+            position:absolute; right:0; top:0; bottom:0; width:46px;
+            background:none; border:none; color:var(--text-dim);
+            cursor:pointer; display:flex; align-items:center; justify-content:center;
+            transition:color .2s;
         }
-        .toggle-eye:hover { color: var(--gold); }
+        .toggle-eye:hover { color:var(--gold); }
+        .icon { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
-        /* SVG icons */
-        .icon { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        /* Button */
+        .btn-rpg {
+            width:100%; padding:14px;
+            background:linear-gradient(135deg,#b8922a 0%,#c9a84c 50%,#b8922a 100%);
+            border:none; border-radius:2px; color:#0d0d0d;
+            font-family:'Cinzel',serif; font-size:clamp(.62rem,2.5vw,.72rem);
+            font-weight:700; letter-spacing:.22em; text-transform:uppercase;
+            cursor:pointer; transition:all .3s;
+            min-height:50px; display:flex; align-items:center; justify-content:center; gap:8px;
+            margin-top:4px;
+        }
+        .btn-rpg:hover { box-shadow:0 4px 20px rgba(201,168,76,.35); transform:translateY(-1px); }
+        .btn-rpg:active { transform:translateY(0); }
+        .btn-rpg:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 
-        /* Submit button */
-        .btn-primary {
-            width: 100%;
-            padding: 13px;
-            margin-top: 6px;
-            background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
-            background-size: 200% 100%;
-            border: none;
-            border-radius: 2px;
-            color: #0d0d0d;
-            font-family: 'Cinzel', serif;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-            transform: translateX(-100%);
-            transition: transform 0.4s;
-        }
-        .btn-primary:hover {
-            background-position: right center;
-            box-shadow: 0 4px 20px rgba(201,168,76,0.35);
-            transform: translateY(-1px);
-        }
-        .btn-primary:hover::before { transform: translateX(100%); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        /* Feedback */
+        .feedback-box { display:none; margin-top:16px; padding:10px 14px; border-radius:2px; font-size:.95rem; border-left:3px solid; }
+        .feedback-box.show { display:flex; align-items:center; gap:8px; }
+        .feedback-box.success { background:rgba(34,85,34,.25); border-color:#4a9; color:#8de8b0; }
+        .feedback-box.danger  { background:rgba(90,20,20,.35); border-color:#c44; color:#f4a4a4; }
 
-        /* Feedback area */
-        .feedback-box {
-            display: none;
-            margin-top: 18px;
-            padding: 10px 14px;
-            border-radius: 2px;
-            font-size: 0.9rem;
-            font-family: 'Crimson Text', serif;
-            border-left: 3px solid;
-        }
-        .feedback-box.show { display: flex; align-items: center; gap: 8px; }
-        .feedback-box.success { background: rgba(34,85,34,0.25); border-color: #4a9; color: #8de8b0; }
-        .feedback-box.danger  { background: rgba(90,20,20,0.35); border-color: #c44; color: #f4a4a4; }
-        .feedback-box.info    { background: rgba(40,50,90,0.4);  border-color: #66a; color: #aac0ff; }
-
-        /* Loading spinner */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .spinner { width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
     </style>
 </head>
 <body>
@@ -318,220 +168,160 @@
 <div class="bg-vignette"></div>
 <canvas id="particles"></canvas>
 
-<div class="main-wrapper">
-    <div class="hero-title">
-        <div class="logo-text">TFG RPG</div>
-        <div class="hero-divider"><div class="diamond"></div></div>
-        <div class="logo-sub">Crónicas del Héroe</div>
-    </div>
+<div class="page-content">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-9 col-md-6 col-lg-5 col-xl-4">
 
-    <div class="auth-card">
-        <div class="corner-tl"></div>
-        <div class="corner-br"></div>
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                    <div class="logo-text">Core Delta</div>
+                    <div class="hero-divider"><div class="diamond"></div></div>
+                    <div class="logo-sub">Crónicas del Héroe</div>
+                </div>
 
-        <div class="tab-nav">
-            <button class="tab-btn active" onclick="switchTab('login', this)">Iniciar Sesión</button>
-            <button class="tab-btn"        onclick="switchTab('reg',   this)">Crear Cuenta</button>
+                <!-- Card -->
+                <div class="auth-card">
+                    <div class="c-tr"></div><div class="c-bl"></div>
+
+                    <div class="tab-nav">
+                        <button class="tab-btn active" onclick="switchTab('login',this)">Iniciar Sesión</button>
+                        <button class="tab-btn"        onclick="switchTab('reg',this)">Crear Cuenta</button>
+                    </div>
+
+                    <!-- LOGIN -->
+                    <div class="tab-panel active" id="panel-login">
+                        <div class="field-group">
+                            <label class="field-label" for="login-user">Nombre de Héroe</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="login-user" class="field-input" placeholder="Tu nombre de aventurero" autocomplete="username">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="login-pass">Contraseña Secreta</label>
+                            <div class="field-wrapper">
+                                <input type="password" id="login-pass" class="field-input" placeholder="••••••••" autocomplete="current-password">
+                                <button class="toggle-eye" type="button" onclick="togglePass('login-pass',this)">
+                                    <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn-rpg" id="btn-login" onclick="hacerLogin()">⚔ Entrar al Reino</button>
+                    </div>
+
+                    <!-- REGISTRO -->
+                    <div class="tab-panel" id="panel-reg">
+                        <div class="field-group">
+                            <label class="field-label" for="reg-user">Nombre de Héroe</label>
+                            <div class="field-wrapper">
+                                <input type="text" id="reg-user" class="field-input" placeholder="Escoge tu nombre legendario" autocomplete="username">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="reg-email">Correo del Gremio</label>
+                            <div class="field-wrapper">
+                                <input type="email" id="reg-email" class="field-input" placeholder="correo@aventura.com" autocomplete="email">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="reg-pass">Contraseña Secreta</label>
+                            <div class="field-wrapper">
+                                <input type="password" id="reg-pass" class="field-input" placeholder="••••••••" autocomplete="new-password">
+                                <button class="toggle-eye" type="button" onclick="togglePass('reg-pass',this)">
+                                    <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn-rpg" id="btn-reg" onclick="hacerRegister()">✦ Forjar mi Destino</button>
+                    </div>
+
+                    <div class="feedback-box" id="feedback-area"></div>
+                </div>
+
+            </div>
         </div>
-
-        <!-- LOGIN -->
-        <div class="tab-panel active" id="panel-login">
-            <div class="field-group">
-                <label class="field-label" for="login-user">Nombre de Héroe</label>
-                <div class="field-wrapper">
-                    <input type="text" id="login-user" class="field-input" placeholder="Tu nombre de aventurero" autocomplete="username">
-                </div>
-            </div>
-            <div class="field-group">
-                <label class="field-label" for="login-pass">Contraseña Secreta</label>
-                <div class="field-wrapper">
-                    <input type="password" id="login-pass" class="field-input" placeholder="••••••••" autocomplete="current-password">
-                    <button class="toggle-eye" type="button" onclick="togglePass('login-pass', this)" aria-label="Mostrar contraseña">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
-                </div>
-            </div>
-            <button class="btn-primary" id="btn-login" onclick="hacerLogin()">⚔ &nbsp; Entrar al Reino</button>
-        </div>
-
-        <!-- REGISTRO -->
-        <div class="tab-panel" id="panel-reg">
-            <div class="field-group">
-                <label class="field-label" for="reg-user">Nombre de Héroe</label>
-                <div class="field-wrapper">
-                    <input type="text" id="reg-user" class="field-input" placeholder="Escoge tu nombre legendario" autocomplete="username">
-                </div>
-            </div>
-            <div class="field-group">
-                <label class="field-label" for="reg-email">Correo del Gremio</label>
-                <div class="field-wrapper">
-                    <input type="email" id="reg-email" class="field-input" placeholder="correo@aventura.com" autocomplete="email">
-                </div>
-            </div>
-            <div class="field-group">
-                <label class="field-label" for="reg-pass">Contraseña Secreta</label>
-                <div class="field-wrapper">
-                    <input type="password" id="reg-pass" class="field-input" placeholder="••••••••" autocomplete="new-password">
-                    <button class="toggle-eye" type="button" onclick="togglePass('reg-pass', this)" aria-label="Mostrar contraseña">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
-                </div>
-            </div>
-            <button class="btn-primary" id="btn-reg" onclick="hacerRegister()">✦ &nbsp; Forjar mi Destino</button>
-        </div>
-
-        <div class="feedback-box" id="feedback-area"></div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
+    if (localStorage.getItem('rpg_usuario')) location.href = 'menu.html';
 
-    // ─── Particles ──────────────────────────────────────────────────────────
-    (function initParticles() {
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        let W, H, particles = [];
-
-        function resize() {
-            W = canvas.width  = window.innerWidth;
-            H = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        const N = 55;
-        for (let i = 0; i < N; i++) {
-            particles.push({
-                x: Math.random() * W,
-                y: Math.random() * H,
-                r: Math.random() * 1.2 + 0.3,
-                a: Math.random(),
-                speed: Math.random() * 0.25 + 0.06,
-                drift: (Math.random() - 0.5) * 0.12
+    // Particles
+    (function(){
+        const c=document.getElementById('particles'), ctx=c.getContext('2d');
+        let W,H,pts=[];
+        const r=()=>{W=c.width=innerWidth; H=c.height=innerHeight;};
+        window.addEventListener('resize',r); r();
+        for(let i=0;i<50;i++) pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,spd:Math.random()*.22+.06,d:(Math.random()-.5)*.1});
+        (function f(){
+            ctx.clearRect(0,0,W,H);
+            pts.forEach(p=>{
+                ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                ctx.fillStyle=`rgba(201,168,76,${.2+.5*Math.abs(Math.sin(Date.now()*.001+p.x))})`; ctx.fill();
+                p.y-=p.spd; p.x+=p.d;
+                if(p.y<-5){p.y=H+5; p.x=Math.random()*W;} if(p.x<0||p.x>W)p.d*=-1;
             });
-        }
-
-        function frame() {
-            ctx.clearRect(0, 0, W, H);
-            particles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(201,168,76,${p.a * 0.55})`;
-                ctx.fill();
-                p.y -= p.speed;
-                p.x += p.drift;
-                p.a = 0.3 + 0.7 * Math.sin(Date.now() * 0.001 + p.x);
-                if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
-                if (p.x < 0 || p.x > W) p.drift *= -1;
-            });
-            requestAnimationFrame(frame);
-        }
-        frame();
+            requestAnimationFrame(f);
+        })();
     })();
 
-    // ─── UI Helpers ─────────────────────────────────────────────────────────
-    function switchTab(name, el) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    function switchTab(n,el) {
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
         el.classList.add('active');
-        document.getElementById('panel-' + name).classList.add('active');
+        document.getElementById('panel-'+n).classList.add('active');
         hideFeedback();
     }
 
-    function togglePass(id, btn) {
-        const inp = document.getElementById(id);
-        const isPass = inp.type === 'password';
-        inp.type = isPass ? 'text' : 'password';
-        btn.innerHTML = isPass
-            ? `<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-            : `<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    function togglePass(id,btn) {
+        const i=document.getElementById(id), s=i.type==='password';
+        i.type=s?'text':'password';
+        btn.innerHTML=s
+            ?`<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+            :`<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
     }
 
-    function showFeedback(msg, type) {
-        const box = document.getElementById('feedback-area');
-        const icons = { success: '✦', danger: '✖', info: '◆' };
-        box.className = `feedback-box show ${type}`;
-        box.innerHTML = `<span>${icons[type] || '●'}</span><span>${msg}</span>`;
+    function showFeedback(msg,type) {
+        const b=document.getElementById('feedback-area');
+        b.className=`feedback-box show ${type}`;
+        b.innerHTML=`<span>${{success:'✦',danger:'✖',info:'◆'}[type]||'●'}</span><span>${msg}</span>`;
     }
     function hideFeedback() {
-        const box = document.getElementById('feedback-area');
-        box.className = 'feedback-box';
-        box.innerHTML = '';
+        const b=document.getElementById('feedback-area'); b.className='feedback-box'; b.innerHTML='';
     }
-    function setLoading(btnId, loading, text) {
-        const btn = document.getElementById(btnId);
-        btn.disabled = loading;
-        btn.innerHTML = loading ? '<span class="spinner"></span>' : text;
+    function setLoading(id,on,txt) {
+        const b=document.getElementById(id); b.disabled=on; b.innerHTML=on?'<span class="spinner"></span>':txt;
     }
 
-    // ─── API ────────────────────────────────────────────────────────────────
     async function hacerLogin() {
-        const usuario  = document.getElementById('login-user').value.trim();
-        const password = document.getElementById('login-pass').value;
-        if (!usuario || !password) return showFeedback('Completa todos los campos.', 'danger');
-
-        setLoading('btn-login', true);
+        const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
+        if(!u||!p) return showFeedback('Completa todos los campos.','danger');
+        setLoading('btn-login',true);
         try {
-            const res = await fetch(`${API_BASE}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario, password })
-            });
-            if (res.ok) {
-                localStorage.setItem('rpg_usuario', usuario);
-                showFeedback('Bienvenido de vuelta, ' + usuario + '…', 'success');
-                setTimeout(() => { window.location.href = 'menu.html'; }, 900);
-            } else {
-                showFeedback('Credenciales incorrectas. Inténtalo de nuevo.', 'danger');
-                setLoading('btn-login', false, '⚔ &nbsp; Entrar al Reino');
-            }
-        } catch {
-            showFeedback('No se pudo conectar con el servidor.', 'danger');
-            setLoading('btn-login', false, '⚔ &nbsp; Entrar al Reino');
-        }
+            const r=await fetch(`${API_BASE}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password:p})});
+            if(r.ok){ localStorage.setItem('rpg_usuario',u); showFeedback('Bienvenido, '+u+'…','success'); setTimeout(()=>location.href='menu.html',900); }
+            else { showFeedback('Credenciales incorrectas.','danger'); setLoading('btn-login',false,'⚔ Entrar al Reino'); }
+        } catch { showFeedback('No se pudo conectar.','danger'); setLoading('btn-login',false,'⚔ Entrar al Reino'); }
     }
 
     async function hacerRegister() {
-        const usuario  = document.getElementById('reg-user').value.trim();
-        const email    = document.getElementById('reg-email').value.trim();
-        const password = document.getElementById('reg-pass').value;
-        if (!usuario || !email || !password) return showFeedback('Completa todos los campos.', 'danger');
-        if (password.length < 4) return showFeedback('La contraseña es demasiado corta.', 'danger');
-
-        setLoading('btn-reg', true);
+        const u=document.getElementById('reg-user').value.trim(), e=document.getElementById('reg-email').value.trim(), p=document.getElementById('reg-pass').value;
+        if(!u||!e||!p) return showFeedback('Completa todos los campos.','danger');
+        if(p.length<4) return showFeedback('Contraseña demasiado corta.','danger');
+        setLoading('btn-reg',true);
         try {
-            const res = await fetch(`${API_BASE}/registro`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario, email, password })
-            });
-            if (res.ok) {
-                showFeedback('¡Cuenta creada! Ya puedes iniciar sesión.', 'success');
-                setTimeout(() => {
-                    document.querySelectorAll('.tab-btn')[0].click();
-                    setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
-                }, 1500);
-            } else {
-                const err = await res.text();
-                showFeedback(err || 'Error al registrar. Inténtalo de nuevo.', 'danger');
-                setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
-            }
-        } catch {
-            showFeedback('No se pudo conectar con el servidor.', 'danger');
-            setLoading('btn-reg', false, '✦ &nbsp; Forjar mi Destino');
-        }
+            const r=await fetch(`${API_BASE}/registro`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,email:e,password:p})});
+            if(r.ok){ showFeedback('¡Cuenta creada! Ya puedes iniciar sesión.','success'); setTimeout(()=>{ document.querySelectorAll('.tab-btn')[0].click(); setLoading('btn-reg',false,'✦ Forjar mi Destino'); },1500); }
+            else { const err=await r.text(); showFeedback(err||'Error al registrar.','danger'); setLoading('btn-reg',false,'✦ Forjar mi Destino'); }
+        } catch { showFeedback('No se pudo conectar.','danger'); setLoading('btn-reg',false,'✦ Forjar mi Destino'); }
     }
 
-    // Enter key support
-    document.addEventListener('keydown', e => {
-        if (e.key !== 'Enter') return;
-        const loginActive = document.getElementById('panel-login').classList.contains('active');
-        if (loginActive) hacerLogin(); else hacerRegister();
+    document.addEventListener('keydown',e=>{
+        if(e.key!=='Enter') return;
+        document.getElementById('panel-login').classList.contains('active') ? hacerLogin() : hacerRegister();
     });
-
-    // Redirect if already logged in
-    if (localStorage.getItem('rpg_usuario')) window.location.href = 'menu.html';
 </script>
 </body>
 </html>

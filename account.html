@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>TFG RPG — Mi Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,73 +16,52 @@
             --text: #e8dcc8;
             --text-dim: #9a8a6a;
         }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             background: var(--dark-bg);
             font-family: 'Crimson Text', Georgia, serif;
             color: var(--text);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
+            min-height: 100dvh;
             position: relative;
-            padding: 40px 16px;
         }
 
-        .bg-image { position: fixed; inset: 0; z-index: 0; background: url('./img/fondo/fondo.png') no-repeat center center / cover; }
+        .bg-image   { position: fixed; inset: 0; z-index: 0; background: url('./img/fondo/fondo.png') no-repeat center center / cover; }
         .bg-overlay { position: fixed; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(5,8,15,0.78) 0%, rgba(5,8,15,0.65) 50%, rgba(5,8,15,0.82) 100%); }
-        .bg-vignette { position: fixed; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%); }
-        #particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+        .bg-vignette{ position: fixed; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%); }
+        #particles  { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
 
-        .page-wrapper {
+        .page-content {
             position: relative; z-index: 10;
-            width: 100%; max-width: 580px;
-            animation: fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+            padding: 32px 0 48px;
         }
 
         /* Back link */
         .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            display: inline-flex; align-items: center; gap: 8px;
             font-family: 'Cinzel', serif;
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            text-decoration: none;
-            margin-bottom: 24px;
-            transition: color 0.2s;
+            font-size: clamp(0.55rem, 2vw, 0.62rem);
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--text-dim); text-decoration: none;
+            margin-bottom: 20px; transition: color 0.2s;
+            min-height: 44px;
         }
         .back-link:hover { color: var(--gold); }
         .back-link svg { transition: transform 0.2s; }
         .back-link:hover svg { transform: translateX(-3px); }
 
-        /* Page title */
-        .page-title-block {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        /* Title */
         .page-eyebrow {
             font-family: 'Cinzel', serif;
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--gold);
-            opacity: 0.75;
-            margin-bottom: 6px;
+            font-size: clamp(0.6rem, 2vw, 0.65rem);
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: var(--gold); opacity: 0.75; margin-bottom: 6px;
         }
         .page-title {
             font-family: 'Cinzel Decorative', serif;
-            font-size: clamp(1.4rem, 4vw, 1.9rem);
-            font-weight: 700;
+            font-size: clamp(1.3rem, 4vw, 1.9rem); font-weight: 700;
             background: linear-gradient(160deg, #f0d080 0%, #c9a84c 45%, #8b6914 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
 
         /* Card */
@@ -89,56 +69,37 @@
             background: var(--card-bg);
             backdrop-filter: blur(20px) saturate(1.5);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 40px 36px;
+            border: 1px solid var(--border); border-radius: 4px;
+            padding: clamp(20px, 5vw, 40px) clamp(16px, 5vw, 36px);
             position: relative;
             box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 80px rgba(201,168,76,0.03);
+            animation: fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
         }
         .settings-card::before {
-            content: ''; position: absolute; top: 8px; left: 8px;
-            width: 24px; height: 24px;
-            border: 1px solid rgba(201,168,76,0.45);
-            border-right: none; border-bottom: none;
+            content: ''; position: absolute; top: 8px; left: 8px; width: 24px; height: 24px;
+            border: 1px solid rgba(201,168,76,0.45); border-right: none; border-bottom: none;
         }
         .settings-card::after {
-            content: ''; position: absolute; bottom: 8px; right: 8px;
-            width: 24px; height: 24px;
-            border: 1px solid rgba(201,168,76,0.45);
-            border-left: none; border-top: none;
+            content: ''; position: absolute; bottom: 8px; right: 8px; width: 24px; height: 24px;
+            border: 1px solid rgba(201,168,76,0.45); border-left: none; border-top: none;
         }
         .corner-extra-tl { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-left: none; border-bottom: none; }
         .corner-extra-br { position: absolute; bottom: 8px; left: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-right: none; border-top: none; }
 
         /* Section header */
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 22px;
-            margin-top: 32px;
-        }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; margin-top: 32px; }
         .section-header:first-child { margin-top: 0; }
         .section-header .sec-icon {
-            width: 32px; height: 32px;
-            background: rgba(201,168,76,0.1);
-            border: 1px solid rgba(201,168,76,0.25);
-            border-radius: 50%;
+            width: 32px; height: 32px; background: rgba(201,168,76,0.1);
+            border: 1px solid rgba(201,168,76,0.25); border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.85rem; flex-shrink: 0;
         }
         .section-header .sec-label {
-            font-family: 'Cinzel', serif;
-            font-size: 0.68rem;
-            font-weight: 600;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--gold);
+            font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 600;
+            letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold);
         }
-        .section-header .sec-line {
-            flex: 1; height: 1px;
-            background: linear-gradient(to right, rgba(201,168,76,0.3), transparent);
-        }
+        .section-header .sec-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(201,168,76,0.3), transparent); }
 
         /* Divider */
         .divider { height: 1px; background: rgba(201,168,76,0.12); margin: 30px 0; }
@@ -146,92 +107,54 @@
         /* Form elements */
         .field-group { margin-bottom: 18px; }
         .field-label {
-            display: block;
-            font-family: 'Cinzel', serif;
-            font-size: 0.6rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-            margin-bottom: 7px;
+            display: block; font-family: 'Cinzel', serif;
+            font-size: clamp(0.55rem, 2vw, 0.6rem);
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 7px;
         }
         .field-wrapper { position: relative; }
         .field-input {
-            width: 100%;
-            background: rgba(201,168,76,0.04);
-            border: 1px solid rgba(201,168,76,0.18);
-            border-radius: 2px;
-            padding: 11px 44px 11px 14px;
-            color: var(--text);
-            font-family: 'Crimson Text', serif;
-            font-size: 1rem;
-            transition: all 0.25s;
-            outline: none;
+            width: 100%; background: rgba(201,168,76,0.04);
+            border: 1px solid rgba(201,168,76,0.18); border-radius: 2px;
+            padding: 12px 46px 12px 14px;
+            color: var(--text); font-family: 'Crimson Text', serif;
+            font-size: clamp(1rem, 3.5vw, 1.05rem);
+            transition: all 0.25s; outline: none;
+            -webkit-appearance: none; min-height: 48px;
         }
-        .field-input:focus {
-            border-color: var(--gold);
-            background: rgba(201,168,76,0.07);
-            box-shadow: 0 0 0 3px rgba(201,168,76,0.07), 0 0 14px rgba(201,168,76,0.08);
-        }
-        .field-input:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
+        .field-input:focus { border-color: var(--gold); background: rgba(201,168,76,0.07); box-shadow: 0 0 0 3px rgba(201,168,76,0.07); }
+        .field-input:disabled { opacity: 0.45; cursor: not-allowed; }
         .field-input::placeholder { color: rgba(154,138,106,0.45); }
-        .field-note {
-            display: block;
-            font-size: 0.78rem;
-            font-style: italic;
-            color: var(--text-dim);
-            margin-top: 5px;
-        }
+        .field-note { display: block; font-size: 0.78rem; font-style: italic; color: var(--text-dim); margin-top: 5px; }
 
-        /* Two-column grid */
-        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
-
-        /* Toggle password button */
+        /* Toggle password — área táctil completa */
         .toggle-eye {
-            position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+            position: absolute; right: 0; top: 0; bottom: 0; width: 46px;
             background: none; border: none; color: var(--text-dim);
-            cursor: pointer; padding: 4px; transition: color 0.2s;
-            display: flex;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: color 0.2s;
         }
         .toggle-eye:hover { color: var(--gold); }
         .icon { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* Password strength */
-        .strength-bar {
-            display: flex; gap: 4px; margin-top: 8px;
-        }
-        .strength-bar .seg {
-            flex: 1; height: 3px; border-radius: 2px;
-            background: rgba(201,168,76,0.1);
-            transition: background 0.3s;
-        }
+        .strength-bar { display: flex; gap: 4px; margin-top: 8px; }
+        .strength-bar .seg { flex: 1; height: 3px; border-radius: 2px; background: rgba(201,168,76,0.1); transition: background 0.3s; }
         .strength-bar .seg.fill-weak   { background: #c44; }
         .strength-bar .seg.fill-ok     { background: #c9a84c; }
         .strength-bar .seg.fill-strong { background: #4a9; }
 
         /* Save button */
         .btn-save {
-            width: 100%;
-            padding: 13px;
-            margin-top: 10px;
+            width: 100%; padding: 14px; margin-top: 10px;
             background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
-            background-size: 200% 100%;
-            border: none; border-radius: 2px;
-            color: #0d0d0d;
-            font-family: 'Cinzel', serif;
-            font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.22em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.3s;
-            position: relative; overflow: hidden;
+            border: none; border-radius: 2px; color: #0d0d0d;
+            font-family: 'Cinzel', serif; font-size: clamp(0.62rem, 2.5vw, 0.7rem);
+            font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+            min-height: 50px; display: flex; align-items: center; justify-content: center;
         }
-        .btn-save::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
-            transform: translateX(-100%); transition: transform 0.4s;
-        }
+        .btn-save::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform 0.4s; }
         .btn-save:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.3); transform: translateY(-1px); }
         .btn-save:hover::before { transform: translateX(100%); }
         .btn-save:active { transform: translateY(0); }
@@ -239,72 +162,38 @@
 
         /* Delete button */
         .btn-delete {
-            background: none; border: none;
-            color: rgba(220,80,80,0.65);
-            font-family: 'Cinzel', serif;
-            font-size: 0.6rem; letter-spacing: 0.15em;
-            text-transform: uppercase;
-            cursor: pointer; transition: color 0.25s;
-            padding: 6px 0; text-decoration: none;
-            display: inline-block;
+            background: none; border: none; color: rgba(220,80,80,0.65);
+            font-family: 'Cinzel', serif; font-size: clamp(0.55rem, 2vw, 0.6rem);
+            letter-spacing: 0.15em; text-transform: uppercase;
+            cursor: pointer; transition: color 0.25s; padding: 8px 0; min-height: 44px;
         }
         .btn-delete:hover { color: #e86060; }
 
-        /* Toast notifications */
-        .toast-container {
-            position: fixed; top: 24px; right: 24px; z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px;
-            pointer-events: none;
-        }
-        .toast {
-            background: rgba(8,12,22,0.95);
-            border: 1px solid;
-            border-radius: 3px;
-            padding: 12px 18px;
-            font-family: 'Crimson Text', serif;
-            font-size: 0.95rem;
-            min-width: 240px;
-            display: flex; align-items: center; gap: 10px;
-            animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
-            pointer-events: all;
-        }
+        /* Toast */
+        .toast-container { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: calc(100vw - 32px); }
+        .toast { background: rgba(8,12,22,0.95); border: 1px solid; border-radius: 3px; padding: 12px 16px; font-family: 'Crimson Text', serif; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; pointer-events: all; animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
         .toast.success { border-color: rgba(74,180,120,0.5); color: #8de8b0; }
         .toast.danger  { border-color: rgba(200,60,60,0.5);  color: #f4a4a4; }
-        @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes slideOut { to { opacity:0; transform: translateX(20px); } }
+        @keyframes slideIn  { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes slideOut { to{opacity:0;transform:translateX(20px)} }
 
         /* Modal */
-        .modal-overlay {
-            position: fixed; inset: 0; z-index: 100;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-        }
+        .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 16px; }
         .modal-overlay.open { display: flex; }
-        .modal-box {
-            background: rgba(10,14,24,0.98);
-            border: 1px solid rgba(200,60,60,0.35);
-            border-radius: 4px;
-            padding: 36px;
-            max-width: 360px; width: 90%;
-            text-align: center;
-            animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1);
-        }
-        .modal-icon { font-size: 2rem; margin-bottom: 14px; }
-        .modal-title { font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.08em; color: #f0d080; margin-bottom: 10px; }
-        .modal-desc { color: var(--text-dim); font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; }
+        .modal-box { background: rgba(10,14,24,0.98); border: 1px solid rgba(200,60,60,0.35); border-radius: 4px; padding: clamp(24px,5vw,36px); max-width: 360px; width: 100%; text-align: center; animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1); }
+        .modal-icon  { font-size: 2rem; margin-bottom: 12px; }
+        .modal-title { font-family: 'Cinzel', serif; font-size: clamp(0.9rem, 3vw, 1rem); letter-spacing: 0.08em; color: #f0d080; margin-bottom: 10px; }
+        .modal-desc  { color: var(--text-dim); font-size: clamp(0.9rem, 3vw, 0.95rem); line-height: 1.5; margin-bottom: 22px; }
         .modal-actions { display: flex; gap: 12px; }
-        .modal-actions button { flex: 1; padding: 10px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; border: 1px solid; }
-        .btn-cancel { background: none; border-color: var(--border); color: var(--text-dim); }
-        .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
+        .modal-actions button { flex: 1; padding: 12px 8px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: clamp(0.58rem, 2vw, 0.65rem); letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; border: 1px solid; min-height: 46px; }
+        .btn-cancel  { background: none; border-color: var(--border); color: var(--text-dim); }
+        .btn-cancel:hover  { border-color: var(--gold); color: var(--gold); }
         .btn-confirm { background: rgba(185,40,40,0.2); border-color: rgba(185,40,40,0.5); color: #f4a4a4; }
-        .btn-confirm:hover { background: rgba(185,40,40,0.35); }
+        .btn-confirm:hover  { background: rgba(185,40,40,0.35); }
 
-        /* Spinner */
         @keyframes spin { to { transform: rotate(360deg); } }
         .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
-
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     </style>
 </head>
 <body>
@@ -315,113 +204,123 @@
 <canvas id="particles"></canvas>
 <div class="toast-container" id="toast-container"></div>
 
-<!-- Confirm delete modal -->
+<!-- Modal eliminar -->
 <div class="modal-overlay" id="modal-delete">
     <div class="modal-box">
         <div class="modal-icon">⚠️</div>
         <div class="modal-title">Eliminar Cuenta</div>
         <div class="modal-desc">Esta acción es <strong>irreversible</strong>. Se borrarán todos tus datos de progreso y acceso al juego.</div>
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+            <button class="btn-cancel"  onclick="closeModal()">Cancelar</button>
             <button class="btn-confirm" id="btn-confirm-delete" onclick="ejecutarEliminar()">Eliminar</button>
         </div>
     </div>
 </div>
 
-<div class="page-wrapper">
+<div class="page-content">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
-    <a href="menu.html" class="back-link">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-        Volver al Menú
-    </a>
+                <a href="menu.html" class="back-link">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    Volver al Menú
+                </a>
 
-    <div class="page-title-block">
-        <div class="page-eyebrow">Panel de Control</div>
-        <div class="page-title">Mi Cuenta</div>
-    </div>
-
-    <div class="settings-card">
-        <div class="corner-extra-tl"></div>
-        <div class="corner-extra-br"></div>
-
-        <!-- Profile section -->
-        <div class="section-header">
-            <div class="sec-icon">🛡️</div>
-            <div class="sec-label">Datos de Perfil</div>
-            <div class="sec-line"></div>
-        </div>
-
-        <div class="field-group">
-            <label class="field-label" for="edit-user">Nombre de Héroe</label>
-            <div class="field-wrapper">
-                <input type="text" id="edit-user" class="field-input" disabled placeholder="—">
-            </div>
-            <span class="field-note">El nombre de héroe no puede modificarse</span>
-        </div>
-
-        <div class="field-group">
-            <label class="field-label" for="edit-email">Correo del Gremio</label>
-            <div class="field-wrapper">
-                <input type="email" id="edit-email" class="field-input" placeholder="nuevo@correo.com" autocomplete="email">
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Security section -->
-        <div class="section-header">
-            <div class="sec-icon">🔐</div>
-            <div class="sec-label">Seguridad</div>
-            <div class="sec-line"></div>
-        </div>
-
-        <div class="field-group">
-            <label class="field-label" for="pass-actual">Contraseña Actual</label>
-            <div class="field-wrapper">
-                <input type="password" id="pass-actual" class="field-input" placeholder="Obligatoria para confirmar cualquier cambio" autocomplete="current-password">
-                <button class="toggle-eye" type="button" onclick="togglePass('pass-actual', this)" aria-label="Ver contraseña">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="field-group">
-                <label class="field-label" for="pass-nueva">Nueva Contraseña</label>
-                <div class="field-wrapper">
-                    <input type="password" id="pass-nueva" class="field-input" placeholder="••••••••" autocomplete="new-password" oninput="updateStrength(this.value)">
-                    <button class="toggle-eye" type="button" onclick="togglePass('pass-nueva', this)" aria-label="Ver contraseña">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
+                <div class="text-center mb-4">
+                    <div class="page-eyebrow">Panel de Control</div>
+                    <div class="page-title">Mi Cuenta</div>
                 </div>
-                <div class="strength-bar">
-                    <div class="seg" id="str1"></div>
-                    <div class="seg" id="str2"></div>
-                    <div class="seg" id="str3"></div>
-                    <div class="seg" id="str4"></div>
+
+                <div class="settings-card">
+                    <div class="corner-extra-tl"></div>
+                    <div class="corner-extra-br"></div>
+
+                    <!-- Perfil -->
+                    <div class="section-header">
+                        <div class="sec-icon">🛡️</div>
+                        <div class="sec-label">Datos de Perfil</div>
+                        <div class="sec-line"></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="edit-user">Nombre de Héroe</label>
+                        <div class="field-wrapper">
+                            <input type="text" id="edit-user" class="field-input" readonly disabled>
+                        </div>
+                        <span class="field-note">El nombre de héroe no puede modificarse</span>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="edit-email">Correo del Gremio</label>
+                        <div class="field-wrapper">
+                            <input type="email" id="edit-email" class="field-input" placeholder="nuevo@correo.com" autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Seguridad -->
+                    <div class="section-header">
+                        <div class="sec-icon">🔐</div>
+                        <div class="sec-label">Seguridad</div>
+                        <div class="sec-line"></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="pass-actual">Contraseña Actual</label>
+                        <div class="field-wrapper">
+                            <input type="password" id="pass-actual" class="field-input" placeholder="Obligatoria para confirmar cualquier cambio" autocomplete="current-password">
+                            <button class="toggle-eye" type="button" onclick="togglePass('pass-actual', this)" aria-label="Ver contraseña">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1 col en móvil, 2 col en tablet+ -->
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6">
+                            <div class="field-group mb-0">
+                                <label class="field-label" for="pass-nueva">Nueva Contraseña</label>
+                                <div class="field-wrapper">
+                                    <input type="password" id="pass-nueva" class="field-input" placeholder="••••••••" autocomplete="new-password" oninput="updateStrength(this.value)">
+                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-nueva', this)" aria-label="Ver contraseña">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </button>
+                                </div>
+                                <div class="strength-bar">
+                                    <div class="seg" id="str1"></div>
+                                    <div class="seg" id="str2"></div>
+                                    <div class="seg" id="str3"></div>
+                                    <div class="seg" id="str4"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <div class="field-group mb-0">
+                                <label class="field-label" for="pass-repetir">Repetir Nueva</label>
+                                <div class="field-wrapper">
+                                    <input type="password" id="pass-repetir" class="field-input" placeholder="••••••••" autocomplete="new-password">
+                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-repetir', this)" aria-label="Ver contraseña">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-save" id="btn-save" onclick="guardarCambios()">✦ &nbsp; Guardar Cambios</button>
+
+                    <div class="divider" style="margin-top: 28px;"></div>
+
+                    <div class="text-center">
+                        <button class="btn-delete" onclick="abrirModal()">⚠ Eliminar cuenta permanentemente</button>
+                    </div>
                 </div>
+
             </div>
-            <div class="field-group">
-                <label class="field-label" for="pass-repetir">Repetir Nueva</label>
-                <div class="field-wrapper">
-                    <input type="password" id="pass-repetir" class="field-input" placeholder="••••••••" autocomplete="new-password">
-                    <button class="toggle-eye" type="button" onclick="togglePass('pass-repetir', this)" aria-label="Ver contraseña">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn-save" id="btn-save" onclick="guardarCambios()">✦ &nbsp; Guardar Cambios</button>
-
-        <div class="divider" style="margin-top: 28px;"></div>
-
-        <div style="text-align:center;">
-            <button class="btn-delete" onclick="abrirModal()">⚠ Eliminar cuenta permanentemente</button>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
     const usuario = localStorage.getItem('rpg_usuario');
@@ -429,7 +328,6 @@
 
     document.getElementById('edit-user').value = usuario;
 
-    // ─── Toast ───────────────────────────────────────────────────────────────
     function showToast(msg, type = 'success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -442,7 +340,6 @@
         }, 3200);
     }
 
-    // ─── Password strength ───────────────────────────────────────────────────
     function updateStrength(val) {
         let score = 0;
         if (val.length >= 6) score++;
@@ -451,12 +348,10 @@
         if (/[^a-zA-Z0-9]/.test(val)) score++;
         const cls = score <= 1 ? 'fill-weak' : score <= 2 ? 'fill-ok' : 'fill-strong';
         for (let i = 1; i <= 4; i++) {
-            const seg = document.getElementById('str' + i);
-            seg.className = 'seg ' + (i <= score ? cls : '');
+            document.getElementById('str' + i).className = 'seg ' + (i <= score ? cls : '');
         }
     }
 
-    // ─── Toggle password visibility ──────────────────────────────────────────
     function togglePass(id, btn) {
         const inp = document.getElementById(id);
         const show = inp.type === 'password';
@@ -466,24 +361,16 @@
             : `<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
     }
 
-    // ─── Modal ───────────────────────────────────────────────────────────────
     function abrirModal() { document.getElementById('modal-delete').classList.add('open'); }
     function closeModal() { document.getElementById('modal-delete').classList.remove('open'); }
 
-    // ─── Fetch helper (siempre con cabeceras CORS correctas) ────────────────
     async function apiFetch(url, method = 'GET') {
-        const opts = {
+        return fetch(url, {
             method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept':        'application/json, text/plain, */*'
-            }
-        };
-        const res = await fetch(url, opts);
-        return res;
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*' }
+        });
     }
 
-    // ─── Save changes ────────────────────────────────────────────────────────
     async function guardarCambios() {
         const nuevoEmail  = document.getElementById('edit-email').value.trim();
         const passActual  = document.getElementById('pass-actual').value;
@@ -495,70 +382,41 @@
         if (!nuevoEmail && !passNueva) return showToast('No hay cambios que guardar.', 'danger');
 
         const btn = document.getElementById('btn-save');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>';
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
 
         try {
             if (nuevoEmail) {
-                const url = `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`;
-                const r   = await apiFetch(url, 'PATCH');
-                if (r.ok) {
-                    showToast('Correo actualizado correctamente.', 'success');
-                    document.getElementById('edit-email').value = '';
-                } else {
-                    const err = await r.text();
-                    showToast(err || 'Error al actualizar el correo.', 'danger');
-                }
+                const r = await apiFetch(`${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, 'PATCH');
+                if (r.ok) { showToast('Correo actualizado correctamente.', 'success'); document.getElementById('edit-email').value = ''; }
+                else { const e = await r.text(); showToast(e || 'Error al actualizar el correo.', 'danger'); }
             }
-
             if (passNueva) {
-                const url = `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password`
-                          + `?passwordActual=${encodeURIComponent(passActual)}`
-                          + `&passwordNueva=${encodeURIComponent(passNueva)}`;
-                const r   = await apiFetch(url, 'PATCH');
-                if (r.ok) {
-                    showToast('Contraseña actualizada correctamente.', 'success');
-                    ['pass-actual','pass-nueva','pass-repetir'].forEach(id => document.getElementById(id).value = '');
-                    updateStrength('');
-                } else {
-                    const err = await r.text();
-                    showToast(err || 'Contraseña actual incorrecta.', 'danger');
-                }
+                const r = await apiFetch(`${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`, 'PATCH');
+                if (r.ok) { showToast('Contraseña actualizada correctamente.', 'success'); ['pass-actual','pass-nueva','pass-repetir'].forEach(id => document.getElementById(id).value = ''); updateStrength(''); }
+                else { const e = await r.text(); showToast(e || 'Contraseña actual incorrecta.', 'danger'); }
             }
         } catch (e) {
             console.error('[account] guardarCambios:', e);
             showToast('Error de red: ' + (e.message || 'comprueba la consola.'), 'danger');
         }
 
-        btn.disabled = false;
-        btn.innerHTML = '✦ &nbsp; Guardar Cambios';
+        btn.disabled = false; btn.innerHTML = '✦ &nbsp; Guardar Cambios';
     }
 
-    // ─── Delete account ──────────────────────────────────────────────────────
     async function ejecutarEliminar() {
         const btn = document.getElementById('btn-confirm-delete');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>';
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
         try {
             const r = await apiFetch(`${API_BASE}/eliminar/usuario/${encodeURIComponent(usuario)}`, 'DELETE');
-            if (r.ok) {
-                closeModal();
-                showToast('Cuenta eliminada. Hasta la próxima, héroe.', 'success');
-                setTimeout(() => { localStorage.clear(); window.location.href = 'index.html'; }, 1800);
-            } else {
-                showToast('Error al eliminar la cuenta.', 'danger');
-                btn.disabled = false;
-                btn.innerHTML = 'Eliminar';
-            }
+            if (r.ok) { closeModal(); showToast('Cuenta eliminada. Hasta la próxima, héroe.', 'success'); setTimeout(() => { localStorage.clear(); window.location.href = 'index.html'; }, 1800); }
+            else { showToast('Error al eliminar la cuenta.', 'danger'); btn.disabled = false; btn.innerHTML = 'Eliminar'; }
         } catch (e) {
             console.error('[account] eliminar:', e);
             showToast('No se pudo conectar con el servidor.', 'danger');
-            btn.disabled = false;
-            btn.innerHTML = 'Eliminar';
+            btn.disabled = false; btn.innerHTML = 'Eliminar';
         }
     }
 
-    // ─── Particles ───────────────────────────────────────────────────────────
     (function() {
         const canvas = document.getElementById('particles');
         const ctx    = canvas.getContext('2d');
