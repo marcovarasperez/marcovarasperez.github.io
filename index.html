@@ -13,6 +13,12 @@
             --primary-glow: #6366f1;
         }
 
+        /* QUITAR EL OJO DE LA CONTRASEÑA EN EDGE/CHROME */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+
         body {
             background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
             font-family: 'Inter', sans-serif;
@@ -83,9 +89,6 @@
                     <li class="nav-item">
                         <button class="nav-link" id="tab-reg" data-bs-toggle="pill" data-bs-target="#panel-reg">REGISTRO</button>
                     </li>
-                    <li class="nav-item">
-                        <button class="nav-link" id="tab-config" data-bs-toggle="pill" data-bs-target="#panel-config">AJUSTES</button>
-                    </li>
                 </ul>
 
                 <div class="tab-content mt-3">
@@ -111,22 +114,6 @@
                         </div>
                         <button class="btn btn-primary w-100 py-2" onclick="hacerRegister()">CREAR CUENTA</button>
                     </div>
-
-                    <div class="tab-pane fade" id="panel-config">
-                        <div id="config-guest" class="text-center py-3">
-                            <p class="text-secondary small">Debes iniciar sesión para editar tu perfil.</p>
-                            <button class="btn btn-outline-info btn-sm" onclick="document.getElementById('tab-login').click()">Ir al Login</button>
-                        </div>
-                        <div id="config-user" style="display:none;">
-                            <label class="small text-secondary mb-1">Nuevo Email</label>
-                            <input type="email" id="edit-email" class="form-control mb-3" placeholder="email@ejemplo.com">
-                            <label class="small text-secondary mb-1">Nueva Contraseña</label>
-                            <input type="password" id="edit-pass" class="form-control mb-3" placeholder="Mínimo 8 caracteres">
-                            <button class="btn btn-primary w-100 mb-2" onclick="editarCuenta()">ACTUALIZAR DATOS</button>
-                            <hr class="border-secondary my-4">
-                            <button class="btn btn-outline-danger w-100 btn-sm" onclick="eliminarCuenta()">ELIMINAR CUENTA DEFINITIVAMENTE</button>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="alerta-global" class="alert mt-4 d-none"></div>
@@ -144,20 +131,7 @@
         al.textContent = msg;
         al.className = `alert mt-4 alert-${tipo}`;
         al.classList.remove('d-none');
-        setTimeout(() => al.classList.add('d-none'), 4000);
     }
-
-    // Mostrar panel de ajustes solo si hay sesión
-    document.getElementById('tab-config').addEventListener('shown.bs.tab', () => {
-        const user = localStorage.getItem("rpg_usuario");
-        if(user) {
-            document.getElementById('config-guest').style.display = 'none';
-            document.getElementById('config-user').style.display = 'block';
-        } else {
-            document.getElementById('config-guest').style.display = 'block';
-            document.getElementById('config-user').style.display = 'none';
-        }
-    });
 
     async function hacerLogin() {
         const usuario = document.getElementById("login-user").value;
@@ -172,8 +146,7 @@
 
             if (res.ok) {
                 localStorage.setItem("rpg_usuario", usuario);
-                feedback("✅ Sesión iniciada", "success");
-                setTimeout(() => window.location.href = "menu.html", 1000);
+                window.location.href = "menu.html";
             } else {
                 feedback("❌ Usuario o contraseña incorrectos", "danger");
             }
@@ -193,75 +166,14 @@
             });
 
             if (res.ok) {
-                feedback("✨ Cuenta creada con éxito", "success");
+                feedback("✅ Registro éxito", "success");
                 document.getElementById('tab-login').click();
             } else {
                 const msg = await res.text();
-                feedback("❌ Error: " + msg, "danger");
+                feedback("❌ " + msg, "danger");
             }
         } catch (e) { feedback("📡 Error de conexión", "danger"); }
     }
-
-    async function editarCuenta() {
-        const usuario = localStorage.getItem("rpg_usuario");
-        const nuevoEmail = document.getElementById("edit-email").value;
-        const nuevaPass = document.getElementById("edit-pass").value;
-
-        if (!usuario) return;
-
-        try {
-            // Actualizar Email si se ha rellenado
-            if (nuevoEmail) {
-                const resEmail = await fetch(`${API_BASE_URL}/actualizar/${usuario}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, {
-                    method: 'PATCH'
-                });
-                if (!resEmail.ok) throw new Error(await resEmail.text());
-            }
-
-            // Actualizar Password si se ha rellenado
-            if (nuevaPass) {
-                const passActual = prompt("Por seguridad, introduce tu contraseña actual:");
-                if (!passActual) return;
-
-                const resPass = await fetch(`${API_BASE_URL}/actualizar/${usuario}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(nuevaPass)}`, {
-                    method: 'PATCH'
-                });
-                if (!resPass.ok) throw new Error(await resPass.text());
-            }
-
-            feedback("✅ Datos actualizados correctamente", "success");
-            document.getElementById("edit-email").value = "";
-            document.getElementById("edit-pass").value = "";
-        } catch (error) {
-            feedback("❌ Error: " + error.message, "danger");
-        }
-    }
-
-    async function eliminarCuenta() {
-        const user = localStorage.getItem("rpg_usuario");
-        if(!user) return;
-
-        if(confirm("¿Estás SEGURO? Se borrará todo tu progreso de forma permanente.")) {
-            try {
-                const res = await fetch(`${API_BASE_URL}/eliminar/usuario/${user}`, { method: 'DELETE' });
-                if(res.ok) {
-                    localStorage.clear();
-                    feedback("Cuenta eliminada correctamente", "info");
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    feedback("❌ No se pudo eliminar la cuenta", "danger");
-                }
-            } catch (e) { feedback("📡 Error de conexión", "danger"); }
-        }
-    }
-
-    window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('action') === 'config') {
-            const trigger = document.querySelector('#tab-config');
-            bootstrap.Tab.getOrCreateInstance(trigger).show();
-        }
-    };
 </script>
 </body>
 </html>
