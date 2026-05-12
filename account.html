@@ -16,78 +16,88 @@
         .nav-link.active { background: #6366f1; color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
         .form-control { background: #1e293b; border: 1px solid #334155; color: white; }
         .form-control:focus { background: #1e293b; border-color: #6366f1; box-shadow: none; color: white; }
-        .btn-save { background: #6366f1; border: none; font-weight: 600; padding: 0.6rem 2rem; }
+        .btn-save { background: #6366f1; border: none; font-weight: 600; padding: 0.6rem 2rem; transition: 0.3s; }
+        .btn-save:hover { background: #4f46e5; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
 <div class="container settings-container">
-    <div class="mb-4">
-        <a href="menu.html" class="text-decoration-none text-secondary small">← Volver al menú principal</a>
-        <h2 class="fw-bold mt-2">Ajustes de Cuenta</h2>
+    <div class="mb-4 d-flex justify-content-between align-items-end">
+        <div>
+            <a href="menu.html" class="text-decoration-none text-secondary small">← Volver al menú principal</a>
+            <h2 class="fw-bold mt-2 mb-0">Ajustes de Cuenta</h2>
+        </div>
     </div>
 
     <div class="row settings-card g-0 shadow-lg">
         <div class="col-md-4 sidebar">
             <nav class="nav flex-column">
-                <button class="nav-link active" onclick="showSection('perfil', this)">👤 Perfil</button>
+                <button class="nav-link active" onclick="showSection('perfil', this)">👤 Perfil y Email</button>
                 <button class="nav-link" onclick="showSection('seguridad', this)">🔒 Seguridad</button>
-                <button class="nav-link" onclick="showSection('datos', this)">💾 Datos de Juego</button>
-                <hr class="text-secondary">
+                <hr class="text-secondary opacity-25">
                 <button class="nav-link text-danger" onclick="confirmarEliminar()">🗑️ Eliminar Cuenta</button>
             </nav>
         </div>
 
         <div class="col-md-8 p-4 p-lg-5">
             <div id="section-perfil">
-                <h4 class="mb-4">Información Personal</h4>
+                <h4 class="mb-4">Editar Perfil</h4>
                 <div class="mb-3">
-                    <label class="form-label text-secondary small">Nombre de Usuario</label>
-                    <input type="text" id="display-user" class="form-control" readonly>
+                    <label class="form-label text-secondary small fw-bold">Nombre de Usuario</label>
+                    <input type="text" id="edit-user" class="form-control" placeholder="Nuevo usuario">
                 </div>
                 <div class="mb-4">
-                    <label class="form-label text-secondary small">Email</label>
-                    <input type="email" id="display-email" class="form-control" placeholder="cargando...">
+                    <label class="form-label text-secondary small fw-bold">Correo Electrónico</label>
+                    <input type="email" id="edit-email" class="form-control" placeholder="nuevo@ejemplo.com">
                 </div>
-                <button class="btn btn-save">Actualizar Perfil</button>
+                <button class="btn btn-save" onclick="guardarPerfil()">Guardar Cambios</button>
             </div>
 
             <div id="section-seguridad" class="d-none">
-                <h4 class="mb-4">Seguridad</h4>
+                <h4 class="mb-4">Cambiar Contraseña</h4>
                 <div class="mb-3">
-                    <label class="form-label text-secondary small">Nueva Contraseña</label>
-                    <input type="password" class="form-control">
+                    <label class="form-label text-secondary small fw-bold">Contraseña Actual</label>
+                    <input type="password" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Nueva Contraseña</label>
+                    <input type="password" class="form-control" placeholder="Mínimo 6 caracteres">
                 </div>
                 <div class="mb-4">
-                    <label class="form-label text-secondary small">Repetir Contraseña</label>
-                    <input type="password" class="form-control">
+                    <label class="form-label text-secondary small fw-bold">Confirmar Nueva Contraseña</label>
+                    <input type="password" class="form-control" placeholder="Repite la contraseña">
                 </div>
-                <button class="btn btn-save">Cambiar Contraseña</button>
+                <button class="btn btn-save" onclick="alert('Contraseña actualizada (Simulación)')">Actualizar Seguridad</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Cargar datos iniciales
     const user = localStorage.getItem("rpg_usuario");
     if(!user) window.location.href = "index.html";
-    document.getElementById("display-user").value = user;
+    document.getElementById("edit-user").value = user;
 
     function showSection(section, btn) {
-        // Ocultar todas
         document.getElementById('section-perfil').classList.add('d-none');
         document.getElementById('section-seguridad').classList.add('d-none');
-        // Quitar active de botones
         document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
         
-        // Mostrar seleccionada
         document.getElementById('section-' + section).classList.remove('d-none');
         btn.classList.add('active');
     }
 
+    function guardarPerfil() {
+        const nuevoUser = document.getElementById("edit-user").value;
+        if(nuevoUser.trim() === "") return alert("El nombre no puede estar vacío");
+        localStorage.setItem("rpg_usuario", nuevoUser);
+        alert("¡Perfil actualizado con éxito!");
+    }
+
     function confirmarEliminar() {
-        if(confirm("¿Estás seguro de que quieres borrar tu progreso para siempre?")) {
-            alert("Cuenta eliminada (Simulación)");
+        if(confirm("¿Estás seguro de que quieres borrar tu cuenta? Esta acción es irreversible.")) {
             localStorage.clear();
             window.location.href = "index.html";
         }
