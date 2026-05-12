@@ -18,42 +18,39 @@
             background: rgba(30, 41, 59, 0.6);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px; transition: 0.3s; cursor: pointer; text-decoration: none; color: white; height: 100%;
+            border-radius: 20px; transition: 0.3s; cursor: pointer; text-decoration: none; color: white;
         }
-        .menu-card:hover { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; transform: translateY(-10px); color: white; }
-        .icon-circle { width: 80px; height: 80px; background: rgba(99, 102, 241, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; }
+        .menu-card:hover { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; transform: translateY(-10px); }
+        .icon-circle { width: 60px; height: 60px; background: rgba(99, 102, 241, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
     </style>
 </head>
 <body>
-<div class="container py-5 text-center">
-    <h1 class="display-4 fw-bold mb-2">Bienvenido, <span id="user-name" class="text-primary">...</span></h1>
-    <p class="text-secondary mb-5">Elige tu destino</p>
+<div class="container text-center">
+    <h1 class="display-4 fw-bold mb-5">Bienvenido, <span id="user-display" class="text-primary">Jugador</span></h1>
     <div class="row g-4 justify-content-center">
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-md-4">
             <a href="game.html" class="card menu-card p-4">
-                <div class="card-body">
-                    <div class="icon-circle text-primary">⚔️</div>
-                    <h2 class="h4 fw-bold">Jugar</h2>
-                    <p class="text-secondary">Entra al mundo RPG y continúa tu progreso.</p>
-                </div>
+                <div class="icon-circle mx-auto">⚔️</div>
+                <h3>Jugar</h3>
+                <p class="text-secondary small">Continuar aventura</p>
             </a>
         </div>
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-md-4">
             <a href="account.html" class="card menu-card p-4">
-                <div class="card-body">
-                    <div class="icon-circle text-info">⚙️</div>
-                    <h2 class="h4 fw-bold">Mi Cuenta</h2>
-                    <p class="text-secondary">Configura tu perfil y seguridad.</p>
-                </div>
+                <div class="icon-circle mx-auto">⚙️</div>
+                <h3>Mi Cuenta</h3>
+                <p class="text-secondary small">Perfil y seguridad</p>
             </a>
         </div>
     </div>
-    <div class="mt-5"><button class="btn btn-outline-danger px-4" onclick="logout()">Cerrar Sesión</button></div>
+    <div class="mt-5">
+        <button class="btn btn-outline-danger" onclick="logout()">Cerrar Sesión</button>
+    </div>
 </div>
 <script>
     const user = localStorage.getItem("rpg_usuario");
     if(!user) window.location.href = "index.html";
-    document.getElementById("user-name").textContent = user;
+    document.getElementById("user-display").textContent = user;
     function logout() { localStorage.clear(); window.location.href = "index.html"; }
 </script>
 </body>
