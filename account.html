@@ -470,11 +470,24 @@
     function abrirModal() { document.getElementById('modal-delete').classList.add('open'); }
     function closeModal() { document.getElementById('modal-delete').classList.remove('open'); }
 
+    // ─── Fetch helper (siempre con cabeceras CORS correctas) ────────────────
+    async function apiFetch(url, method = 'GET') {
+        const opts = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept':        'application/json, text/plain, */*'
+            }
+        };
+        const res = await fetch(url, opts);
+        return res;
+    }
+
     // ─── Save changes ────────────────────────────────────────────────────────
     async function guardarCambios() {
-        const nuevoEmail = document.getElementById('edit-email').value.trim();
-        const passActual = document.getElementById('pass-actual').value;
-        const passNueva  = document.getElementById('pass-nueva').value;
+        const nuevoEmail  = document.getElementById('edit-email').value.trim();
+        const passActual  = document.getElementById('pass-actual').value;
+        const passNueva   = document.getElementById('pass-nueva').value;
         const passRepetir = document.getElementById('pass-repetir').value;
 
         if (!passActual) return showToast('Debes introducir tu contraseña actual.', 'danger');
@@ -485,41 +498,36 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>';
 
-        let exito = true;
-
         try {
             if (nuevoEmail) {
-                const r = await fetch(`${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { method: 'PATCH' });
+                const url = `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`;
+                const r   = await apiFetch(url, 'PATCH');
                 if (r.ok) {
                     showToast('Correo actualizado correctamente.', 'success');
                     document.getElementById('edit-email').value = '';
                 } else {
                     const err = await r.text();
                     showToast(err || 'Error al actualizar el correo.', 'danger');
-                    exito = false;
                 }
             }
 
             if (passNueva) {
-                const r = await fetch(
-                    `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`,
-                    { method: 'PATCH' }
-                );
+                const url = `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password`
+                          + `?passwordActual=${encodeURIComponent(passActual)}`
+                          + `&passwordNueva=${encodeURIComponent(passNueva)}`;
+                const r   = await apiFetch(url, 'PATCH');
                 if (r.ok) {
                     showToast('Contraseña actualizada correctamente.', 'success');
-                    document.getElementById('pass-actual').value = '';
-                    document.getElementById('pass-nueva').value  = '';
-                    document.getElementById('pass-repetir').value = '';
+                    ['pass-actual','pass-nueva','pass-repetir'].forEach(id => document.getElementById(id).value = '');
                     updateStrength('');
                 } else {
                     const err = await r.text();
                     showToast(err || 'Contraseña actual incorrecta.', 'danger');
-                    exito = false;
                 }
             }
-        } catch {
-            showToast('No se pudo conectar con el servidor.', 'danger');
-            exito = false;
+        } catch (e) {
+            console.error('[account] guardarCambios:', e);
+            showToast('Error de red: ' + (e.message || 'comprueba la consola.'), 'danger');
         }
 
         btn.disabled = false;
@@ -532,7 +540,7 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span>';
         try {
-            const r = await fetch(`${API_BASE}/eliminar/usuario/${encodeURIComponent(usuario)}`, { method: 'DELETE' });
+            const r = await apiFetch(`${API_BASE}/eliminar/usuario/${encodeURIComponent(usuario)}`, 'DELETE');
             if (r.ok) {
                 closeModal();
                 showToast('Cuenta eliminada. Hasta la próxima, héroe.', 'success');
@@ -542,7 +550,8 @@
                 btn.disabled = false;
                 btn.innerHTML = 'Eliminar';
             }
-        } catch {
+        } catch (e) {
+            console.error('[account] eliminar:', e);
             showToast('No se pudo conectar con el servidor.', 'danger');
             btn.disabled = false;
             btn.innerHTML = 'Eliminar';
