@@ -9,6 +9,7 @@ import com.trinitarias.tfg.repository.tfgrepository;
 import com.trinitarias.tfg.validator.tfgvalidator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,15 @@ public class tfgservice {
             BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt(12)),
             dto.getEmail()
         );
+
+        // Estado inicial del juego
+        nuevo.setIdMapa(11);
+        nuevo.setX(5);
+        nuevo.setY(5);
+        nuevo.setPersonajesId(List.of(1));
+        nuevo.setNivelPersonaje(Map.of(1, 1));
+        nuevo.setEquipoPersonaje(Map.of(1, List.of(0, 0, 0, 0, 0)));
+        nuevo.setHabilidadesPersonaje(Map.of(1, List.of(3, 9)));
 
         return repository.save(nuevo);
     }
