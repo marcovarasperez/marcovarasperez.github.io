@@ -3,32 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TFG RPG - Mi Cuenta</title>
+    <title>TFG RPG - Acceso</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root { --card-bg: rgba(30, 41, 59, 0.85); --primary-glow: #6366f1; }
+        input::-ms-reveal, input::-ms-clear { display: none; }
+
         body {
-            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)),
-                        url('https://picsum.photos/id/104/1920/1080') no-repeat center center fixed;
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)),
+                        url('./img/fondo/fondo.png') no-repeat center center fixed;
             background-size: cover;
-            color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh;
-            display: flex; align-items: center;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
-        .settings-card {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            max-width: 600px; margin: auto; padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
-        .form-control { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; }
-        .form-control:focus { background: #0f172a; color: white; border-color: #6366f1; box-shadow: none; }
-        .section-title { border-left: 4px solid #6366f1; padding-left: 15px; margin-bottom: 20px; font-weight: 800; font-size: 0.9rem; color: #818cf8; }
-        .divider { border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0; }
-        .btn-save { background: #6366f1; border: none; font-weight: 700; padding: 14px; transition: 0.3s; }
-        .btn-save:hover { background: #4f46e5; transform: translateY(-2px); }
-        .password-wrapper { position: relative; }
+
+        .nav-pills .nav-link { color: #94a3b8; font-weight: 600; border-radius: 10px; }
+        .nav-pills .nav-link.active { background-color: var(--primary-glow); color: white; }
+
+        .form-control { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
+        .form-control:focus { background: rgba(15, 23, 42, 1); color: white; border-color: var(--primary-glow); box-shadow: none; }
+
+        .btn-primary { background: var(--primary-glow); border: none; font-weight: 700; padding: 12px; transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+
+        .gradient-text {
+            background: linear-gradient(to right, #818cf8, #e066ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 800; font-size: 2.5rem;
+        }
+        
+        .password-wrapper {
+            position: relative;
+        }
         .password-wrapper .toggle-password {
             position: absolute;
             right: 15px;
@@ -38,76 +58,52 @@
             color: #94a3b8;
             z-index: 10;
         }
-        .password-wrapper .toggle-password:hover { color: #6366f1; }
-        .readonly-field {
-            background: #1e293b !important;
-            cursor: not-allowed;
-            opacity: 0.7;
+        .password-wrapper .toggle-password:hover {
+            color: #6366f1;
         }
     </style>
 </head>
 <body>
-<div class="container py-4">
-    <div class="settings-card">
-        <div class="text-center mb-4">
-            <h2 class="fw-800 text-white">Configuración de Cuenta</h2>
-            <p class="text-secondary small">Actualiza tu identidad y seguridad en un solo lugar</p>
-        </div>
-
-        <div class="section-title text-uppercase">Datos de Perfil</div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Nombre de Usuario</label>
-            <input type="text" id="edit-user" class="form-control readonly-field" readonly disabled>
-            <small class="text-secondary">El nombre de usuario no se puede cambiar (identificador único)</small>
-        </div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Correo Electrónico</label>
-            <input type="email" id="edit-email" class="form-control" placeholder="nuevo@correo.com">
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="section-title text-uppercase">Seguridad</div>
-        <div class="mb-3">
-            <label class="form-label small text-secondary fw-600">Contraseña Actual</label>
-            <div class="password-wrapper">
-                <input type="password" id="pass-actual" class="form-control" placeholder="Obligatorio para confirmar">
-                <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-actual', this)"></i>
-            </div>
-        </div>
-        <div class="row g-2">
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Nueva</label>
-                <div class="password-wrapper">
-                    <input type="password" id="pass-nueva" class="form-control">
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-nueva', this)"></i>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+            <div class="auth-card text-center">
+                <h1 class="gradient-text mb-4">TFG RPG</h1>
+                <ul class="nav nav-pills nav-fill mb-4" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#panel-login">LOGIN</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#panel-reg">REGISTRO</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="panel-login">
+                        <input type="text" id="login-user" class="form-control mb-3" placeholder="Usuario">
+                        <div class="password-wrapper mb-3">
+                            <input type="password" id="login-pass" class="form-control" placeholder="Contraseña">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('login-pass', this)"></i>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="hacerLogin()">ENTRAR</button>
+                    </div>
+                    <div class="tab-pane fade" id="panel-reg">
+                        <input type="text" id="reg-user" class="form-control mb-3" placeholder="Nuevo Usuario">
+                        <input type="email" id="reg-email" class="form-control mb-3" placeholder="Email">
+                        <div class="password-wrapper mb-3">
+                            <input type="password" id="reg-pass" class="form-control" placeholder="Contraseña">
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('reg-pass', this)"></i>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="hacerRegister()">CREAR CUENTA</button>
+                    </div>
                 </div>
+                <div id="alerta" class="alert mt-4 d-none small"></div>
             </div>
-            <div class="col-6">
-                <label class="form-label small text-secondary fw-600">Repetir</label>
-                <div class="password-wrapper">
-                    <input type="password" id="pass-repetir" class="form-control">
-                    <i class="fas fa-eye toggle-password" onclick="togglePassword('pass-repetir', this)"></i>
-                </div>
-            </div>
-        </div>
-
-        <button class="btn btn-primary w-100 mt-5 btn-save" onclick="actualizarTodo()">GUARDAR CAMBIOS</button>
-        
-        <div class="text-center mt-4">
-            <a href="menu.html" class="text-secondary small text-decoration-none">← Cancelar y volver</a>
-            <br><br>
-            <button class="btn btn-link text-danger btn-sm text-decoration-none" onclick="confirmarEliminar()">Eliminar cuenta permanentemente</button>
         </div>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://marcovarasperez.duckdns.org/api/jugadores";
-    const usuarioLogueado = localStorage.getItem("rpg_usuario");
-
-    if (!usuarioLogueado) window.location.href = "index.html";
-    else document.getElementById("edit-user").value = usuarioLogueado;
+    const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
 
     function togglePassword(inputId, iconElement) {
         const input = document.getElementById(inputId);
@@ -122,102 +118,44 @@
         }
     }
 
-    async function actualizarTodo() {
-        const nuevoEmail = document.getElementById("edit-email").value.trim();
-        const passActual = document.getElementById("pass-actual").value;
-        const passNueva = document.getElementById("pass-nueva").value;
-        const passRepetir = document.getElementById("pass-repetir").value;
-
-        if (!passActual) return alert("Debes introducir tu contraseña actual.");
-        
-        if (passNueva && passNueva !== passRepetir) return alert("Las nuevas contraseñas no coinciden.");
-
-        // Validar contraseña nueva si se proporcionó
-        if (passNueva && passNueva.length < 8) {
-            return alert("La contraseña debe tener al menos 8 caracteres");
-        }
-
-        try {
-            let cambiosRealizados = false;
-
-            // Actualizar Email
-            if (nuevoEmail) {
-                const emailRegex = /^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$/;
-                if (!emailRegex.test(nuevoEmail)) {
-                    return alert("El formato del email no es válido");
-                }
-                
-                const resEmail = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`, { 
-                    method: 'PATCH' 
-                });
-                if (!resEmail.ok) {
-                    const error = await resEmail.text();
-                    throw new Error(error || "Error al actualizar email");
-                }
-                cambiosRealizados = true;
-            }
-            
-            // Actualizar Password
-            if (passNueva) {
-                const resPass = await fetch(`${API_URL}/actualizar/${usuarioLogueado}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`, { 
-                    method: 'PATCH' 
-                });
-                if (!resPass.ok) {
-                    const error = await resPass.text();
-                    throw new Error(error || "Contraseña actual incorrecta");
-                }
-                cambiosRealizados = true;
-            }
-
-            if (!cambiosRealizados) {
-                alert("No se realizó ningún cambio");
-            } else {
-                alert("✅ ¡Cambios guardados!");
-                // Limpiar campos de contraseña
-                document.getElementById("pass-actual").value = "";
-                document.getElementById("pass-nueva").value = "";
-                document.getElementById("pass-repetir").value = "";
-                document.getElementById("edit-email").value = "";
-            }
-        } catch (e) { 
-            alert("❌ " + e.message); 
-        }
+    function feedback(msg, tipo) {
+        const al = document.getElementById('alerta');
+        al.textContent = msg; al.className = `alert mt-4 alert-${tipo}`; al.classList.remove('d-none');
     }
 
-    async function confirmarEliminar() {
-        if(confirm("⚠️ ¿Borrar cuenta? Esta acción es irreversible. ⚠️")) {
-            const passActual = document.getElementById("pass-actual").value;
-            if (!passActual) {
-                alert("Debes introducir tu contraseña actual para eliminar la cuenta");
-                return;
-            }
-            
-            // Primero verificar que la contraseña es correcta
-            try {
-                const verifyRes = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario: usuarioLogueado, password: passActual })
-                });
-                
-                if (!verifyRes.ok) {
-                    alert("Contraseña incorrecta");
-                    return;
-                }
-                
-                const res = await fetch(`${API_URL}/eliminar/usuario/${usuarioLogueado}`, { method: 'DELETE' });
-                if(res.ok) { 
-                    localStorage.clear(); 
-                    alert("Cuenta eliminada correctamente");
-                    window.location.href = "index.html"; 
-                } else {
-                    alert("Error al eliminar la cuenta");
-                }
-            } catch(e) {
-                alert("Error de conexión: " + e.message);
-            }
-        }
+    async function hacerLogin() {
+        const usuario = document.getElementById("login-user").value;
+        const password = document.getElementById("login-pass").value;
+        try {
+            const res = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            });
+            if (res.ok) { 
+                localStorage.setItem("rpg_usuario", usuario); 
+                window.location.href = "menu.html"; 
+            } else { feedback("❌ Credenciales incorrectas", "danger"); }
+        } catch (e) { feedback("📡 Error de conexión", "danger"); }
+    }
+
+    async function hacerRegister() {
+        const usuario = document.getElementById("reg-user").value;
+        const email = document.getElementById("reg-email").value;
+        const password = document.getElementById("reg-pass").value;
+        try {
+            const res = await fetch(`${API_BASE}/registro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, email, password })
+            });
+            if (res.ok) { 
+                feedback("✅ Registro completado", "success"); 
+                setTimeout(() => location.reload(), 1500);
+            } else { feedback("❌ Error: " + await res.text(), "danger"); }
+        } catch (e) { feedback("📡 Error de servidor", "danger"); }
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

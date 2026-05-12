@@ -22,6 +22,17 @@
         }
         .menu-card:hover { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; transform: translateY(-10px); }
         .icon-circle { width: 60px; height: 60px; background: rgba(99, 102, 241, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
+        .btn-outline-danger {
+            background: transparent;
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+            transition: 0.3s;
+        }
+        .btn-outline-danger:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +62,11 @@
     const user = localStorage.getItem("rpg_usuario");
     if(!user) window.location.href = "index.html";
     document.getElementById("user-display").textContent = user;
-    function logout() { localStorage.clear(); window.location.href = "index.html"; }
+    
+    function logout() { 
+        localStorage.clear(); 
+        window.location.href = "index.html"; 
+    }
 </script>
 </body>
 </html>
