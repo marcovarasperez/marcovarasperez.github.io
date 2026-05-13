@@ -324,8 +324,9 @@
         try {
             const r=await fetch(`${API_BASE}/registro`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,email:e,password:p})});
             if(r.ok){
-                showFeedback('¡Cuenta creada! Revisa tu correo para verificar tu cuenta antes de iniciar sesión.','info');
-                setTimeout(()=>{ document.querySelectorAll('.tab-btn')[0].click(); setLoading('btn-reg',false,'✦ Forjar mi Destino'); },3000);
+                sessionStorage.setItem('rpg_email_pendiente', e);
+                sessionStorage.setItem('rpg_usuario_pendiente', u);
+                window.location.href = 'verificar-email.html';
             } else {
                 const err=await r.text();
                 showFeedback(err||'Error al registrar.','danger');
