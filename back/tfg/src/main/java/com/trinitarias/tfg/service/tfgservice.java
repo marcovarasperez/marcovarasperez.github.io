@@ -9,8 +9,8 @@ import com.trinitarias.tfg.repository.tfgrepository;
 import com.trinitarias.tfg.validator.tfgvalidator;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class tfgservice {
@@ -37,15 +37,6 @@ public class tfgservice {
             BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt(12)),
             dto.getEmail()
         );
-
-        // Estado inicial del juego
-        nuevo.setIdMapa(11);
-        nuevo.setX(5);
-        nuevo.setY(5);
-        nuevo.setPersonajesId(List.of(1));
-        nuevo.setNivelPersonaje(Map.of(1, 1));
-        nuevo.setEquipoPersonaje(Map.of(1, List.of(0, 0, 0, 0, 0)));
-        nuevo.setHabilidadesPersonaje(Map.of(1, List.of(3, 9)));
 
         return repository.save(nuevo);
     }
@@ -92,33 +83,6 @@ public class tfgservice {
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
-    public tfgentity actualizarDatosJuego(String usuario, tfgdto dto) {
-        tfgentity jugador = repository.findByUsuario(usuario);
-        if (jugador == null) {
-            throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
-        }
-
-        validator.validarDatosJuego(dto);
-
-        jugador.setIdMapa(dto.getIdMapa());
-        jugador.setX(dto.getX());
-        jugador.setY(dto.getY());
-        jugador.setBit(dto.getBit());
-        jugador.setTiempoJuego(dto.getTiempoJuego());
-        if (dto.getInterruptores() != null)        jugador.setInterruptores(dto.getInterruptores());
-        if (dto.getVariables() != null)            jugador.setVariables(dto.getVariables());
-        if (dto.getPersonajesId() != null)         jugador.setPersonajesId(dto.getPersonajesId());
-        if (dto.getNivelPersonaje() != null)       jugador.setNivelPersonaje(dto.getNivelPersonaje());
-        if (dto.getInventarioObjetos() != null)    jugador.setInventarioObjetos(dto.getInventarioObjetos());
-        if (dto.getInventarioArmas() != null)      jugador.setInventarioArmas(dto.getInventarioArmas());
-        if (dto.getInventarioArmaduras() != null)  jugador.setInventarioArmaduras(dto.getInventarioArmaduras());
-        if (dto.getObjetosClave() != null)         jugador.setObjetosClave(dto.getObjetosClave());
-        if (dto.getEquipoPersonaje() != null)      jugador.setEquipoPersonaje(dto.getEquipoPersonaje());
-        if (dto.getHabilidadesPersonaje() != null) jugador.setHabilidadesPersonaje(dto.getHabilidadesPersonaje());
-
-        return repository.save(jugador);
-    }
-
     public void actualizarPassword(String usuario, String passwordActual, String passwordNueva) {
         validator.validarPassword(passwordNueva);
 
@@ -144,6 +108,53 @@ public class tfgservice {
         }
 
         repository.updateEmailByUsuario(usuario, emailNuevo);
+    }
+
+    // ── SLOTS DE GUARDADO ─────────────────────────────────────────────────────
+    public void guardarSlot(String usuario, int slot, String datos) {
+        tfgentity jugador = repository.findByUsuario(usuario);
+        if (jugador == null) {
+            throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
+        }
+
+        jugador.getSlotsGuardado().put(slot, datos);
+        repository.save(jugador);
+    }
+
+    public String cargarSlot(String usuario, int slot) {
+        tfgentity jugador = repository.findByUsuario(usuario);
+        if (jugador == null) {
+            throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
+        }
+
+        String datos = jugador.getSlotsGuardado().get(slot);
+        if (datos == null) {
+            throw new RuntimeException("No hay datos en el slot: " + slot);
+        }
+
+        return datos;
+    }
+
+    public Set<Integer> listarSlots(String usuario) {
+        tfgentity jugador = repository.findByUsuario(usuario);
+        if (jugador == null) {
+            throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
+        }
+
+        return jugador.getSlotsGuardado().keySet();
+    }
+
+    public void eliminarSlot(String usuario, int slot) {
+        tfgentity jugador = repository.findByUsuario(usuario);
+        if (jugador == null) {
+            throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
+        }
+        if (!jugador.getSlotsGuardado().containsKey(slot)) {
+            throw new RuntimeException("No hay datos en el slot: " + slot);
+        }
+
+        jugador.getSlotsGuardado().remove(slot);
+        repository.save(jugador);
     }
 
     // ── DELETE ────────────────────────────────────────────────────────────────

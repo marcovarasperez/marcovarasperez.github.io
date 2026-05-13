@@ -48,22 +48,6 @@ public class tfgvalidator {
         }
     }
 
-    // ── DATOS DEL JUEGO ───────────────────────────────────────────────────────
-    public void validarDatosJuego(tfgdto dto) {
-        if (dto.getIdMapa() < 0) {
-            throw new RuntimeException("El id del mapa no puede ser negativo");
-        }
-        if (dto.getX() < 0) {
-            throw new RuntimeException("La coordenada X no puede ser negativa");
-        }
-        if (dto.getY() < 0) {
-            throw new RuntimeException("La coordenada Y no puede ser negativa");
-        }
-        if (dto.getTiempoJuego() < 0) {
-            throw new RuntimeException("El tiempo de juego no puede ser negativo");
-        }
-    }
-
     // ── REGISTRO COMPLETO ─────────────────────────────────────────────────────
     public void validarRegistro(tfgdto dto) {
         validarUsuario(dto.getUsuario());

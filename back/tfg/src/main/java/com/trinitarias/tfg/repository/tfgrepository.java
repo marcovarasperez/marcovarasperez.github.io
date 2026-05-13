@@ -11,17 +11,14 @@ import com.trinitarias.tfg.entity.tfgentity;
 public interface tfgrepository extends JpaRepository<tfgentity, Long> {
 
     // ── READ ─────────────────────────────────────────────────────────────────
-    @Query(value = "SELECT * FROM datos_jugador WHERE usuario = :usuario AND password = :password", nativeQuery = true)
-    public tfgentity findByUsuarioAndPassword(String usuario, String password);
-
     @Query(value = "SELECT * FROM datos_jugador WHERE usuario = :usuario", nativeQuery = true)
-    public tfgentity findByUsuario(String usuario);
+    tfgentity findByUsuario(String usuario);
 
     @Query(value = "SELECT * FROM datos_jugador WHERE email = :email", nativeQuery = true)
-    public tfgentity findByEmail(String email);
+    tfgentity findByEmail(String email);
 
     @Query(value = "SELECT * FROM datos_jugador WHERE id = :id", nativeQuery = true)
-    public tfgentity findById(long id);
+    tfgentity findById(long id);
 
     // ── EXISTS ───────────────────────────────────────────────────────────────
     @Query(value = "SELECT COUNT(*) FROM datos_jugador WHERE usuario = :usuario", nativeQuery = true)

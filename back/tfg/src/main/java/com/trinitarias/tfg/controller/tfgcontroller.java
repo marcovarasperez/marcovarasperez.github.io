@@ -79,15 +79,6 @@ public class tfgcontroller {
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
-    @PutMapping("/actualizar/{usuario}")
-    public ResponseEntity<?> actualizarDatosJuego(@PathVariable String usuario, @RequestBody tfgdto dto) {
-        try {
-            return ResponseEntity.ok(service.actualizarDatosJuego(usuario, dto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
     @PatchMapping("/actualizar/{usuario}/password")
     public ResponseEntity<?> actualizarPassword(@PathVariable String usuario,
                                                  @RequestParam String passwordActual,
@@ -108,6 +99,49 @@ public class tfgcontroller {
             return ResponseEntity.ok("Email actualizado correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    // ── SLOTS DE GUARDADO ─────────────────────────────────────────────────────
+    @PutMapping("/guardado/{usuario}/slot/{slot}")
+    public ResponseEntity<?> guardarSlot(@PathVariable String usuario,
+                                          @PathVariable int slot,
+                                          @RequestBody String datos) {
+        try {
+            service.guardarSlot(usuario, slot, datos);
+            return ResponseEntity.ok("Slot " + slot + " guardado correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/guardado/{usuario}/slot/{slot}")
+    public ResponseEntity<?> cargarSlot(@PathVariable String usuario,
+                                         @PathVariable int slot) {
+        try {
+            return ResponseEntity.ok(service.cargarSlot(usuario, slot));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/guardado/{usuario}/slots")
+    public ResponseEntity<?> listarSlots(@PathVariable String usuario) {
+        try {
+            return ResponseEntity.ok(service.listarSlots(usuario));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/guardado/{usuario}/slot/{slot}")
+    public ResponseEntity<?> eliminarSlot(@PathVariable String usuario,
+                                           @PathVariable int slot) {
+        try {
+            service.eliminarSlot(usuario, slot);
+            return ResponseEntity.ok("Slot " + slot + " eliminado correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -140,40 +174,5 @@ public class tfgcontroller {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
-    // Guardar un slot
-    @PutMapping("/guardado/{usuario}/slot/{slot}")
-    public ResponseEntity<?> guardarSlot(
-        @PathVariable String usuario,
-        @PathVariable int slot,
-        @RequestBody String datos) {
-
-        tfgentity jugador = repository.findByUsuario(usuario);
-        if (jugador == null) return ResponseEntity.notFound().build();
-        jugador.getSlotsGuardado().put(slot, datos);
-        repository.save(jugador);
-        return ResponseEntity.ok().build();
-    }
-
-    // Cargar un slot
-    @GetMapping("/guardado/{usuario}/slot/{slot}")
-    public ResponseEntity<String> cargarSlot(
-        @PathVariable String usuario,
-        @PathVariable int slot) {
-
-        tfgentity jugador = repository.findByUsuario(usuario);
-        if (jugador == null) return ResponseEntity.notFound().build();
-        String datos = jugador.getSlotsGuardado().get(slot);
-        if (datos == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(datos);
-    }
-
-    // Listar qué slots tienen datos (para la pantalla de carga)
-    @GetMapping("/guardado/{usuario}/slots")
-    public ResponseEntity<?> listarSlots(@PathVariable String usuario) {
-        tfgentity jugador = repository.findByUsuario(usuario);
-        if (jugador == null) return ResponseEntity.notFound().build();
-        // Devuelve solo las claves (qué slots existen)
-        return ResponseEntity.ok(jugador.getSlotsGuardado().keySet());
     }
 }
