@@ -14,11 +14,7 @@
         }
         input::-ms-reveal, input::-ms-clear { display: none; }
 
-        html, body {
-            /* Scroll siempre habilitado */
-            height: 100%;
-            overflow-x: hidden;
-        }
+        html, body { height: 100%; overflow-x: hidden; }
 
         body {
             background: var(--dark-bg);
@@ -32,11 +28,6 @@
         .bg-vignette{ position:fixed; inset:0; z-index:2; background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.7) 100%); }
         #particles  { position:fixed; inset:0; z-index:3; pointer-events:none; }
 
-        /*
-         * page-content:
-         * - En móvil: padding arriba/abajo, flujo normal, scroll automático.
-         * - En pantallas altas (≥700px): flex centrado vertical.
-         */
         .page-content {
             position: relative;
             z-index: 10;
@@ -51,7 +42,6 @@
             }
         }
 
-        /* Logo */
         .logo-text {
             font-family:'Cinzel Decorative',serif;
             font-size:clamp(1.8rem,8vw,2.8rem);
@@ -71,7 +61,6 @@
         .hero-divider::after  { content:''; flex:1; height:1px; background:linear-gradient(to left,transparent,var(--gold)); }
         .diamond { width:6px; height:6px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
 
-        /* Card */
         .auth-card {
             background:var(--card-bg);
             backdrop-filter:blur(20px) saturate(1.5); -webkit-backdrop-filter:blur(20px);
@@ -86,7 +75,6 @@
         .c-tr { position:absolute; top:8px; right:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-left:none; border-bottom:none; }
         .c-bl { position:absolute; bottom:8px; left:8px; width:20px; height:20px; border:1px solid rgba(201,168,76,.5); border-right:none; border-top:none; }
 
-        /* Tabs */
         .tab-nav { display:flex; margin-bottom:24px; border-bottom:1px solid var(--border); }
         .tab-btn {
             flex:1; background:none; border:none; padding:12px 6px;
@@ -94,7 +82,7 @@
             font-weight:600; letter-spacing:.15em; text-transform:uppercase;
             color:var(--text-dim); cursor:pointer; transition:all .3s;
             position:relative; margin-bottom:-1px;
-            min-height:44px; /* táctil */
+            min-height:44px;
         }
         .tab-btn::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:2px; background:var(--gold); transform:scaleX(0); transition:transform .3s; }
         .tab-btn.active { color:var(--gold-light); }
@@ -103,7 +91,6 @@
         .tab-panel.active { display:block; animation:panelIn .3s ease both; }
         @keyframes panelIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-        /* Fields */
         .field-group { margin-bottom:18px; }
         .field-label {
             display:block; font-family:'Cinzel',serif;
@@ -119,13 +106,12 @@
             color:var(--text); font-family:'Crimson Text',serif;
             font-size:clamp(1rem,3.5vw,1.05rem);
             transition:all .25s; outline:none;
-            -webkit-appearance:none; /* evita estilos iOS */
+            -webkit-appearance:none;
             min-height:50px;
         }
         .field-input:focus { border-color:var(--gold); background:rgba(201,168,76,.07); box-shadow:0 0 0 3px rgba(201,168,76,.08); }
         .field-input::placeholder { color:rgba(154,138,106,.5); }
 
-        /* Toggle password — área táctil completa */
         .toggle-eye {
             position:absolute; right:0; top:0; bottom:0; width:46px;
             background:none; border:none; color:var(--text-dim);
@@ -135,7 +121,6 @@
         .toggle-eye:hover { color:var(--gold); }
         .icon { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
-        /* Button */
         .btn-rpg {
             width:100%; padding:14px;
             background:linear-gradient(135deg,#b8922a 0%,#c9a84c 50%,#b8922a 100%);
@@ -150,11 +135,13 @@
         .btn-rpg:active { transform:translateY(0); }
         .btn-rpg:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 
-        /* Feedback */
+        .field-note { display:block; font-size:0.78rem; font-style:italic; color:var(--text-dim); margin-top:5px; }
+
         .feedback-box { display:none; margin-top:16px; padding:10px 14px; border-radius:2px; font-size:.95rem; border-left:3px solid; }
         .feedback-box.show { display:flex; align-items:center; gap:8px; }
         .feedback-box.success { background:rgba(34,85,34,.25); border-color:#4a9; color:#8de8b0; }
         .feedback-box.danger  { background:rgba(90,20,20,.35); border-color:#c44; color:#f4a4a4; }
+        .feedback-box.info    { background:rgba(20,50,90,.35); border-color:#4a8cc4; color:#a8d0f4; }
 
         @keyframes spin { to{transform:rotate(360deg)} }
         .spinner { width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; }
@@ -216,6 +203,7 @@
                             <div class="field-wrapper">
                                 <input type="text" id="reg-user" class="field-input" placeholder="Escoge tu nombre legendario" autocomplete="username">
                             </div>
+                            <span class="field-note">Entre 3 y 20 caracteres. Solo letras, números y guiones bajos.</span>
                         </div>
                         <div class="field-group">
                             <label class="field-label" for="reg-email">Correo del Gremio</label>
@@ -231,6 +219,7 @@
                                     <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>
                             </div>
+                            <span class="field-note">Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.</span>
                         </div>
                         <button class="btn-rpg" id="btn-reg" onclick="hacerRegister()">✦ Forjar mi Destino</button>
                     </div>
@@ -245,7 +234,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
+    const API_BASE = "http://marcovarasperez.duckdns.org/api/jugadores";
     if (localStorage.getItem('rpg_usuario')) location.href = 'menu.html';
 
     // Particles
@@ -295,26 +284,53 @@
         const b=document.getElementById(id); b.disabled=on; b.innerHTML=on?'<span class="spinner"></span>':txt;
     }
 
+    function validarPassword(p) {
+        if (p.length < 8)              return 'La contraseña debe tener al menos 8 caracteres.';
+        if (!/[A-Z]/.test(p))          return 'La contraseña debe contener al menos una mayúscula.';
+        if (!/[0-9]/.test(p))          return 'La contraseña debe contener al menos un número.';
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p)) return 'La contraseña debe contener al menos un carácter especial.';
+        return null;
+    }
+
     async function hacerLogin() {
         const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
         if(!u||!p) return showFeedback('Completa todos los campos.','danger');
         setLoading('btn-login',true);
         try {
             const r=await fetch(`${API_BASE}/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,password:p})});
-            if(r.ok){ localStorage.setItem('rpg_usuario',u); showFeedback('Bienvenido, '+u+'…','success'); setTimeout(()=>location.href='menu.html',900); }
-            else { showFeedback('Credenciales incorrectas.','danger'); setLoading('btn-login',false,'⚔ Entrar al Reino'); }
+            if(r.ok){
+                localStorage.setItem('rpg_usuario',u);
+                showFeedback('Bienvenido, '+u+'…','success');
+                setTimeout(()=>location.href='menu.html',900);
+            } else {
+                const err=await r.text();
+                showFeedback(err||'Credenciales incorrectas.','danger');
+                setLoading('btn-login',false,'⚔ Entrar al Reino');
+            }
         } catch { showFeedback('No se pudo conectar.','danger'); setLoading('btn-login',false,'⚔ Entrar al Reino'); }
     }
 
     async function hacerRegister() {
-        const u=document.getElementById('reg-user').value.trim(), e=document.getElementById('reg-email').value.trim(), p=document.getElementById('reg-pass').value;
+        const u=document.getElementById('reg-user').value.trim();
+        const e=document.getElementById('reg-email').value.trim();
+        const p=document.getElementById('reg-pass').value;
+
         if(!u||!e||!p) return showFeedback('Completa todos los campos.','danger');
-        if(p.length<4) return showFeedback('Contraseña demasiado corta.','danger');
+
+        const errPass = validarPassword(p);
+        if(errPass) return showFeedback(errPass,'danger');
+
         setLoading('btn-reg',true);
         try {
             const r=await fetch(`${API_BASE}/registro`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:u,email:e,password:p})});
-            if(r.ok){ showFeedback('¡Cuenta creada! Ya puedes iniciar sesión.','success'); setTimeout(()=>{ document.querySelectorAll('.tab-btn')[0].click(); setLoading('btn-reg',false,'✦ Forjar mi Destino'); },1500); }
-            else { const err=await r.text(); showFeedback(err||'Error al registrar.','danger'); setLoading('btn-reg',false,'✦ Forjar mi Destino'); }
+            if(r.ok){
+                showFeedback('¡Cuenta creada! Revisa tu correo para verificar tu cuenta antes de iniciar sesión.','info');
+                setTimeout(()=>{ document.querySelectorAll('.tab-btn')[0].click(); setLoading('btn-reg',false,'✦ Forjar mi Destino'); },3000);
+            } else {
+                const err=await r.text();
+                showFeedback(err||'Error al registrar.','danger');
+                setLoading('btn-reg',false,'✦ Forjar mi Destino');
+            }
         } catch { showFeedback('No se pudo conectar.','danger'); setLoading('btn-reg',false,'✦ Forjar mi Destino'); }
     }
 
