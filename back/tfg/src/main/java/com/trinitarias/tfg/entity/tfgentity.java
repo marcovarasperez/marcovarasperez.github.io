@@ -21,6 +21,12 @@ public class tfgentity {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private boolean verificado = false;
+
+    @Column(unique = true)
+    private String tokenVerificacion;
+
     @ElementCollection
     @CollectionTable(name = "slots_guardado", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "slot_id")
@@ -42,6 +48,10 @@ public class tfgentity {
     public void setPassword(String password) { this.password = password; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public boolean isVerificado() { return verificado; }
+    public void setVerificado(boolean verificado) { this.verificado = verificado; }
+    public String getTokenVerificacion() { return tokenVerificacion; }
+    public void setTokenVerificacion(String tokenVerificacion) { this.tokenVerificacion = tokenVerificacion; }
     public Map<Integer, String> getSlotsGuardado() { return slotsGuardado; }
     public void setSlotsGuardado(Map<Integer, String> slotsGuardado) { this.slotsGuardado = slotsGuardado; }
 }

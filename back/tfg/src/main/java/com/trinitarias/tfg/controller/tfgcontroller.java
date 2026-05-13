@@ -23,9 +23,21 @@ public class tfgcontroller {
     public ResponseEntity<?> registrar(@RequestBody tfgdto dto) {
         try {
             tfgentity nuevo = service.registrar(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Cuenta creada. Revisa tu email para verificar la cuenta.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
+    // ── VERIFICAR EMAIL ───────────────────────────────────────────────────────
+    @GetMapping("/verificar/{token}")
+    public ResponseEntity<?> verificarEmail(@PathVariable String token) {
+        try {
+            service.verificarEmail(token);
+            return ResponseEntity.ok("Cuenta verificada correctamente. Ya puedes iniciar sesión.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
@@ -79,6 +91,17 @@ public class tfgcontroller {
     }
 
     // ── UPDATE ────────────────────────────────────────────────────────────────
+    @PatchMapping("/actualizar/{usuario}/usuario")
+    public ResponseEntity<?> actualizarUsuario(@PathVariable String usuario,
+                                                @RequestParam String usuarioNuevo) {
+        try {
+            service.actualizarUsuario(usuario, usuarioNuevo);
+            return ResponseEntity.ok("Usuario actualizado correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
+
     @PatchMapping("/actualizar/{usuario}/password")
     public ResponseEntity<?> actualizarPassword(@PathVariable String usuario,
                                                  @RequestParam String passwordActual,
