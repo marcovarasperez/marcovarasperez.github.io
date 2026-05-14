@@ -8,6 +8,7 @@ import com.trinitarias.tfg.dto.tfgdto;
 import com.trinitarias.tfg.entity.tfgentity;
 import com.trinitarias.tfg.service.tfgservice;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ public class tfgcontroller {
     @PostMapping("/registro")
     public ResponseEntity<?> registrar(@RequestBody tfgdto dto) {
         try {
-            tfgentity nuevo = service.registrar(dto);
+            service.registrar(dto);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Cuenta creada. Revisa tu email para verificar la cuenta.");
         } catch (RuntimeException e) {
@@ -31,11 +32,27 @@ public class tfgcontroller {
     }
 
     // ── VERIFICAR EMAIL ───────────────────────────────────────────────────────
+    // El enlace del correo lleva aquí. Redirige a la página de éxito del frontend.
     @GetMapping("/verificar/{token}")
     public ResponseEntity<?> verificarEmail(@PathVariable String token) {
         try {
             service.verificarEmail(token);
-            return ResponseEntity.ok("Cuenta verificada correctamente. Ya puedes iniciar sesión.");
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("http://marcovarasperez.duckdns.org/cuenta-verificada.html?ok=true"))
+                .build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("http://marcovarasperez.duckdns.org/cuenta-verificada.html?ok=false"))
+                .build();
+        }
+    }
+
+    // ── REENVIAR VERIFICACION ─────────────────────────────────────────────────
+    @PostMapping("/reenviar-verificacion/{usuario}")
+    public ResponseEntity<?> reenviarVerificacion(@PathVariable String usuario) {
+        try {
+            service.reenviarVerificacion(usuario);
+            return ResponseEntity.ok("Correo de verificación reenviado correctamente.");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

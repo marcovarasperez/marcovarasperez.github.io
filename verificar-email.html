@@ -9,33 +9,30 @@
     <style>
         :root {
             --gold: #c9a84c; --gold-light: #f0d080;
-            --dark-bg: #05080f; --card-bg: rgba(8,12,22,0.90);
+            --dark-bg: #05080f; --card-bg: rgba(8,12,22,0.92);
             --border: rgba(201,168,76,0.28); --text: #e8dcc8; --text-dim: #9a8a6a;
         }
-
         html, body { height: 100%; overflow-x: hidden; }
         body { background: var(--dark-bg); font-family: 'Crimson Text', Georgia, serif; color: var(--text); position: relative; }
 
         .bg-image   { position:fixed; inset:0; z-index:0; background:url('./img/fondo/fondo.png') no-repeat center center / cover; }
-        .bg-overlay { position:fixed; inset:0; z-index:1; background:linear-gradient(to bottom,rgba(5,8,15,.80) 0%,rgba(5,8,15,.65) 50%,rgba(5,8,15,.85) 100%); }
-        .bg-vignette{ position:fixed; inset:0; z-index:2; background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.7) 100%); }
+        .bg-overlay { position:fixed; inset:0; z-index:1; background:linear-gradient(to bottom,rgba(5,8,15,.82) 0%,rgba(5,8,15,.68) 50%,rgba(5,8,15,.88) 100%); }
+        .bg-vignette{ position:fixed; inset:0; z-index:2; background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.72) 100%); }
         #particles  { position:fixed; inset:0; z-index:3; pointer-events:none; }
 
         .page-content {
             position: relative; z-index: 10;
             min-height: 100vh; min-height: 100dvh;
-            display: flex; align-items: center;
-            padding: 32px 0;
+            display: flex; align-items: center; padding: 32px 0;
         }
 
         .verify-card {
             background: var(--card-bg);
-            backdrop-filter: blur(20px) saturate(1.5);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(22px) saturate(1.5); -webkit-backdrop-filter: blur(22px);
             border: 1px solid var(--border); border-radius: 4px;
-            padding: clamp(32px, 6vw, 52px) clamp(20px, 5vw, 44px);
+            padding: clamp(32px,6vw,52px) clamp(20px,5vw,44px);
             position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,.6);
+            box-shadow: 0 30px 60px rgba(0,0,0,.65);
             animation: fadeInUp .8s cubic-bezier(.16,1,.3,1) both;
             text-align: center;
         }
@@ -44,112 +41,136 @@
         .c-tr { position:absolute; top:8px; right:8px; width:22px; height:22px; border:1px solid rgba(201,168,76,.5); border-left:none; border-bottom:none; }
         .c-bl { position:absolute; bottom:8px; left:8px; width:22px; height:22px; border:1px solid rgba(201,168,76,.5); border-right:none; border-top:none; }
 
-        /* Icono de sobre */
+        /* Sobre animado */
+        .envelope-wrap {
+            position: relative; width: 90px; height: 90px;
+            margin: 0 auto 24px;
+        }
         .envelope-icon {
-            width: 80px; height: 80px; margin: 0 auto 24px;
+            width: 90px; height: 90px;
             background: rgba(201,168,76,0.08);
             border: 1px solid rgba(201,168,76,0.25);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem;
-            animation: pulse 2.5s ease-in-out infinite;
+            font-size: 2.4rem;
+            animation: pulseEnvelope 2.8s ease-in-out infinite;
         }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.2); }
-            50%       { box-shadow: 0 0 0 14px rgba(201,168,76,0); }
+        @keyframes pulseEnvelope {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.22); }
+            50%       { box-shadow: 0 0 0 16px rgba(201,168,76,0); }
         }
 
+        /* Indicador de comprobación */
+        .checking-ring {
+            position: absolute; top: -6px; left: -6px; right: -6px; bottom: -6px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(201,168,76,0.5);
+            animation: spin 1.8s linear infinite;
+            display: none;
+        }
+        .checking-ring.active { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         .eyebrow {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(0.58rem, 2vw, 0.65rem);
+            font-family: 'Cinzel', serif; font-size: clamp(0.58rem,2vw,0.65rem);
             letter-spacing: 0.3em; text-transform: uppercase;
             color: var(--gold); opacity: 0.75; margin-bottom: 8px;
         }
         .title {
             font-family: 'Cinzel Decorative', serif;
-            font-size: clamp(1.3rem, 5vw, 1.8rem); font-weight: 700;
-            background: linear-gradient(160deg, #f0d080 0%, #c9a84c 45%, #8b6914 100%);
+            font-size: clamp(1.3rem,5vw,1.8rem); font-weight: 700;
+            background: linear-gradient(160deg,#f0d080 0%,#c9a84c 45%,#8b6914 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-            margin-bottom: 16px; line-height: 1.2;
+            margin-bottom: 14px; line-height: 1.2;
         }
-
         .divider-ornament {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            margin: 16px auto; max-width: 220px;
+            display:flex; align-items:center; justify-content:center; gap:12px;
+            margin: 14px auto; max-width: 200px;
         }
-        .divider-ornament .line { flex:1; height:1px; background: linear-gradient(to right, transparent, rgba(201,168,76,0.4)); }
-        .divider-ornament .line:last-child { background: linear-gradient(to left, transparent, rgba(201,168,76,0.4)); }
+        .divider-ornament .line { flex:1; height:1px; background:linear-gradient(to right,transparent,rgba(201,168,76,0.4)); }
+        .divider-ornament .line:last-child { background:linear-gradient(to left,transparent,rgba(201,168,76,0.4)); }
         .divider-ornament .gem { width:6px; height:6px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
 
-        .description {
-            color: var(--text-dim); font-size: clamp(1rem, 3vw, 1.1rem);
-            line-height: 1.7; margin-bottom: 8px;
-        }
+        .description { color:var(--text-dim); font-size:clamp(1rem,3vw,1.08rem); line-height:1.7; margin-bottom:8px; }
+
         .email-highlight {
-            display: inline-block;
-            color: var(--gold-light);
-            font-family: 'Cinzel', serif;
-            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
-            letter-spacing: 0.05em;
-            background: rgba(201,168,76,0.08);
-            border: 1px solid rgba(201,168,76,0.2);
-            border-radius: 2px;
-            padding: 6px 16px;
-            margin: 12px 0 20px;
+            display: inline-block; color: var(--gold-light);
+            font-family: 'Cinzel', serif; font-size: clamp(0.82rem,2.5vw,0.93rem);
+            letter-spacing: 0.04em;
+            background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.2);
+            border-radius: 2px; padding: 6px 18px; margin: 12px 0 20px;
+            word-break: break-all;
         }
 
         .steps {
-            background: rgba(201,168,76,0.04);
-            border: 1px solid rgba(201,168,76,0.12);
-            border-radius: 3px;
-            padding: 18px 20px;
-            margin: 20px 0;
-            text-align: left;
+            background: rgba(201,168,76,0.04); border: 1px solid rgba(201,168,76,0.12);
+            border-radius: 3px; padding: 16px 18px; margin: 16px 0; text-align: left;
         }
-        .step {
-            display: flex; align-items: flex-start; gap: 12px;
-            margin-bottom: 12px; font-size: clamp(0.9rem, 3vw, 0.98rem);
-            color: var(--text-dim);
-        }
-        .step:last-child { margin-bottom: 0; }
+        .step { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; font-size:clamp(.88rem,3vw,.96rem); color:var(--text-dim); }
+        .step:last-child { margin-bottom:0; }
         .step-num {
-            font-family: 'Cinzel', serif; font-size: 0.7rem;
-            color: var(--gold); background: rgba(201,168,76,0.12);
-            border: 1px solid rgba(201,168,76,0.25);
-            border-radius: 50%; width: 22px; height: 22px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; margin-top: 1px;
+            font-family:'Cinzel',serif; font-size:.68rem; color:var(--gold);
+            background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.25);
+            border-radius:50%; width:22px; height:22px;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
         }
 
-        .btn-login {
-            width: 100%; padding: 14px; margin-top: 8px;
-            background: linear-gradient(135deg,#b8922a 0%,#c9a84c 50%,#b8922a 100%);
-            border: none; border-radius: 2px; color: #0d0d0d;
-            font-family: 'Cinzel', serif; font-size: clamp(0.62rem, 2.5vw, 0.7rem);
-            font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.3s;
-            min-height: 50px; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-login:hover { box-shadow: 0 4px 20px rgba(201,168,76,.35); transform: translateY(-1px); }
-        .btn-login:active { transform: translateY(0); }
-
-        .btn-resend {
-            background: none; border: none;
-            color: var(--text-dim); font-family: 'Cinzel', serif;
-            font-size: clamp(0.55rem, 2vw, 0.62rem);
+        /* Estado de comprobación */
+        .status-bar {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: 'Cinzel', serif; font-size: clamp(0.55rem,2vw,0.6rem);
             letter-spacing: 0.15em; text-transform: uppercase;
-            cursor: pointer; transition: color 0.2s;
-            padding: 10px 0; min-height: 44px;
-            margin-top: 8px;
+            color: var(--text-dim); margin: 16px 0 4px;
         }
-        .btn-resend:hover { color: var(--gold); }
+        .status-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(201,168,76,0.3);
+            animation: blink 1.4s ease-in-out infinite;
+        }
+        .status-dot:nth-child(2) { animation-delay: 0.2s; }
+        .status-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+        /* Botón reenviar */
+        .btn-resend {
+            background: none; border: 1px solid rgba(201,168,76,0.2); border-radius: 2px;
+            color: var(--text-dim); font-family: 'Cinzel', serif;
+            font-size: clamp(0.55rem,2vw,0.62rem); letter-spacing: 0.15em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.25s;
+            padding: 12px 20px; min-height: 46px; width: 100%; margin-top: 16px;
+        }
+        .btn-resend:hover:not(:disabled) { border-color: rgba(201,168,76,0.5); color: var(--gold); }
         .btn-resend:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        .note { font-size: clamp(0.78rem, 2.5vw, 0.85rem); color: var(--text-dim); font-style: italic; margin-top: 16px; }
+        /* Barra de progreso cooldown */
+        .cooldown-bar {
+            width: 100%; height: 2px;
+            background: rgba(201,168,76,0.1); border-radius: 1px;
+            margin-top: 6px; overflow: hidden; display: none;
+        }
+        .cooldown-fill {
+            height: 100%; background: var(--gold);
+            transition: width 1s linear; width: 100%;
+        }
 
-        @keyframes spin { to{transform:rotate(360deg)} }
-        .spinner { width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .6s linear infinite; }
+        .note { font-size:clamp(.76rem,2.5vw,.83rem); color:var(--text-dim); font-style:italic; margin-top:14px; }
+
+        /* Toast */
+        .toast-wrap { position:fixed; top:16px; right:16px; z-index:1000; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+        .toast-msg {
+            background:rgba(8,12,22,.96); border:1px solid; border-radius:3px;
+            padding:10px 16px; font-size:.94rem; display:flex; align-items:center; gap:10px;
+            animation: slideIn .3s cubic-bezier(.16,1,.3,1) both;
+        }
+        .toast-msg.ok    { border-color:rgba(74,180,120,.5); color:#8de8b0; }
+        .toast-msg.err   { border-color:rgba(200,60,60,.5);  color:#f4a4a4; }
+        @keyframes slideIn  { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes slideOut { to{opacity:0;transform:translateX(20px)} }
         @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+        @keyframes spinBtn { to{transform:rotate(360deg)} }
+        .spinner { width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spinBtn .6s linear infinite;display:inline-block; }
     </style>
 </head>
 <body>
@@ -158,25 +179,26 @@
 <div class="bg-overlay"></div>
 <div class="bg-vignette"></div>
 <canvas id="particles"></canvas>
+<div class="toast-wrap" id="toast-wrap"></div>
 
 <div class="page-content">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
-
                 <div class="verify-card">
                     <div class="c-tr"></div>
                     <div class="c-bl"></div>
 
-                    <div class="envelope-icon">✉️</div>
+                    <div class="envelope-wrap">
+                        <div class="checking-ring" id="checking-ring"></div>
+                        <div class="envelope-icon">✉️</div>
+                    </div>
 
                     <div class="eyebrow">Verificación de cuenta</div>
                     <div class="title">Revisa tu correo</div>
 
                     <div class="divider-ornament">
-                        <div class="line"></div>
-                        <div class="gem"></div>
-                        <div class="line"></div>
+                        <div class="line"></div><div class="gem"></div><div class="line"></div>
                     </div>
 
                     <p class="description">Hemos enviado un enlace de verificación a:</p>
@@ -185,29 +207,36 @@
                     <div class="steps">
                         <div class="step">
                             <div class="step-num">1</div>
-                            <span>Abre tu bandeja de entrada y busca un correo de verificación.</span>
+                            <span>Abre tu bandeja de entrada y busca el correo de verificación.</span>
                         </div>
                         <div class="step">
                             <div class="step-num">2</div>
-                            <span>Haz clic en el enlace de verificación del correo.</span>
+                            <span>Haz clic en el enlace. Esta página detectará la verificación automáticamente.</span>
                         </div>
                         <div class="step">
                             <div class="step-num">3</div>
-                            <span>Una vez verificado, vuelve aquí e inicia sesión.</span>
+                            <span>Serás redirigido al siguiente paso sin necesidad de hacer nada más.</span>
                         </div>
                     </div>
 
-                    <button class="btn-login" onclick="irALogin()">⚔ Ir a Iniciar Sesión</button>
-
-                    <div style="text-align:center">
-                        <button class="btn-resend" id="btn-resend" onclick="reenviarCorreo()">
-                            ↺ &nbsp; Reenviar correo de verificación
-                        </button>
+                    <!-- Indicador de comprobación automática -->
+                    <div class="status-bar">
+                        <div class="status-dot"></div>
+                        <div class="status-dot"></div>
+                        <div class="status-dot"></div>
+                        <span id="status-text">Comprobando verificación…</span>
                     </div>
 
-                    <p class="note">Si no encuentras el correo, revisa tu carpeta de spam.</p>
-                </div>
+                    <!-- Botón reenviar -->
+                    <button class="btn-resend" id="btn-resend" onclick="reenviarCorreo()">
+                        ↺ &nbsp; Reenviar correo de verificación
+                    </button>
+                    <div class="cooldown-bar" id="cooldown-bar">
+                        <div class="cooldown-fill" id="cooldown-fill"></div>
+                    </div>
 
+                    <p class="note">Si no encuentras el correo, revisa tu carpeta de spam.<br>No cierres esta página hasta completar la verificación.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -217,55 +246,116 @@
 <script>
     const API_BASE = "http://marcovarasperez.duckdns.org/api/jugadores";
 
-    // Recuperar email del registro
-    const emailPendiente = sessionStorage.getItem('rpg_email_pendiente');
+    const emailPendiente   = sessionStorage.getItem('rpg_email_pendiente');
     const usuarioPendiente = sessionStorage.getItem('rpg_usuario_pendiente');
 
-    if (!emailPendiente) {
-        window.location.href = 'index.html';
-    } else {
-        document.getElementById('email-display').textContent = emailPendiente;
-    }
-
-    function irALogin() {
-        sessionStorage.removeItem('rpg_email_pendiente');
-        sessionStorage.removeItem('rpg_usuario_pendiente');
+    // Si no hay datos de registro pendiente → volver al inicio
+    if (!emailPendiente || !usuarioPendiente) {
         window.location.href = 'index.html';
     }
 
+    document.getElementById('email-display').textContent = emailPendiente;
+
+    // ── Bloquear salida de la página ─────────────────────────────────────────
+    let verificado = false;
+    window.addEventListener('beforeunload', function(e) {
+        if (!verificado) {
+            e.preventDefault();
+            e.returnValue = 'Tu cuenta aún no está verificada. ¿Seguro que quieres salir?';
+        }
+    });
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type) {
+        const wrap = document.getElementById('toast-wrap');
+        const t = document.createElement('div');
+        t.className = 'toast-msg ' + (type || 'ok');
+        t.innerHTML = `<span>${type === 'err' ? '✖' : '✦'}</span><span>${msg}</span>`;
+        wrap.appendChild(t);
+        setTimeout(() => { t.style.animation = 'slideOut .3s forwards'; setTimeout(() => t.remove(), 300); }, 3000);
+    }
+
+    // ── Polling: comprueba verificación cada 5 segundos ───────────────────────
+    let pollInterval = null;
+
+    async function comprobarVerificacion() {
+        document.getElementById('checking-ring').classList.add('active');
+        try {
+            const res = await fetch(`${API_BASE}/usuario/${encodeURIComponent(usuarioPendiente)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.verificado === true) {
+                    verificado = true;
+                    clearInterval(pollInterval);
+                    document.getElementById('status-text').textContent = '¡Verificado! Redirigiendo…';
+                    document.getElementById('checking-ring').classList.remove('active');
+                    sessionStorage.removeItem('rpg_email_pendiente');
+                    sessionStorage.removeItem('rpg_usuario_pendiente');
+                    setTimeout(() => { window.location.href = 'cuenta-verificada.html?ok=true'; }, 1200);
+                }
+            }
+        } catch (e) {
+            console.warn('[verificar] Error al comprobar:', e.message);
+        }
+        document.getElementById('checking-ring').classList.remove('active');
+    }
+
+    // Comprueba inmediatamente y luego cada 5 segundos
+    comprobarVerificacion();
+    pollInterval = setInterval(comprobarVerificacion, 5000);
+
+    // ── Reenviar correo ───────────────────────────────────────────────────────
+    const COOLDOWN = 30;
     let resendCooldown = false;
+    let cooldownTimer  = null;
+
     async function reenviarCorreo() {
         if (resendCooldown) return;
-        if (!usuarioPendiente) return;
-
-        const btn = document.getElementById('btn-resend');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span>';
         resendCooldown = true;
 
+        const btn  = document.getElementById('btn-resend');
+        const bar  = document.getElementById('cooldown-bar');
+        const fill = document.getElementById('cooldown-fill');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> &nbsp; Enviando…';
+
         try {
-            await fetch(`${API_BASE}/reenviar-verificacion/${encodeURIComponent(usuarioPendiente)}`, {
+            const res = await fetch(`${API_BASE}/reenviar-verificacion/${encodeURIComponent(usuarioPendiente)}`, {
                 method: 'POST'
             });
+            if (res.ok) {
+                showToast('Correo reenviado correctamente.', 'ok');
+            } else {
+                const err = await res.text();
+                showToast(err || 'Error al reenviar el correo.', 'err');
+            }
         } catch (e) {
-            console.error('[verificar] reenviar:', e);
+            showToast('No se pudo conectar con el servidor.', 'err');
         }
 
-        // Cooldown de 60 segundos
-        let segundos = 60;
-        const interval = setInterval(() => {
-            segundos--;
-            btn.innerHTML = `↺ &nbsp; Reenviar (${segundos}s)`;
-            if (segundos <= 0) {
-                clearInterval(interval);
-                btn.disabled = false;
-                btn.innerHTML = '↺ &nbsp; Reenviar correo de verificación';
-                resendCooldown = false;
+        // Barra de cooldown
+        bar.style.display = 'block';
+        fill.style.width = '100%';
+
+        let restante = COOLDOWN;
+        cooldownTimer = setInterval(() => {
+            restante--;
+            const pct = (restante / COOLDOWN) * 100;
+            fill.style.width = pct + '%';
+            btn.innerHTML = `↺ &nbsp; Reenviar (${restante}s)`;
+            if (restante <= 0) {
+                clearInterval(cooldownTimer);
+                btn.disabled    = false;
+                btn.innerHTML   = '↺ &nbsp; Reenviar correo de verificación';
+                bar.style.display = 'none';
+                fill.style.width = '100%';
+                resendCooldown  = false;
             }
         }, 1000);
     }
 
-    // Partículas
+    // ── Partículas ────────────────────────────────────────────────────────────
     (function() {
         const c = document.getElementById('particles'), ctx = c.getContext('2d');
         let W, H, pts = [];
