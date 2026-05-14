@@ -2,7 +2,7 @@
 // ApiGuardado.js — Slots de guardado en el servidor
 //=============================================================================
 
-const API_BASE = "http://marcovarasperez.duckdns.org/api/jugadores";
+const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
 
 // ─── Guardar slot en el servidor ─────────────────────────────────────────────
 // Reemplazamos saveGame para mandar los datos a la API además de guardar local.

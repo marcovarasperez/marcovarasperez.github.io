@@ -35,7 +35,7 @@ public class tfgservice {
 
     // ── EMAIL HTML ────────────────────────────────────────────────────────────
     private void enviarEmailVerificacion(String emailDestino, String usuario, String token) {
-        String enlace = "http://marcovarasperez.duckdns.org/api/jugadores/verificar/" + token;
+        String enlace = "https://marcovarasperez.duckdns.org/api/jugadores/verificar/" + token;
 
         String html = "<!DOCTYPE html>" +
             "<html lang='es'><head><meta charset='UTF-8'>" +
