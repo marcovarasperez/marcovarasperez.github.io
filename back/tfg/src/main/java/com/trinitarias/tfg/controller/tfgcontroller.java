@@ -32,17 +32,16 @@ public class tfgcontroller {
     }
 
     // ── VERIFICAR EMAIL ───────────────────────────────────────────────────────
-    // El enlace del correo lleva aquí. Redirige a la página de éxito del frontend.
     @GetMapping("/verificar/{token}")
     public ResponseEntity<?> verificarEmail(@PathVariable String token) {
         try {
             service.verificarEmail(token);
             return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://marcovarasperez.duckdns.org/cuenta-verificada.html?ok=true"))
+                .location(URI.create("https://marcovarasperez.github.io/cuenta-verificada.html?ok=true"))
                 .build();
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                .location(URI.create("http://marcovarasperez.duckdns.org/cuenta-verificada.html?ok=false"))
+                .location(URI.create("https://marcovarasperez.github.io/cuenta-verificada.html?ok=false"))
                 .build();
         }
     }

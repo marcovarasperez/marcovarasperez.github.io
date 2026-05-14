@@ -8,147 +8,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gold: #c9a84c;
-            --gold-light: #f0d080;
-            --dark-bg: #05080f;
-            --card-bg: rgba(8, 12, 22, 0.85);
-            --border: rgba(201,168,76,0.28);
-            --text: #e8dcc8;
-            --text-dim: #9a8a6a;
+            --gold: #c9a84c; --gold-light: #f0d080;
+            --dark-bg: #05080f; --card-bg: rgba(8,12,22,0.85);
+            --border: rgba(201,168,76,0.28); --text: #e8dcc8; --text-dim: #9a8a6a;
         }
+        body { background:var(--dark-bg); font-family:'Crimson Text',Georgia,serif; color:var(--text); min-height:100vh; min-height:100dvh; position:relative; }
+        .bg-image   { position:fixed; inset:0; z-index:0; background:url('./img/fondo/fondo.png') no-repeat center center/cover; }
+        .bg-overlay { position:fixed; inset:0; z-index:1; background:linear-gradient(to bottom,rgba(5,8,15,.78) 0%,rgba(5,8,15,.65) 50%,rgba(5,8,15,.82) 100%); }
+        .bg-vignette{ position:fixed; inset:0; z-index:2; background:radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.65) 100%); }
+        #particles  { position:fixed; inset:0; z-index:3; pointer-events:none; }
+        .page-content { position:relative; z-index:10; padding:32px 0 48px; }
 
-        body {
-            background: var(--dark-bg);
-            font-family: 'Crimson Text', Georgia, serif;
-            color: var(--text);
-            min-height: 100vh;
-            min-height: 100dvh;
-            position: relative;
-        }
+        .back-link { display:inline-flex; align-items:center; gap:8px; font-family:'Cinzel',serif; font-size:clamp(.55rem,2vw,.62rem); letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); text-decoration:none; margin-bottom:20px; transition:color .2s; min-height:44px; }
+        .back-link:hover { color:var(--gold); }
+        .back-link:hover svg { transform:translateX(-3px); }
+        .back-link svg { transition:transform .2s; }
 
-        .bg-image   { position: fixed; inset: 0; z-index: 0; background: url('./img/fondo/fondo.png') no-repeat center center / cover; }
-        .bg-overlay { position: fixed; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(5,8,15,0.78) 0%, rgba(5,8,15,0.65) 50%, rgba(5,8,15,0.82) 100%); }
-        .bg-vignette{ position: fixed; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%); }
-        #particles  { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+        .page-eyebrow { font-family:'Cinzel',serif; font-size:clamp(.6rem,2vw,.65rem); letter-spacing:.3em; text-transform:uppercase; color:var(--gold); opacity:.75; margin-bottom:6px; }
+        .page-title   { font-family:'Cinzel Decorative',serif; font-size:clamp(1.3rem,4vw,1.9rem); font-weight:700; background:linear-gradient(160deg,#f0d080 0%,#c9a84c 45%,#8b6914 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
-        .page-content { position: relative; z-index: 10; padding: 32px 0 48px; }
+        .settings-card { background:var(--card-bg); backdrop-filter:blur(20px) saturate(1.5); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:4px; padding:clamp(20px,5vw,40px) clamp(16px,5vw,36px); position:relative; box-shadow:0 30px 60px rgba(0,0,0,.6); animation:fadeInUp .7s cubic-bezier(.16,1,.3,1) both; }
+        .settings-card::before { content:''; position:absolute; top:8px; left:8px; width:24px; height:24px; border:1px solid rgba(201,168,76,.45); border-right:none; border-bottom:none; }
+        .settings-card::after  { content:''; position:absolute; bottom:8px; right:8px; width:24px; height:24px; border:1px solid rgba(201,168,76,.45); border-left:none; border-top:none; }
+        .corner-tr { position:absolute; top:8px; right:8px; width:24px; height:24px; border:1px solid rgba(201,168,76,.45); border-left:none; border-bottom:none; }
+        .corner-bl { position:absolute; bottom:8px; left:8px; width:24px; height:24px; border:1px solid rgba(201,168,76,.45); border-right:none; border-top:none; }
 
-        .back-link {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-family: 'Cinzel', serif;
-            font-size: clamp(0.55rem, 2vw, 0.62rem);
-            letter-spacing: 0.18em; text-transform: uppercase;
-            color: var(--text-dim); text-decoration: none;
-            margin-bottom: 20px; transition: color 0.2s;
-            min-height: 44px;
-        }
-        .back-link:hover { color: var(--gold); }
-        .back-link svg { transition: transform 0.2s; }
-        .back-link:hover svg { transform: translateX(-3px); }
+        .section-header { display:flex; align-items:center; gap:12px; margin-bottom:22px; margin-top:32px; }
+        .section-header:first-child { margin-top:0; }
+        .sec-icon  { width:32px; height:32px; background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.25); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.85rem; flex-shrink:0; }
+        .sec-label { font-family:'Cinzel',serif; font-size:.68rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); }
+        .sec-line  { flex:1; height:1px; background:linear-gradient(to right,rgba(201,168,76,.3),transparent); }
 
-        .page-eyebrow {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(0.6rem, 2vw, 0.65rem);
-            letter-spacing: 0.3em; text-transform: uppercase;
-            color: var(--gold); opacity: 0.75; margin-bottom: 6px;
-        }
-        .page-title {
-            font-family: 'Cinzel Decorative', serif;
-            font-size: clamp(1.3rem, 4vw, 1.9rem); font-weight: 700;
-            background: linear-gradient(160deg, #f0d080 0%, #c9a84c 45%, #8b6914 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
+        .divider { height:1px; background:rgba(201,168,76,.12); margin:28px 0; }
 
-        .settings-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px) saturate(1.5);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 4px;
-            padding: clamp(20px, 5vw, 40px) clamp(16px, 5vw, 36px);
-            position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6), 0 0 80px rgba(201,168,76,0.03);
-            animation: fadeInUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
-        }
-        .settings-card::before { content: ''; position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-right: none; border-bottom: none; }
-        .settings-card::after  { content: ''; position: absolute; bottom: 8px; right: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-left: none; border-top: none; }
-        .corner-extra-tl { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-left: none; border-bottom: none; }
-        .corner-extra-br { position: absolute; bottom: 8px; left: 8px; width: 24px; height: 24px; border: 1px solid rgba(201,168,76,0.45); border-right: none; border-top: none; }
+        .field-group { margin-bottom:18px; }
+        .field-label { display:block; font-family:'Cinzel',serif; font-size:clamp(.55rem,2vw,.6rem); letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); margin-bottom:7px; }
+        .field-wrapper { position:relative; }
+        .field-input { width:100%; background:rgba(201,168,76,.04); border:1px solid rgba(201,168,76,.18); border-radius:2px; padding:12px 46px 12px 14px; color:var(--text); font-family:'Crimson Text',serif; font-size:clamp(1rem,3.5vw,1.05rem); transition:all .25s; outline:none; -webkit-appearance:none; min-height:48px; }
+        .field-input:focus { border-color:var(--gold); background:rgba(201,168,76,.07); box-shadow:0 0 0 3px rgba(201,168,76,.07); }
+        .field-input::placeholder { color:rgba(154,138,106,.45); }
+        .field-note { display:block; font-size:.78rem; font-style:italic; color:var(--text-dim); margin-top:5px; }
 
-        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; margin-top: 32px; }
-        .section-header:first-child { margin-top: 0; }
-        .section-header .sec-icon { width: 32px; height: 32px; background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
-        .section-header .sec-label { font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
-        .section-header .sec-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(201,168,76,0.3), transparent); }
+        .toggle-eye { position:absolute; right:0; top:0; bottom:0; width:46px; background:none; border:none; color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:color .2s; }
+        .toggle-eye:hover { color:var(--gold); }
+        .icon { width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
-        .divider { height: 1px; background: rgba(201,168,76,0.12); margin: 30px 0; }
+        .strength-bar { display:flex; gap:4px; margin-top:8px; }
+        .strength-bar .seg { flex:1; height:3px; border-radius:2px; background:rgba(201,168,76,.1); transition:background .3s; }
+        .seg.fill-weak   { background:#c44; }
+        .seg.fill-ok     { background:#c9a84c; }
+        .seg.fill-strong { background:#4a9; }
 
-        .field-group { margin-bottom: 18px; }
-        .field-label { display: block; font-family: 'Cinzel', serif; font-size: clamp(0.55rem, 2vw, 0.6rem); letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 7px; }
-        .field-wrapper { position: relative; }
-        .field-input {
-            width: 100%; background: rgba(201,168,76,0.04);
-            border: 1px solid rgba(201,168,76,0.18); border-radius: 2px;
-            padding: 12px 46px 12px 14px;
-            color: var(--text); font-family: 'Crimson Text', serif;
-            font-size: clamp(1rem, 3.5vw, 1.05rem);
-            transition: all 0.25s; outline: none;
-            -webkit-appearance: none; min-height: 48px;
-        }
-        .field-input:focus { border-color: var(--gold); background: rgba(201,168,76,0.07); box-shadow: 0 0 0 3px rgba(201,168,76,0.07); }
-        .field-input:disabled { opacity: 0.45; cursor: not-allowed; }
-        .field-input::placeholder { color: rgba(154,138,106,0.45); }
-        .field-note { display: block; font-size: 0.78rem; font-style: italic; color: var(--text-dim); margin-top: 5px; }
+        .btn-save { width:100%; padding:14px; margin-top:10px; background:linear-gradient(135deg,#b8922a 0%,#c9a84c 50%,#b8922a 100%); border:none; border-radius:2px; color:#0d0d0d; font-family:'Cinzel',serif; font-size:clamp(.62rem,2.5vw,.7rem); font-weight:700; letter-spacing:.22em; text-transform:uppercase; cursor:pointer; transition:all .3s; min-height:50px; display:flex; align-items:center; justify-content:center; }
+        .btn-save:hover { box-shadow:0 4px 20px rgba(201,168,76,.3); transform:translateY(-1px); }
+        .btn-save:active { transform:translateY(0); }
+        .btn-save:disabled { opacity:.45; cursor:not-allowed; transform:none; }
 
-        .toggle-eye { position: absolute; right: 0; top: 0; bottom: 0; width: 46px; background: none; border: none; color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-        .toggle-eye:hover { color: var(--gold); }
-        .icon { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .btn-delete { background:none; border:none; color:rgba(220,80,80,.65); font-family:'Cinzel',serif; font-size:clamp(.55rem,2vw,.6rem); letter-spacing:.15em; text-transform:uppercase; cursor:pointer; transition:color .25s; padding:8px 0; min-height:44px; }
+        .btn-delete:hover { color:#e86060; }
 
-        .strength-bar { display: flex; gap: 4px; margin-top: 8px; }
-        .strength-bar .seg { flex: 1; height: 3px; border-radius: 2px; background: rgba(201,168,76,0.1); transition: background 0.3s; }
-        .strength-bar .seg.fill-weak   { background: #c44; }
-        .strength-bar .seg.fill-ok     { background: #c9a84c; }
-        .strength-bar .seg.fill-strong { background: #4a9; }
+        /* Overlay de éxito al cambiar usuario */
+        .success-overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.75); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; }
+        .success-overlay.open { display:flex; }
+        .success-box { background:rgba(8,14,24,.97); border:1px solid rgba(74,180,120,.35); border-radius:4px; padding:clamp(28px,5vw,44px); max-width:360px; width:100%; text-align:center; animation:fadeInUp .4s cubic-bezier(.16,1,.3,1); position:relative; }
+        .success-box::before { content:''; position:absolute; top:8px; left:8px; width:18px; height:18px; border:1px solid rgba(74,180,120,.4); border-right:none; border-bottom:none; }
+        .success-box::after  { content:''; position:absolute; bottom:8px; right:8px; width:18px; height:18px; border:1px solid rgba(74,180,120,.4); border-left:none; border-top:none; }
+        .success-icon  { font-size:2.8rem; margin-bottom:16px; animation:popIn .4s .1s cubic-bezier(.16,1,.3,1) both; }
+        .success-title { font-family:'Cinzel Decorative',serif; font-size:clamp(1.1rem,4vw,1.4rem); background:linear-gradient(160deg,#8de8b0,#4a9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:12px; }
+        .success-desc  { color:var(--text-dim); font-size:clamp(.95rem,3vw,1.05rem); line-height:1.6; margin-bottom:20px; }
+        .success-countdown { font-family:'Cinzel',serif; font-size:clamp(.55rem,2vw,.62rem); letter-spacing:.15em; text-transform:uppercase; color:var(--text-dim); }
+        .success-countdown span { color:#8de8b0; }
+        @keyframes popIn { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
 
-        .btn-save {
-            width: 100%; padding: 14px; margin-top: 10px;
-            background: linear-gradient(135deg, #b8922a 0%, #c9a84c 50%, #b8922a 100%);
-            border: none; border-radius: 2px; color: #0d0d0d;
-            font-family: 'Cinzel', serif; font-size: clamp(0.62rem, 2.5vw, 0.7rem);
-            font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
-            min-height: 50px; display: flex; align-items: center; justify-content: center;
-        }
-        .btn-save::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%); transform: translateX(-100%); transition: transform 0.4s; }
-        .btn-save:hover { box-shadow: 0 4px 20px rgba(201,168,76,0.3); transform: translateY(-1px); }
-        .btn-save:hover::before { transform: translateX(100%); }
-        .btn-save:active { transform: translateY(0); }
-        .btn-save:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        /* Modal eliminar */
+        .modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.75); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:16px; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:rgba(10,14,24,.98); border:1px solid rgba(200,60,60,.35); border-radius:4px; padding:clamp(24px,5vw,36px); max-width:360px; width:100%; text-align:center; animation:fadeInUp .3s cubic-bezier(.16,1,.3,1); }
+        .modal-icon  { font-size:2rem; margin-bottom:12px; }
+        .modal-title { font-family:'Cinzel',serif; font-size:clamp(.9rem,3vw,1rem); letter-spacing:.08em; color:#f0d080; margin-bottom:10px; }
+        .modal-desc  { color:var(--text-dim); font-size:clamp(.9rem,3vw,.95rem); line-height:1.5; margin-bottom:22px; }
+        .modal-actions { display:flex; gap:12px; }
+        .modal-actions button { flex:1; padding:12px 8px; border-radius:2px; font-family:'Cinzel',serif; font-size:clamp(.58rem,2vw,.65rem); letter-spacing:.15em; text-transform:uppercase; cursor:pointer; transition:all .25s; border:1px solid; min-height:46px; }
+        .btn-cancel  { background:none; border-color:var(--border); color:var(--text-dim); }
+        .btn-cancel:hover { border-color:var(--gold); color:var(--gold); }
+        .btn-confirm { background:rgba(185,40,40,.2); border-color:rgba(185,40,40,.5); color:#f4a4a4; }
+        .btn-confirm:hover { background:rgba(185,40,40,.35); }
 
-        .btn-delete { background: none; border: none; color: rgba(220,80,80,0.65); font-family: 'Cinzel', serif; font-size: clamp(0.55rem, 2vw, 0.6rem); letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: color 0.25s; padding: 8px 0; min-height: 44px; }
-        .btn-delete:hover { color: #e86060; }
-
-        .toast-container { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; max-width: calc(100vw - 32px); }
-        .toast { background: rgba(8,12,22,0.95); border: 1px solid; border-radius: 3px; padding: 12px 16px; font-family: 'Crimson Text', serif; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; pointer-events: all; animation: slideIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-        .toast.success { border-color: rgba(74,180,120,0.5); color: #8de8b0; }
-        .toast.danger  { border-color: rgba(200,60,60,0.5);  color: #f4a4a4; }
+        /* Toast */
+        .toast-container { position:fixed; top:16px; right:16px; z-index:1000; display:flex; flex-direction:column; gap:10px; pointer-events:none; max-width:calc(100vw - 32px); }
+        .toast { background:rgba(8,12,22,.95); border:1px solid; border-radius:3px; padding:12px 16px; font-family:'Crimson Text',serif; font-size:.95rem; display:flex; align-items:center; gap:10px; pointer-events:all; animation:slideIn .35s cubic-bezier(.16,1,.3,1) both; }
+        .toast.success { border-color:rgba(74,180,120,.5); color:#8de8b0; }
+        .toast.danger  { border-color:rgba(200,60,60,.5);  color:#f4a4a4; }
         @keyframes slideIn  { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
         @keyframes slideOut { to{opacity:0;transform:translateX(20px)} }
-
-        .modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 16px; }
-        .modal-overlay.open { display: flex; }
-        .modal-box { background: rgba(10,14,24,0.98); border: 1px solid rgba(200,60,60,0.35); border-radius: 4px; padding: clamp(24px,5vw,36px); max-width: 360px; width: 100%; text-align: center; animation: fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1); }
-        .modal-icon  { font-size: 2rem; margin-bottom: 12px; }
-        .modal-title { font-family: 'Cinzel', serif; font-size: clamp(0.9rem, 3vw, 1rem); letter-spacing: 0.08em; color: #f0d080; margin-bottom: 10px; }
-        .modal-desc  { color: var(--text-dim); font-size: clamp(0.9rem, 3vw, 0.95rem); line-height: 1.5; margin-bottom: 22px; }
-        .modal-actions { display: flex; gap: 12px; }
-        .modal-actions button { flex: 1; padding: 12px 8px; border-radius: 2px; font-family: 'Cinzel', serif; font-size: clamp(0.58rem, 2vw, 0.65rem); letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.25s; border: 1px solid; min-height: 46px; }
-        .btn-cancel  { background: none; border-color: var(--border); color: var(--text-dim); }
-        .btn-cancel:hover  { border-color: var(--gold); color: var(--gold); }
-        .btn-confirm { background: rgba(185,40,40,0.2); border-color: rgba(185,40,40,0.5); color: #f4a4a4; }
-        .btn-confirm:hover  { background: rgba(185,40,40,0.35); }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; flex-shrink: 0; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .spinner { width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; }
         @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     </style>
 </head>
@@ -160,6 +114,16 @@
 <canvas id="particles"></canvas>
 <div class="toast-container" id="toast-container"></div>
 
+<!-- Overlay éxito cambio de usuario -->
+<div class="success-overlay" id="success-overlay">
+    <div class="success-box">
+        <div class="success-icon">✓</div>
+        <div class="success-title">¡Usuario actualizado!</div>
+        <p class="success-desc">Tu nombre de héroe ha sido cambiado correctamente. Por seguridad, debes iniciar sesión de nuevo.</p>
+        <div class="success-countdown">Redirigiendo en <span id="redirect-count">3</span> segundos…</div>
+    </div>
+</div>
+
 <!-- Modal eliminar -->
 <div class="modal-overlay" id="modal-delete">
     <div class="modal-box">
@@ -167,7 +131,7 @@
         <div class="modal-title">Eliminar Cuenta</div>
         <div class="modal-desc">Esta acción es <strong>irreversible</strong>. Se borrarán todos tus datos de progreso y acceso al juego.</div>
         <div class="modal-actions">
-            <button class="btn-cancel"  onclick="closeModal()">Cancelar</button>
+            <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
             <button class="btn-confirm" id="btn-confirm-delete" onclick="ejecutarEliminar()">Eliminar</button>
         </div>
     </div>
@@ -189,8 +153,8 @@
                 </div>
 
                 <div class="settings-card">
-                    <div class="corner-extra-tl"></div>
-                    <div class="corner-extra-br"></div>
+                    <div class="corner-tr"></div>
+                    <div class="corner-bl"></div>
 
                     <!-- Perfil -->
                     <div class="section-header">
@@ -200,15 +164,15 @@
                     </div>
 
                     <div class="field-group">
-                        <label class="field-label" for="edit-user">Nombre de Héroe</label>
+                        <label class="field-label" for="edit-user">Nuevo Nombre de Héroe</label>
                         <div class="field-wrapper">
-                            <input type="text" id="edit-user" class="field-input" placeholder="Nuevo nombre de héroe" autocomplete="username">
+                            <input type="text" id="edit-user" class="field-input" placeholder="Escribe el nuevo nombre" autocomplete="username">
                         </div>
-                        <span class="field-note">Déjalo vacío si no quieres cambiarlo.</span>
+                        <span class="field-note">Déjalo vacío si no quieres cambiarlo. Requiere contraseña actual.</span>
                     </div>
 
                     <div class="field-group">
-                        <label class="field-label" for="edit-email">Correo del Gremio</label>
+                        <label class="field-label" for="edit-email">Nuevo Correo del Gremio</label>
                         <div class="field-wrapper">
                             <input type="email" id="edit-email" class="field-input" placeholder="nuevo@correo.com" autocomplete="email">
                         </div>
@@ -228,7 +192,7 @@
                         <label class="field-label" for="pass-actual">Contraseña Actual <span style="color:#c44">*</span></label>
                         <div class="field-wrapper">
                             <input type="password" id="pass-actual" class="field-input" placeholder="Obligatoria para confirmar cualquier cambio" autocomplete="current-password">
-                            <button class="toggle-eye" type="button" onclick="togglePass('pass-actual', this)" aria-label="Ver contraseña">
+                            <button class="toggle-eye" type="button" onclick="togglePass('pass-actual',this)">
                                 <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             </button>
                         </div>
@@ -240,15 +204,13 @@
                                 <label class="field-label" for="pass-nueva">Nueva Contraseña</label>
                                 <div class="field-wrapper">
                                     <input type="password" id="pass-nueva" class="field-input" placeholder="••••••••" autocomplete="new-password" oninput="updateStrength(this.value)">
-                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-nueva', this)" aria-label="Ver contraseña">
+                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-nueva',this)">
                                         <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     </button>
                                 </div>
                                 <div class="strength-bar">
-                                    <div class="seg" id="str1"></div>
-                                    <div class="seg" id="str2"></div>
-                                    <div class="seg" id="str3"></div>
-                                    <div class="seg" id="str4"></div>
+                                    <div class="seg" id="str1"></div><div class="seg" id="str2"></div>
+                                    <div class="seg" id="str3"></div><div class="seg" id="str4"></div>
                                 </div>
                             </div>
                         </div>
@@ -257,7 +219,7 @@
                                 <label class="field-label" for="pass-repetir">Repetir Nueva</label>
                                 <div class="field-wrapper">
                                     <input type="password" id="pass-repetir" class="field-input" placeholder="••••••••" autocomplete="new-password">
-                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-repetir', this)" aria-label="Ver contraseña">
+                                    <button class="toggle-eye" type="button" onclick="togglePass('pass-repetir',this)">
                                         <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     </button>
                                 </div>
@@ -267,7 +229,7 @@
 
                     <button class="btn-save" id="btn-save" onclick="guardarCambios()">✦ &nbsp; Guardar Cambios</button>
 
-                    <div class="divider" style="margin-top: 28px;"></div>
+                    <div class="divider" style="margin-top:28px;"></div>
 
                     <div class="text-center">
                         <button class="btn-delete" onclick="abrirModal()">⚠ Eliminar cuenta permanentemente</button>
@@ -283,35 +245,29 @@
 <script>
     const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
     let usuario = localStorage.getItem('rpg_usuario');
-    if (!usuario) { window.location.href = 'index.html'; }
+    if (!usuario) window.location.href = 'index.html';
 
-    function showToast(msg, type = 'success') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<span>${type === 'success' ? '✦' : '✖'}</span><span>${msg}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s forwards';
-            setTimeout(() => toast.remove(), 300);
-        }, 3200);
+    function showToast(msg, type) {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.innerHTML = `<span>${type === 'success' ? '✦' : '✖'}</span><span>${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => { t.style.animation = 'slideOut .3s forwards'; setTimeout(() => t.remove(), 300); }, 3500);
     }
 
     function updateStrength(val) {
-        let score = 0;
-        if (val.length >= 6) score++;
-        if (val.length >= 10) score++;
-        if (/[A-Z]/.test(val) || /[0-9]/.test(val)) score++;
-        if (/[^a-zA-Z0-9]/.test(val)) score++;
-        const cls = score <= 1 ? 'fill-weak' : score <= 2 ? 'fill-ok' : 'fill-strong';
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById('str' + i).className = 'seg ' + (i <= score ? cls : '');
-        }
+        let s = 0;
+        if (val.length >= 6)  s++;
+        if (val.length >= 10) s++;
+        if (/[A-Z]/.test(val) || /[0-9]/.test(val)) s++;
+        if (/[^a-zA-Z0-9]/.test(val)) s++;
+        const cls = s <= 1 ? 'fill-weak' : s <= 2 ? 'fill-ok' : 'fill-strong';
+        for (let i = 1; i <= 4; i++) document.getElementById('str' + i).className = 'seg ' + (i <= s ? cls : '');
     }
 
     function togglePass(id, btn) {
-        const inp = document.getElementById(id);
-        const show = inp.type === 'password';
+        const inp = document.getElementById(id), show = inp.type === 'password';
         inp.type = show ? 'text' : 'password';
         btn.innerHTML = show
             ? `<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
@@ -320,6 +276,20 @@
 
     function abrirModal() { document.getElementById('modal-delete').classList.add('open'); }
     function closeModal() { document.getElementById('modal-delete').classList.remove('open'); }
+
+    function mostrarExitoUsuario() {
+        document.getElementById('success-overlay').classList.add('open');
+        let seg = 3;
+        const iv = setInterval(() => {
+            seg--;
+            document.getElementById('redirect-count').textContent = seg;
+            if (seg <= 0) {
+                clearInterval(iv);
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }, 1000);
+    }
 
     async function guardarCambios() {
         const nuevoUsuario = document.getElementById('edit-user').value.trim();
@@ -333,31 +303,34 @@
         if (passNueva && passNueva !== passRepetir) return showToast('Las nuevas contraseñas no coinciden.', 'danger');
 
         const btn = document.getElementById('btn-save');
-        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+
+        let usuarioCambiado = false;
 
         try {
-            // Cambiar nombre de usuario
+            // ── Cambiar nombre de usuario ──────────────────────────────────
             if (nuevoUsuario) {
                 const r = await fetch(
                     `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/usuario?usuarioNuevo=${encodeURIComponent(nuevoUsuario)}`,
-                    { method: 'PATCH', headers: { 'Accept': 'application/json, text/plain, */*' } }
+                    { method: 'PATCH' }
                 );
                 if (r.ok) {
-                    showToast('Nombre de héroe actualizado.', 'success');
-                    localStorage.setItem('rpg_usuario', nuevoUsuario);
-                    usuario = nuevoUsuario;
-                    document.getElementById('edit-user').value = '';
+                    usuarioCambiado = true;
                 } else {
                     const e = await r.text();
                     showToast(e || 'Error al actualizar el nombre.', 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = '✦ &nbsp; Guardar Cambios';
+                    return;
                 }
             }
 
-            // Cambiar email
+            // ── Cambiar email ──────────────────────────────────────────────
             if (nuevoEmail) {
                 const r = await fetch(
                     `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/email?emailNuevo=${encodeURIComponent(nuevoEmail)}`,
-                    { method: 'PATCH', headers: { 'Accept': 'application/json, text/plain, */*' } }
+                    { method: 'PATCH' }
                 );
                 if (r.ok) {
                     showToast('Correo actualizado correctamente.', 'success');
@@ -368,11 +341,11 @@
                 }
             }
 
-            // Cambiar contraseña
+            // ── Cambiar contraseña ─────────────────────────────────────────
             if (passNueva) {
                 const r = await fetch(
                     `${API_BASE}/actualizar/${encodeURIComponent(usuario)}/password?passwordActual=${encodeURIComponent(passActual)}&passwordNueva=${encodeURIComponent(passNueva)}`,
-                    { method: 'PATCH', headers: { 'Accept': 'application/json, text/plain, */*' } }
+                    { method: 'PATCH' }
                 );
                 if (r.ok) {
                     showToast('Contraseña actualizada correctamente.', 'success');
@@ -383,12 +356,18 @@
                     showToast(e || 'Contraseña actual incorrecta.', 'danger');
                 }
             }
+
         } catch (e) {
-            console.error('[account] guardarCambios:', e);
-            showToast('Error de red: ' + (e.message || 'comprueba la consola.'), 'danger');
+            showToast('Error de red. Comprueba tu conexión.', 'danger');
         }
 
-        btn.disabled = false; btn.innerHTML = '✦ &nbsp; Guardar Cambios';
+        btn.disabled = false;
+        btn.innerHTML = '✦ &nbsp; Guardar Cambios';
+
+        // Si el usuario cambió, mostrar overlay y redirigir al login
+        if (usuarioCambiado) {
+            mostrarExitoUsuario();
+        }
     }
 
     async function ejecutarEliminar() {
@@ -404,33 +383,28 @@
                 showToast('Error al eliminar la cuenta.', 'danger');
                 btn.disabled = false; btn.innerHTML = 'Eliminar';
             }
-        } catch (e) {
-            console.error('[account] eliminar:', e);
+        } catch {
             showToast('No se pudo conectar con el servidor.', 'danger');
             btn.disabled = false; btn.innerHTML = 'Eliminar';
         }
     }
 
     (function() {
-        const canvas = document.getElementById('particles');
-        const ctx    = canvas.getContext('2d');
+        const canvas = document.getElementById('particles'), ctx = canvas.getContext('2d');
         let W, H, pts = [];
-        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
         window.addEventListener('resize', resize); resize();
-        for (let i = 0; i < 45; i++) pts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1+0.3, spd:Math.random()*0.2+0.05, drift:(Math.random()-0.5)*0.08 });
-        function frame() {
+        for (let i = 0; i < 45; i++) pts.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1+.3, spd:Math.random()*.2+.05, d:(Math.random()-.5)*.08 });
+        (function f() {
             ctx.clearRect(0,0,W,H);
             pts.forEach(p => {
-                const a = 0.15 + 0.45 * Math.abs(Math.sin(Date.now()*0.0008 + p.x));
                 ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-                ctx.fillStyle = `rgba(201,168,76,${a})`; ctx.fill();
-                p.y -= p.spd; p.x += p.drift;
-                if (p.y < -5) { p.y = H+5; p.x = Math.random()*W; }
-                if (p.x < 0 || p.x > W) p.drift *= -1;
+                ctx.fillStyle=`rgba(201,168,76,${.15+.45*Math.abs(Math.sin(Date.now()*.0008+p.x))})`; ctx.fill();
+                p.y-=p.spd; p.x+=p.d;
+                if(p.y<-5){p.y=H+5;p.x=Math.random()*W;} if(p.x<0||p.x>W)p.d*=-1;
             });
-            requestAnimationFrame(frame);
-        }
-        frame();
+            requestAnimationFrame(f);
+        })();
     })();
 </script>
 </body>
