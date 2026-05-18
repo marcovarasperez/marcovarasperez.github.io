@@ -171,6 +171,51 @@
 
         @keyframes spinBtn { to{transform:rotate(360deg)} }
         .spinner { width:13px;height:13px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spinBtn .6s linear infinite;display:inline-block; }
+
+        /* ═══════════════════════════════════════════════════
+           RESPONSIVE MÓVIL — WebView APK
+           ═══════════════════════════════════════════════════ */
+
+        /* Pantallas estrechas (< 400px) */
+        @media (max-width: 400px) {
+            .container { padding-left: 12px !important; padding-right: 12px !important; }
+        }
+
+        /* Pantallas cortas: compactar espaciado vertical (< 700px) */
+        @media (max-height: 700px) {
+            .page-content { padding: 16px 0 24px; }
+        }
+
+        /* Pantallas muy cortas: modo mínimo (< 560px) */
+        @media (max-height: 560px) {
+            .page-content { padding: 8px 0 12px; }
+            #particles { display: none; }
+        }
+
+        @media (max-height: 700px) {
+            .envelope-wrap  { margin-bottom: 14px; }
+            .envelope-icon  { width: 64px !important; height: 64px !important; }
+            .verify-card    { padding: 20px 16px; }
+            .divider-ornament { margin: 8px auto; }
+        }
+
+        @media (max-height: 560px) {
+            .envelope-wrap  { display: none; }
+            .verify-card    { padding: 14px; }
+        }
+
+        @media (max-height: 700px) {
+            html, body { overflow-y: auto; }
+            .page-content { min-height: unset !important; display: block !important; }
+        }
+
+        @media (max-height: 520px) and (orientation: landscape) {
+            html, body { overflow-y: auto; }
+            .page-content { padding: 8px 0 !important; min-height: unset !important; display: block !important; }
+            .envelope-wrap { display: none !important; }
+            .verify-card { padding: 14px 16px !important; }
+            .divider-ornament { margin: 6px auto !important; }
+        }
     </style>
 </head>
 <body>

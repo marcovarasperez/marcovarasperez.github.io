@@ -131,6 +131,65 @@
         @keyframes fadeInDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeInUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeIn     { from { opacity:0; } to { opacity:1; } }
+
+        /* ═══════════════════════════════════════════════════
+           RESPONSIVE MÓVIL — WebView APK
+           ═══════════════════════════════════════════════════ */
+
+        /* Pantallas estrechas (< 400px) */
+        @media (max-width: 400px) {
+            .container { padding-left: 12px !important; padding-right: 12px !important; }
+        }
+
+        /* Pantallas cortas: compactar espaciado vertical (< 700px) */
+        @media (max-height: 700px) {
+            .page-content { padding: 16px 0 24px; }
+        }
+
+        /* Pantallas muy cortas: modo mínimo (< 560px) */
+        @media (max-height: 560px) {
+            .page-content { padding: 8px 0 12px; }
+            #particles { display: none; }
+        }
+
+        @media (max-height: 700px) {
+            .hero-greeting  { display: none; }
+            .hero-subtitle  { display: none; }
+            .ornament-row   { margin: 6px auto; }
+            .text-center.mb-4, .text-center.mb-md-5 { margin-bottom: 12px !important; }
+            .d-flex.mb-4    { margin-bottom: 12px !important; }
+            .menu-card      { padding: 16px 12px; }
+            .card-icon      { width: 44px; height: 44px; font-size: 1.1rem; margin-bottom: 10px; }
+            .stat-item      { padding: 8px 14px; }
+        }
+
+        @media (max-height: 560px) {
+            .hero-name      { font-size: 1.4rem !important; }
+            .ornament-row   { display: none; }
+            .d-flex.mb-4    { margin-bottom: 8px !important; }
+            .menu-card      { padding: 12px 10px; }
+            .card-desc      { display: none; }
+        }
+
+        @media (max-height: 700px) {
+            html, body { overflow-y: auto; }
+            .page-content { min-height: unset !important; display: block !important; }
+        }
+
+        @media (max-height: 520px) and (orientation: landscape) {
+            html, body { overflow-y: auto; }
+            .page-content { padding: 8px 0 !important; min-height: unset !important; display: block !important; }
+            .text-center.mb-4, .text-center.mb-md-5 { margin-bottom: 8px !important; }
+            .hero-greeting, .hero-subtitle, .ornament-row { display: none !important; }
+            .hero-name { font-size: 1.4rem !important; }
+            .d-flex.flex-wrap.mb-4 { margin-bottom: 8px !important; gap: 8px !important; }
+            .stat-item { padding: 6px 12px; }
+            .row.g-3 { gap: 0.5rem !important; }
+            .menu-card { padding: 12px 10px; flex-direction: row; gap: 12px; }
+            .card-icon { width: 40px; height: 40px; font-size: 1rem; margin-bottom: 0; flex-shrink: 0; }
+            .card-desc { display: none; }
+            .btn-logout { min-height: 36px; padding: 6px 20px; }
+        }
     </style>
 </head>
 <body>
