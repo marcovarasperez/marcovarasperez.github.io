@@ -182,7 +182,7 @@ MBS.MobileDirPad = {};
 		if (TouchInput.isPressed()) {
 			var sx = this.x - this.width * this.anchor.x;
 			var sy = this.y - this.height * this.anchor.y;
-			var rect = this.getBounds();
+			var rect = new PIXI.Rectangle(sx, sy, this.width, this.height); // FIX: getBounds() daba coords incorrectas
 			
 			this._lastDir = '';
 

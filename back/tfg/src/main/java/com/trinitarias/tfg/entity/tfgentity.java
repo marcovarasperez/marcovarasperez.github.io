@@ -30,7 +30,7 @@ public class tfgentity {
     @ElementCollection
     @CollectionTable(name = "slots_guardado", joinColumns = @JoinColumn(name = "jugador_id"))
     @MapKeyColumn(name = "slot_id")
-    @Column(name = "datos", columnDefinition = "TEXT")
+    @Column(name = "datos", columnDefinition = "LONGTEXT")
     private Map<Integer, String> slotsGuardado = new HashMap<>();
 
     public tfgentity() { }

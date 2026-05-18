@@ -1,64 +1,99 @@
 //=============================================================================
-// BotonAccion.js - Botón A Circular, Abajo a la Derecha
+// BotonAccion.js - Botón A Circular + Botón Mochila (Inventario)
 //=============================================================================
 
 (function() {
 
+// ─── BOTÓN A (Acción / OK) ────────────────────────────────────────────────────
 var _Scene_Map_createDisplayObjects = Scene_Map.prototype.createDisplayObjects;
 Scene_Map.prototype.createDisplayObjects = function() {
     _Scene_Map_createDisplayObjects.call(this);
     this.createActionButton();
+    this.createMochilaButton();
 };
 
 Scene_Map.prototype.createActionButton = function() {
-
     this._actionButton = new Sprite_Button();
 
-    // Configuración de tamaño y posición
-    var size = 120;           // Diámetro del botón
-    var radius = size / 2;    // Radio (60)
-    var margin = 20;          // Margen desde el borde de la pantalla
+    var size   = 120;
+    var radius = size / 2;
+    var margin = 20;
 
     var bmp = new Bitmap(size, size);
+    bmp.drawCircle(radius, radius, radius,     'rgba(0,0,0,0.3)');
+    bmp.drawCircle(radius, radius, radius - 2, 'green');
 
-    // --- DIBUJAR EL CÍRCULO ---
-    // 1. Dibujar un borde sutil (opcional, para que resalte)
-    bmp.drawCircle(radius, radius, radius, 'rgba(0, 0, 0, 0.3)'); // Sombra negra suave
-    
-    // 2. Dibujar el círculo principal relleno
-    // (Usamos radius-2 para que el borde no se corte si el bitmap es justo)
-    bmp.drawCircle(radius, radius, radius - 2, "green");
-
-    // --- DIBUJAR EL TEXTO ---
-    bmp.fontSize = 50; // Un poco más grande para el círculo
-    bmp.textColor = "white"; // Asegurar que sea blanco
-    bmp.outlineColor = 'rgba(0, 0, 0, 0.5)'; // Borde al texto
+    bmp.fontSize     = 50;
+    bmp.textColor    = 'white';
+    bmp.outlineColor = 'rgba(0,0,0,0.5)';
     bmp.outlineWidth = 4;
-    
-    // Centrar el texto "A" verticalmente en el Bitmap
-    // drawText(text, x, y, maxWidth, lineHeight, align)
-    // Usamos el alto completo del bitmap como lineHeight para centrar.
-    bmp.drawText("A", 0, 0, size, size, "center");
+    bmp.drawText('A', 0, 0, size, size, 'center');
 
     this._actionButton.bitmap = bmp;
-
-    // POSICIÓN: Abajo a la derecha dinámico
-    this._actionButton.x = Graphics.width - size - margin  -160 ;
+    this._actionButton.x = Graphics.width  - size - margin - 160;
     this._actionButton.y = Graphics.height - size - margin - 160;
 
-    // Lógica del Click
     this._actionButton.setClickHandler(function() {
-        //console.log("BOTÓN A PULSADO");
-        
-        // Simular pulsación del botón 'OK' (Z, Enter o Espacio)
         Input._currentState['ok'] = true;
-        
-        // Liberar la tecla después de un breve momento (100ms) 
-        // para que no se repita el comando infinitamente.
-        setTimeout(() => { Input._currentState['ok'] = false; }, 100);
+        setTimeout(function() { Input._currentState['ok'] = false; }, 100);
     });
 
     this.addChild(this._actionButton);
+};
+
+// ─── BOTÓN MOCHILA (Inventario) ───────────────────────────────────────────────
+Scene_Map.prototype.createMochilaButton = function() {
+    this._mochilaButton = new Sprite_Button();
+
+    var size   = 90;
+    var radius = size / 2;
+    var margin = 20;
+
+    var bmp = new Bitmap(size, size);
+
+    // Fondo circular oscuro semitransparente
+    bmp.drawCircle(radius, radius, radius,     'rgba(0,0,0,0.35)');
+    bmp.drawCircle(radius, radius, radius - 2, 'rgba(20,14,8,0.80)');
+
+    // Borde dorado
+    var ctx = bmp._context;
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius - 3, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(201,168,76,0.75)';
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+
+    // Icono de mochila
+    bmp.fontSize     = Math.floor(size * 0.46);
+    bmp.textColor    = '#f0d080';
+    bmp.outlineColor = 'rgba(0,0,0,0.8)';
+    bmp.outlineWidth = 4;
+    bmp.drawText('\uD83C\uDF92', 0, Math.floor(size * 0.06), size, size * 0.88, 'center');
+
+    this._mochilaButton.bitmap  = bmp;
+    this._mochilaButton.opacity = 220;
+
+    // Posición: encima del botón A, mismo eje X
+    this._mochilaButton.x = Graphics.width  - size - margin - 175;
+    this._mochilaButton.y = Graphics.height - size - margin - 290;
+
+    this._mochilaButton.setClickHandler(function() {
+        if (!$gameSystem.isMenuEnabled()) return;
+        if ($gameMessage.isBusy())        return;
+        SoundManager.playOk();
+        SceneManager.push(Scene_Item);
+    });
+
+    this.addChild(this._mochilaButton);
+};
+
+// ─── Actualizar visibilidad ───────────────────────────────────────────────────
+var _Scene_Map_update = Scene_Map.prototype.update;
+Scene_Map.prototype.update = function() {
+    _Scene_Map_update.call(this);
+    // Ocultar ambos botones durante mensajes o transiciones
+    var mostrar = !$gameMessage.isBusy() && !SceneManager.isSceneChanging();
+    if (this._mochilaButton) this._mochilaButton.visible = mostrar;
 };
 
 })();
