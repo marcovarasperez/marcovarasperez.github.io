@@ -1,0 +1,6 @@
+Cosas a Arreglar
+solucionar hitbox menus y pantalla en móvil
+game over mal
+icono de la mochila
+el cambiar contraseña hay que cambiarlo
+documentación
