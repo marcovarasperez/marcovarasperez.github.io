@@ -1,14 +1,14 @@
 /*:
- * @plugindesc Escala el canvas para ocupar toda la pantalla sin fullscreen.
- * Corrige la hitbox táctil en móvil. Pon este plugin ANTES de Controlesmobile.
+ * @plugindesc Escala el canvas para ocupar toda la pantalla en móvil.
+ * Corrige la hitbox táctil. Pon este plugin ANTES de Controlesmobile.
  * @author Fix
  *
  * @param Ancho
- * @desc Resolución horizontal del juego
+ * @desc Resolución horizontal del juego (por defecto 816)
  * @default 816
  *
  * @param Alto
- * @desc Resolución vertical del juego
+ * @desc Resolución vertical del juego (por defecto 624)
  * @default 624
  */
 
@@ -18,7 +18,10 @@
     var gameW  = Number(params['Ancho'] || 816);
     var gameH  = Number(params['Alto']  || 624);
 
-    // ── Aplicar resolución ────────────────────────────────────────────────────
+    // Escala CSS actual — se mantiene sincronizada con _realScale en todo momento
+    var _currentScale = 1;
+
+    // ── Resolución interna ────────────────────────────────────────────────────
     var _SceneManager_initGraphics = SceneManager.initGraphics;
     SceneManager.initGraphics = function() {
         _SceneManager_initGraphics.call(this);
@@ -28,7 +31,7 @@
         Graphics.boxHeight = gameH;
     };
 
-    // ── Estilos base: sin márgenes, fondo negro ───────────────────────────────
+    // ── CSS base: sin márgenes, fondo negro ───────────────────────────────────
     (function() {
         var style = document.createElement('style');
         style.textContent =
@@ -38,14 +41,14 @@
         document.head.appendChild(style);
     })();
 
-    // ── Escalar canvas manteniendo proporción + actualizar _realScale ─────────
-    // _realScale es CRÍTICO: Graphics.pageToCanvasX/Y lo usa para convertir
-    // coordenadas táctiles al espacio interno del juego.
-    // Sin actualizarlo la hitbox queda desplazada.
-
-    // Guardamos la escala calculada en esta variable
-    // Graphics._realScale se debe mantener igual a esto en todo momento
-    var _currentScale = 1;
+    // ── fitCanvas ─────────────────────────────────────────────────────────────
+    // Escala el canvas manteniendo proporción y lo centra en el viewport.
+    //
+    // Usamos position:fixed (relativo al viewport) en vez de position:absolute.
+    // En móvil, position:absolute es relativo al documento, que puede tener
+    // altura variable por la barra del navegador → top/left quedan incorrectos.
+    // position:fixed siempre es relativo al área visible → getBoundingClientRect
+    // devuelve coordenadas exactas y la hitbox es correcta.
 
     function fitCanvas() {
         var canvas = Graphics._canvas;
@@ -60,53 +63,67 @@
         var left     = Math.floor((window.innerWidth  - displayW) / 2);
         var top      = Math.floor((window.innerHeight - displayH) / 2);
 
-        canvas.style.position = 'absolute';
+        canvas.style.position = 'fixed';
         canvas.style.margin   = '0';
-        canvas.style.width    = displayW + 'px';
-        canvas.style.height   = displayH + 'px';
         canvas.style.left     = left + 'px';
         canvas.style.top      = top  + 'px';
+        canvas.style.width    = displayW + 'px';
+        canvas.style.height   = displayH + 'px';
 
-        _currentScale = scale;
+        _currentScale       = scale;
         Graphics._realScale = scale;
     }
 
-    // CLAVE: RPG Maker sobreescribe _realScale cada frame en _updateRealScale().
-    // Lo sobreescribimos para que siempre use nuestra escala calculada.
-    // Sin esto, _realScale vuelve a 1 en cada frame y la hitbox queda doblada.
+    // ── Bloquear _centerElement en el canvas ──────────────────────────────────
+    // RPG Maker llama a _centerElement desde _updateCanvas cada frame.
+    // _centerElement aplica position:absolute + margin:auto + left:0 + right:0
+    // lo que sobreescribe nuestro CSS y rompe el cálculo de getBoundingClientRect.
+    // Lo interceptamos para el canvas y aplicamos nuestros valores en su lugar.
+
+    var _orig_centerElement = Graphics._centerElement;
+    Graphics._centerElement = function(element) {
+        if (element === this._canvas) {
+            fitCanvas();
+            return;
+        }
+        _orig_centerElement.call(this, element);
+    };
+
+    // ── Mantener _realScale correcto en cada frame ────────────────────────────
+    // RPG Maker llama a _updateRealScale() desde _updateAllElements() cada frame.
+    // Sin este override, lo resetea a 1 (stretchEnabled=false) o a
+    // innerW/gameW (stretchEnabled=true), ambos incorrectos cuando la barra del
+    // navegador móvil cambia de tamaño. Forzamos siempre _currentScale.
+
     Graphics._updateRealScale = function() {
         Graphics._realScale = _currentScale;
     };
 
-    // Enganchar en los métodos que RPG Maker llama al actualizar el canvas
-    var _orig_updateCanvas = Graphics._updateCanvas;
-    Graphics._updateCanvas = function() {
-        if (_orig_updateCanvas) _orig_updateCanvas.call(this);
-        fitCanvas();
-    };
-
+    // ── Aplicar al arrancar ───────────────────────────────────────────────────
     var _Scene_Boot_start = Scene_Boot.prototype.start;
     Scene_Boot.prototype.start = function() {
         _Scene_Boot_start.call(this);
         fitCanvas();
     };
 
-    // Reajustar si el usuario rota el móvil o cambia el tamaño de la ventana
+    // ── Reajustar en resize y rotación de pantalla ────────────────────────────
     window.addEventListener('resize', fitCanvas);
     window.addEventListener('orientationchange', function() {
         setTimeout(fitCanvas, 300);
     });
 
-    // ── Bloquear zoom por pellizco y doble toque ──────────────────────────────
-    // (ControlesMobile también lo hace, pero si no está activo esto lo cubre)
-    document.addEventListener('gesturestart',  function(e) { e.preventDefault(); }, { passive: false });
-    document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
-
-    // Meta viewport: bloquea el zoom del navegador a nivel de HTML
+    // ── Bloquear zoom ─────────────────────────────────────────────────────────
     (function() {
         var meta = document.querySelector('meta[name=viewport]');
-        if (!meta) { meta = document.createElement('meta'); meta.name = 'viewport'; document.head.appendChild(meta); }
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.name = 'viewport';
+            document.head.appendChild(meta);
+        }
         meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
     })();
+
+    document.addEventListener('gesturestart',  function(e) { e.preventDefault(); }, { passive: false });
+    document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
 
 })();
