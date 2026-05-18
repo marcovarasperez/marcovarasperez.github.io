@@ -52,8 +52,14 @@
     // UTILIDADES
     // =========================================================================
 
-    // Devuelve true SOLO en móvil/tablet real (no en PC aunque esté en modo test)
+    // Detecta móvil/tablet real usando múltiples señales:
+    // - Touch points disponibles (navigator.maxTouchPoints > 0)
+    // - Eventos táctiles en el DOM (ontouchstart)
+    // - User-agent de RPG Maker como último recurso
+    // Esto cubre iPads modernos que se identifican como desktop Safari
     function isMobile() {
+        if (navigator.maxTouchPoints > 0) return true;
+        if ('ontouchstart' in window)     return true;
         return Utils.isMobileDevice();
     }
 

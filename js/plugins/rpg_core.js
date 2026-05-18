@@ -2184,8 +2184,8 @@ Graphics.setVideoVolume = function(value) {
  */
 Graphics.pageToCanvasX = function(x) {
     if (this._canvas) {
-        var left = this._canvas.offsetLeft;
-        return Math.round((x - left) / this._realScale);
+        var rect = this._canvas.getBoundingClientRect();
+        return Math.round((x - rect.left) / this._realScale);
     } else {
         return 0;
     }
@@ -2202,8 +2202,8 @@ Graphics.pageToCanvasX = function(x) {
  */
 Graphics.pageToCanvasY = function(y) {
     if (this._canvas) {
-        var top = this._canvas.offsetTop;
-        return Math.round((y - top) / this._realScale);
+        var rect = this._canvas.getBoundingClientRect();
+        return Math.round((y - rect.top) / this._realScale);
     } else {
         return 0;
     }
@@ -3722,8 +3722,8 @@ TouchInput._onMouseDown = function(event) {
  * @private
  */
 TouchInput._onLeftButtonDown = function(event) {
-    var x = Graphics.pageToCanvasX(event.pageX);
-    var y = Graphics.pageToCanvasY(event.pageY);
+    var x = Graphics.pageToCanvasX(event.clientX);
+    var y = Graphics.pageToCanvasY(event.clientY);
     if (Graphics.isInsideCanvas(x, y)) {
         this._mousePressed = true;
         this._pressedTime = 0;
@@ -3747,8 +3747,8 @@ TouchInput._onMiddleButtonDown = function(event) {
  * @private
  */
 TouchInput._onRightButtonDown = function(event) {
-    var x = Graphics.pageToCanvasX(event.pageX);
-    var y = Graphics.pageToCanvasY(event.pageY);
+    var x = Graphics.pageToCanvasX(event.clientX);
+    var y = Graphics.pageToCanvasY(event.clientY);
     if (Graphics.isInsideCanvas(x, y)) {
         this._onCancel(x, y);
     }
@@ -3762,8 +3762,8 @@ TouchInput._onRightButtonDown = function(event) {
  */
 TouchInput._onMouseMove = function(event) {
     if (this._mousePressed) {
-        var x = Graphics.pageToCanvasX(event.pageX);
-        var y = Graphics.pageToCanvasY(event.pageY);
+        var x = Graphics.pageToCanvasX(event.clientX);
+        var y = Graphics.pageToCanvasY(event.clientY);
         this._onMove(x, y);
     }
 };
@@ -3776,8 +3776,8 @@ TouchInput._onMouseMove = function(event) {
  */
 TouchInput._onMouseUp = function(event) {
     if (event.button === 0) {
-        var x = Graphics.pageToCanvasX(event.pageX);
-        var y = Graphics.pageToCanvasY(event.pageY);
+        var x = Graphics.pageToCanvasX(event.clientX);
+        var y = Graphics.pageToCanvasY(event.clientY);
         this._mousePressed = false;
         this._onRelease(x, y);
     }
@@ -3804,8 +3804,8 @@ TouchInput._onWheel = function(event) {
 TouchInput._onTouchStart = function(event) {
     for (var i = 0; i < event.changedTouches.length; i++) {
         var touch = event.changedTouches[i];
-        var x = Graphics.pageToCanvasX(touch.pageX);
-        var y = Graphics.pageToCanvasY(touch.pageY);
+        var x = Graphics.pageToCanvasX(touch.clientX);
+        var y = Graphics.pageToCanvasY(touch.clientY);
         if (Graphics.isInsideCanvas(x, y)) {
             this._screenPressed = true;
             this._pressedTime = 0;
@@ -3831,8 +3831,8 @@ TouchInput._onTouchStart = function(event) {
 TouchInput._onTouchMove = function(event) {
     for (var i = 0; i < event.changedTouches.length; i++) {
         var touch = event.changedTouches[i];
-        var x = Graphics.pageToCanvasX(touch.pageX);
-        var y = Graphics.pageToCanvasY(touch.pageY);
+        var x = Graphics.pageToCanvasX(touch.clientX);
+        var y = Graphics.pageToCanvasY(touch.clientY);
         this._onMove(x, y);
     }
 };
@@ -3846,8 +3846,8 @@ TouchInput._onTouchMove = function(event) {
 TouchInput._onTouchEnd = function(event) {
     for (var i = 0; i < event.changedTouches.length; i++) {
         var touch = event.changedTouches[i];
-        var x = Graphics.pageToCanvasX(touch.pageX);
-        var y = Graphics.pageToCanvasY(touch.pageY);
+        var x = Graphics.pageToCanvasX(touch.clientX);
+        var y = Graphics.pageToCanvasY(touch.clientY);
         this._screenPressed = false;
         this._onRelease(x, y);
     }
