@@ -2393,7 +2393,12 @@ Graphics._makeErrorHtml = function(name, message) {
  * @private
  */
 Graphics._defaultStretchMode = function() {
-    return Utils.isNwjs() || Utils.isMobileDevice();
+    if (Utils.isNwjs()) return true;
+    // Deteccion ampliada: cubre iPads modernos (iOS13+), Android Chrome, etc.
+    if (typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 0) return true;
+    if ('ontouchstart' in window) return true;
+    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+    return Utils.isMobileDevice();
 };
 
 /**
