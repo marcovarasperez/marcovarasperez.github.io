@@ -4,6 +4,18 @@
 
 const API_BASE = "https://marcovarasperez.duckdns.org/api/jugadores";
 
+// ─── Helper: construir payload del slot ──────────────────────────────────────
+function _construirDatosSlot() {
+    const contenido = DataManager.makeSaveContents();
+    return {
+        contenido: LZString.compressToBase64(JsonEx.stringify(contenido)),
+        timestamp: Date.now(),
+        titulo:    ($gameMap  && $gameMap.displayName())      ? $gameMap.displayName()         : "",
+        nivel:     ($gameParty && $gameParty.leader())        ? $gameParty.leader().level       : 1,
+        tiempo:    Graphics.frameCount
+    };
+}
+
 // ─── Guardar slot en el servidor ─────────────────────────────────────────────
 // Reemplazamos saveGame para mandar los datos a la API además de guardar local.
 // IMPORTANTE: mantenemos la llamada síncrona original para no romper RPG Maker.
@@ -14,19 +26,10 @@ DataManager.saveGame = function(savefileId) {
 
     const usuario = localStorage.getItem("rpg_usuario");
     if (usuario) {
-        const contenido = this.makeSaveContents();
-        const datosSlot = JSON.stringify({
-            contenido:  LZString.compressToBase64(JsonEx.stringify(contenido)),
-            timestamp:  Date.now(),
-            titulo:     ($gameMap && $gameMap.displayName()) ? $gameMap.displayName() : "",
-            nivel:      ($gameParty && $gameParty.leader()) ? $gameParty.leader().level : 1,
-            tiempo:     Graphics.frameCount
-        });
-
         fetch(`${API_BASE}/guardado/${encodeURIComponent(usuario)}/slot/${savefileId}`, {
-            method: "PUT",
+            method:  "PUT",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify(datosSlot)
+            body:    JSON.stringify(_construirDatosSlot())
         }).then(function() {
             console.log("[ApiGuardado] Slot " + savefileId + " guardado en servidor");
         }).catch(function(e) {
@@ -38,8 +41,7 @@ DataManager.saveGame = function(savefileId) {
 };
 
 // ─── Cargar slot desde el servidor ───────────────────────────────────────────
-// Carga desde el servidor si está disponible, si no usa localStorage.
-// IMPORTANTE: la carga es asíncrona, usamos rpg_cargarSlot() desde eventos.
+// La carga original sigue funcionando desde localStorage como respaldo.
 
 const _DataManager_loadGame = DataManager.loadGame;
 DataManager.loadGame = function(savefileId) {
@@ -64,9 +66,9 @@ async function rpg_cargarSlot(slotId) {
         );
 
         if (res.ok) {
-            const datosSlotStr = await res.json();
-            const datosSlot    = JSON.parse(datosSlotStr);
-            const contenido    = JsonEx.parse(
+            // El servidor devuelve el objeto directamente (ya no hay doble stringify)
+            const datosSlot = await res.json();
+            const contenido = JsonEx.parse(
                 LZString.decompressFromBase64(datosSlot.contenido)
             );
             DataManager.createGameObjects();
@@ -96,24 +98,16 @@ async function rpg_guardarSlot(slotId) {
         return;
     }
 
-    const contenido = DataManager.makeSaveContents();
-    const datosSlot = JSON.stringify({
-        contenido:  LZString.compressToBase64(JsonEx.stringify(contenido)),
-        timestamp:  Date.now(),
-        titulo:     ($gameMap && $gameMap.displayName()) ? $gameMap.displayName() : "",
-        nivel:      ($gameParty && $gameParty.leader()) ? $gameParty.leader().level : 1,
-        tiempo:     Graphics.frameCount
-    });
-
     try {
         const res = await fetch(
             `${API_BASE}/guardado/${encodeURIComponent(usuario)}/slot/${slotId}`,
             {
-                method: "PUT",
+                method:  "PUT",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
-                body: JSON.stringify(datosSlot)
+                body:    JSON.stringify(_construirDatosSlot())
             }
         );
+
         if (res.ok) {
             rpg_mostrarAviso("Partida guardada correctamente", "ok");
             _DataManager_saveGame.call(DataManager, slotId); // respaldo local
@@ -129,6 +123,7 @@ async function rpg_guardarSlot(slotId) {
 
 // ─── Bloquear guardado del menú ───────────────────────────────────────────────
 // Impide guardar desde el menú, solo se puede desde puntos de control.
+
 const _Scene_Menu_commandSave = Scene_Menu.prototype.commandSave;
 Scene_Menu.prototype.commandSave = function() {
     SoundManager.playBuzzer();
@@ -143,11 +138,12 @@ function rpg_mostrarAviso(mensaje, tipo) {
     if (anterior) anterior.remove();
 
     const colores = {
-        info:  { bg: "rgba(10,14,28,0.93)", border: "#c9a84c", text: "#f0d080" },
-        ok:    { bg: "rgba(10,22,14,0.93)", border: "#4a9",    text: "#8de8b0" },
-        error: { bg: "rgba(28,10,10,0.93)", border: "#c44",    text: "#f4a4a4" }
+        info:  { bg: "rgba(10,14,28,0.93)",  border: "#c9a84c", text: "#f0d080" },
+        ok:    { bg: "rgba(10,22,14,0.93)",  border: "#4a9",    text: "#8de8b0" },
+        error: { bg: "rgba(28,10,10,0.93)",  border: "#c44",    text: "#f4a4a4" }
     };
     const c = colores[tipo] || colores.info;
+
     const div = document.createElement("div");
     div.id = "rpg-aviso";
     div.style.cssText = [
@@ -160,6 +156,7 @@ function rpg_mostrarAviso(mensaje, tipo) {
     ].join(";");
     div.textContent = mensaje;
     document.body.appendChild(div);
+
     requestAnimationFrame(function() { div.style.opacity = "1"; });
     setTimeout(function() {
         div.style.opacity = "0";
