@@ -369,12 +369,20 @@
     }
 
     function _abrirInventario() {
-        if (!$gameSystem  || !$gameSystem.isMenuEnabled()) return;
-        if (!$gameMessage || $gameMessage.isBusy())        return;
-        if (SceneManager.isSceneChanging())                return;
-        SoundManager.playOk();
-        SceneManager.push(Scene_Item);
+    if (SceneManager.isSceneChanging()) return;
+
+    // Si ya estamos en el inventario, volver atrás
+    if (SceneManager._scene instanceof Scene_Item) {
+        SoundManager.playCancel();
+        SceneManager.pop();
+        return;
     }
+
+    if (!$gameSystem  || !$gameSystem.isMenuEnabled()) return;
+    if (!$gameMessage || $gameMessage.isBusy())        return;
+    SoundManager.playOk();
+    SceneManager.push(Scene_Item);
+}
 
     function _actualizarVisibilidadMochila() {
         if (!_btnMochila) return;
