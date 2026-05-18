@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import com.trinitarias.tfg.dto.tfgdto;
 import com.trinitarias.tfg.entity.tfgentity;
 import com.trinitarias.tfg.service.tfgservice;
-
+import org.springframework.web.bind.annotation.RequestMethod;
 import java.net.URI;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/jugadores")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class tfgcontroller {
 
     @Autowired

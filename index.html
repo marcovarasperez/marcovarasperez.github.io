@@ -146,6 +146,110 @@
         @keyframes spin { to{transform:rotate(360deg)} }
         .spinner { width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin .6s linear infinite; flex-shrink:0; }
         @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ═══════════════════════════════════════════════════
+           RESPONSIVE MÓVIL — WebView APK
+           ═══════════════════════════════════════════════════ */
+
+        /* Pantallas estrechas (< 400px) */
+        @media (max-width: 400px) {
+            .container { padding-left: 12px !important; padding-right: 12px !important; }
+        }
+
+        /* Pantallas cortas: compactar espaciado vertical (< 700px) */
+        @media (max-height: 700px) {
+            .page-content { padding: 16px 0 24px; }
+        }
+
+        /* Pantallas muy cortas: modo mínimo (< 560px) */
+        @media (max-height: 560px) {
+            .page-content { padding: 8px 0 12px; }
+            #particles { display: none; }
+        }
+
+        @media (max-height: 700px) {
+            .logo-text  { font-size: clamp(1.3rem,6vw,1.8rem) !important; }
+            .logo-sub   { display: none; }
+            .hero-divider { margin: 6px auto; }
+            .text-center.mb-4 { margin-bottom: 12px !important; }
+            .auth-card  { padding: 16px 14px; }
+            .field-group { margin-bottom: 10px; }
+            .field-input { min-height: 44px; padding: 10px 44px 10px 12px; }
+            .btn-rpg    { min-height: 44px; padding: 10px; }
+            .tab-btn    { padding: 8px 6px; min-height: 38px; }
+        }
+
+        @media (max-height: 560px) {
+            .logo-text  { font-size: 1.2rem !important; }
+            .hero-divider { display: none; }
+            .text-center.mb-4 { margin-bottom: 8px !important; }
+            .auth-card  { padding: 12px; }
+            .field-group { margin-bottom: 8px; }
+            .field-note { display: none; }
+        }
+
+        /* Scroll si el contenido no cabe */
+        @media (max-height: 700px) {
+            html, body { overflow-y: auto; }
+            .page-content { min-height: unset !important; display: block !important; }
+        }
+
+        /* ═══════════════════════════════════════════════════
+           LANDSCAPE MÓVIL — layout dos columnas
+           ═══════════════════════════════════════════════════ */
+        @media (max-height: 520px) and (orientation: landscape) {
+            html, body { overflow-y: auto; }
+            .page-content {
+                padding: 8px 0 !important;
+                min-height: unset !important;
+                display: block !important;
+            }
+            .container > .row { flex-wrap: nowrap !important; align-items: center; }
+            .container > .row > [class*="col-"] {
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 16px !important;
+            }
+            /* Logo — columna izquierda */
+            .text-center.mb-4 {
+                flex: 0 0 220px !important;
+                margin-bottom: 0 !important;
+                padding: 8px 0;
+            }
+            .logo-text { font-size: 1.35rem !important; }
+            .logo-sub  { font-size: 0.52rem !important; letter-spacing: 0.2em; }
+            .hero-divider { margin: 5px auto; }
+
+            /* Tarjeta — columna derecha */
+            .auth-card {
+                flex: 1 !important;
+                padding: 12px 14px !important;
+                max-height: calc(100vh - 24px);
+                overflow-y: auto;
+            }
+            .tab-nav    { margin-bottom: 10px; }
+            .tab-btn    { padding: 7px 6px; min-height: 36px; }
+            .field-group { margin-bottom: 8px; }
+            .field-label { margin-bottom: 3px; }
+            .field-input { min-height: 40px !important; padding: 8px 42px 8px 11px !important; }
+            .btn-rpg    { min-height: 40px !important; padding: 8px !important; margin-top: 2px; }
+            .field-note { display: none !important; }
+            .feedback-box { margin-top: 8px; padding: 7px 10px; }
+        }
+
+        /* Landscape muy pequeño (< 400px altura) */
+        @media (max-height: 400px) and (orientation: landscape) {
+            .text-center.mb-4 { flex: 0 0 160px !important; }
+            .logo-text { font-size: 1.1rem !important; }
+            .logo-sub, .hero-divider { display: none !important; }
+            .auth-card { padding: 8px 10px !important; }
+            .tab-btn   { padding: 5px 4px; min-height: 32px; font-size: 0.55rem; }
+            .field-input { min-height: 36px !important; padding: 6px 38px 6px 10px !important; font-size: 0.9rem; }
+            .btn-rpg   { min-height: 36px !important; font-size: 0.58rem; }
+        }
     </style>
 </head>
 <body>
