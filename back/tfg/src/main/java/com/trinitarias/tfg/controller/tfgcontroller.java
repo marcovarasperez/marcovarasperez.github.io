@@ -9,6 +9,7 @@ import com.trinitarias.tfg.entity.tfgentity;
 import com.trinitarias.tfg.service.tfgservice;
 
 import java.net.URI;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 @RestController
@@ -158,9 +159,14 @@ public class tfgcontroller {
     public ResponseEntity<?> cargarSlot(@PathVariable String usuario,
                                          @PathVariable int slot) {
         try {
-            return ResponseEntity.ok(service.cargarSlot(usuario, slot));
+            String datos = service.cargarSlot(usuario, slot);
+            // Parseamos el JSON string a objeto para que el cliente reciba { contenido, titulo, nivel... }
+            Object datosObj = new ObjectMapper().readValue(datos, Object.class);
+            return ResponseEntity.ok(datosObj);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al parsear datos del slot");
         }
     }
 

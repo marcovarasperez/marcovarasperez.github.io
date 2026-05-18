@@ -13,9 +13,10 @@ import com.trinitarias.tfg.validator.tfgvalidator;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -287,12 +288,12 @@ public class tfgservice {
         return datos;
     }
 
-    public Set<Integer> listarSlots(String usuario) {
+    public Map<Integer, String> listarSlots(String usuario) {
         tfgentity jugador = repository.findByUsuario(usuario);
         if (jugador == null) {
             throw new RuntimeException("No se encontró ninguna cuenta con usuario: " + usuario);
         }
-        return jugador.getSlotsGuardado().keySet();
+        return jugador.getSlotsGuardado(); // Devuelve el mapa completo { slot → datos }
     }
 
     public void eliminarSlot(String usuario, int slot) {
