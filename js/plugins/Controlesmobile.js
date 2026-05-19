@@ -335,7 +335,8 @@
     };
 
     // =========================================================================
-    // BOTÓN MOCHILA (HTML — siempre excepto batalla)
+    // =========================================================================
+    // BOTÓN MOCHILA (HTML — esquina superior derecha, solo en el mapa)
     // =========================================================================
     var _btnMochila = null;
 
@@ -345,14 +346,14 @@
         _btnMochila = document.createElement('div');
         _btnMochila.style.cssText = [
             'position:fixed',
-            'right:'   + CFG.btnMochilaRight  + 'px',
-            'bottom:'  + CFG.btnMochilaBottom + 'px',
-            'width:'   + s + 'px',
-            'height:'  + s + 'px',
+            'right:'  + CFG.btnMochilaRight + 'px',
+            'top:'    + CFG.btnMochilaTop   + 'px',
+            'width:'  + s + 'px',
+            'height:' + s + 'px',
             'background:radial-gradient(circle, rgba(30,20,8,0.88) 60%, rgba(10,7,3,0.72) 100%)',
             'border:2px solid rgba(201,168,76,0.75)',
             'border-radius:50%',
-            'display:flex',
+            'display:none',
             'align-items:center',
             'justify-content:center',
             'font-size:' + Math.floor(s * 0.46) + 'px',
@@ -364,26 +365,98 @@
             'box-shadow:0 3px 12px rgba(0,0,0,0.5)'
         ].join(';');
         _btnMochila.textContent = '\uD83C\uDF92';
-        _btnMochila.addEventListener('click', _abrirInventario);
+        _btnMochila.addEventListener('click', _toggleInventario);
         _btnMochila.addEventListener('touchend', function(e) {
             e.preventDefault();
-            _abrirInventario();
+            _toggleInventario();
         });
         document.body.appendChild(_btnMochila);
     }
 
-    function _abrirInventario() {
+    // Abre el inventario en el mapa; si ya estás dentro, lo cierra.
+    function _toggleInventario() {
+        if (SceneManager.isSceneChanging()) return;
+        if (SceneManager._scene instanceof Scene_Item) {
+            SoundManager.playCancel();
+            SceneManager.pop();
+            return;
+        }
+        if (SceneManager._scene instanceof Scene_MenuBase) return;
         if (!$gameSystem  || !$gameSystem.isMenuEnabled()) return;
         if (!$gameMessage || $gameMessage.isBusy())        return;
-        if (SceneManager.isSceneChanging())                return;
         SoundManager.playOk();
         SceneManager.push(Scene_Item);
     }
 
+    // Solo visible en el mapa (oculta en título, batalla, menús, boot...)
     function _actualizarVisibilidadMochila() {
         if (!_btnMochila) return;
-        var enBatalla = SceneManager._scene instanceof Scene_Battle;
-        _btnMochila.style.display = enBatalla ? 'none' : 'flex';
+        var enMapa = SceneManager._scene instanceof Scene_Map;
+        _btnMochila.style.display = (isMobile() && enMapa) ? 'flex' : 'none';
+    }
+
+    // =========================================================================
+    // BOTÓN ATRÁS (HTML — esquina superior izquierda, visible en menús)
+    // =========================================================================
+    var _btnAtras = null;
+
+    function _esEscenaConAtras() {
+        var s = SceneManager._scene;
+        if (!s) return false;
+        return (s instanceof Scene_Menu)    ||
+               (s instanceof Scene_Item)    ||
+               (s instanceof Scene_Skill)   ||
+               (s instanceof Scene_Equip)   ||
+               (s instanceof Scene_Status)  ||
+               (s instanceof Scene_Options) ||
+               (s instanceof Scene_File)    ||
+               (s instanceof Scene_GameEnd) ||
+               (typeof Scene_Load !== 'undefined' && s instanceof Scene_Load);
+    }
+
+    function _crearAtrasDOM() {
+        if (_btnAtras) return;
+        var s = CFG.btnAtrasSize;
+        _btnAtras = document.createElement('div');
+        _btnAtras.style.cssText = [
+            'position:fixed',
+            'left:'   + CFG.btnAtrasLeft + 'px',
+            'top:'    + CFG.btnAtrasTop  + 'px',
+            'width:'  + s + 'px',
+            'height:' + s + 'px',
+            'background:radial-gradient(circle, rgba(8,16,30,0.88) 60%, rgba(3,7,15,0.72) 100%)',
+            'border:2px solid rgba(120,160,220,0.7)',
+            'border-radius:50%',
+            'display:none',
+            'align-items:center',
+            'justify-content:center',
+            'font-size:' + Math.floor(s * 0.46) + 'px',
+            'z-index:99990',
+            'cursor:pointer',
+            'user-select:none',
+            '-webkit-user-select:none',
+            'touch-action:manipulation',
+            'box-shadow:0 3px 12px rgba(0,0,0,0.5)'
+        ].join(';');
+        _btnAtras.textContent = '\u2190'; // ←
+        _btnAtras.addEventListener('click', _pulsarAtras);
+        _btnAtras.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            _pulsarAtras();
+        });
+        document.body.appendChild(_btnAtras);
+    }
+
+    function _pulsarAtras() {
+        if (SceneManager.isSceneChanging()) return;
+        SoundManager.playCancel();
+        Input._currentState['escape'] = true;
+        setTimeout(function() { Input._currentState['escape'] = false; }, 120);
+    }
+
+    function _actualizarVisibilidadAtras() {
+        if (!_btnAtras) return;
+        _btnAtras.style.display = (isMobile() && _esEscenaConAtras()) ? 'flex' : 'none';
     }
 
     var _Scene_Base_start = Scene_Base.prototype.start;
@@ -396,7 +469,6 @@
         _actualizarVisibilidadAtras();
     };
 
-    // =========================================================================
     // BOTÓN X — cancelar (solo en batalla)
     // =========================================================================
 
