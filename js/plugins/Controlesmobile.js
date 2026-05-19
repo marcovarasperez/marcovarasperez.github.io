@@ -1,12 +1,10 @@
 //=============================================================================
 // ControlesMobile.js — Controles táctiles unificados
 /*:
- * @plugindesc Controles táctiles unificados para móvil y tablet.
- * Pon este plugin el ÚLTIMO de la lista.
+ * @plugindesc Controles táctiles para móvil. Pon este plugin el ÚLTIMO.
  * @author Fix
- *
  * @param Forzar Movil
- * @desc true = activa controles siempre. Úsalo si no se detecta el móvil.
+ * @desc true = activa controles siempre.
  * @default false
  */
 //=============================================================================
@@ -23,8 +21,8 @@
         joystickDeadzone: 15,
 
         btnASize:    110,
-        btnARight:    30,   // px desde borde derecho del canvas (CSS relativo)
-        btnABottom:   30,   // px desde borde inferior del canvas (CSS relativo)
+        btnARight:    30,
+        btnABottom:   30,
 
         btnMochilaSize:   70,
         btnMochilaRight:  15,
@@ -36,7 +34,7 @@
 
         btnXSize:    110,
         btnXRight:    30,
-        btnXBottom:   30,
+        btnXBottom:   30
     };
 
     // =========================================================================
@@ -63,10 +61,8 @@
     }
 
     // =========================================================================
-    // BLOQUEAR ZOOM Y TOQUES FUERA DEL CANVAS
+    // BLOQUEAR ZOOM
     // =========================================================================
-
-    // Meta viewport: bloquea zoom del navegador
     (function() {
         var meta = document.querySelector('meta[name=viewport]');
         if (!meta) {
@@ -77,12 +73,10 @@
         meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
     })();
 
-    // Bloquear gestos de pinch-zoom y doble toque
     document.addEventListener('gesturestart',  function(e) { e.preventDefault(); }, { passive: false });
     document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
     document.addEventListener('gestureend',    function(e) { e.preventDefault(); }, { passive: false });
 
-    // Comprobar si un punto (clientX, clientY) está dentro del canvas
     function _dentroDelCanvas(cx, cy) {
         var canvas = Graphics._canvas;
         if (!canvas) return true;
@@ -90,8 +84,6 @@
         return cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom;
     }
 
-    // Bloquear touches fuera del canvas (márgenes negros)
-    // Se añade globalmente al inicio del juego
     document.addEventListener('touchstart', function(e) {
         var bloquear = true;
         for (var i = 0; i < e.touches.length; i++) {
@@ -100,34 +92,24 @@
                 break;
             }
         }
-        // Pinch con 2 dedos: bloquear siempre (evita zoom)
-        if (e.touches.length >= 2) {
-            e.preventDefault();
-            return;
-        }
-        if (bloquear) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-        }
+        if (e.touches.length >= 2) { e.preventDefault(); return; }
+        if (bloquear) { e.preventDefault(); e.stopImmediatePropagation(); }
     }, { passive: false, capture: true });
 
     document.addEventListener('touchmove', function(e) {
-        if (e.touches.length >= 2) {
-            e.preventDefault();
-        }
+        if (e.touches.length >= 2) e.preventDefault();
     }, { passive: false });
 
     // =========================================================================
-    // JOYSTICK HTML (mitad izquierda del canvas)
+    // JOYSTICK
     // =========================================================================
-    var _joystick = { active: false, identifier: null, startX: 0, startY: 0, curX: 0, curY: 0 };
+    var _joystick  = { active: false, identifier: null, startX: 0, startY: 0, curX: 0, curY: 0 };
     var _jContainer = null;
     var _jKnob      = null;
 
     function _crearJoystickDOM() {
         if (_jContainer) return;
         var r = CFG.joystickRadius;
-
         _jContainer = document.createElement('div');
         _jContainer.style.cssText = [
             'position:fixed',
@@ -141,7 +123,6 @@
             'touch-action:none',
             'pointer-events:none'
         ].join(';');
-
         _jKnob = document.createElement('div');
         _jKnob.style.cssText = [
             'position:absolute',
@@ -152,18 +133,18 @@
             'transform:translate(-50%,-50%)',
             'box-shadow:0 2px 8px rgba(0,0,0,0.5)'
         ].join(';');
-
         _jContainer.appendChild(_jKnob);
         document.body.appendChild(_jContainer);
     }
 
-    function _canvasLeft()   { var c = Graphics._canvas; return c ? c.getBoundingClientRect().left  : 0; }
-    function _canvasMidX()   { var c = Graphics._canvas; return c ? c.getBoundingClientRect().left + c.getBoundingClientRect().width / 2 : window.innerWidth / 2; }
+    function _canvasMidX() {
+        var c = Graphics._canvas;
+        return c ? c.getBoundingClientRect().left + c.getBoundingClientRect().width / 2 : window.innerWidth / 2;
+    }
 
     function _onTouchStart(e) {
         for (var i = 0; i < e.changedTouches.length; i++) {
             var t = e.changedTouches[i];
-            // Solo actuar si el dedo está dentro del canvas Y en la mitad izquierda
             if (!_dentroDelCanvas(t.clientX, t.clientY)) continue;
             if (t.clientX > _canvasMidX()) continue;
             e.stopImmediatePropagation();
@@ -188,9 +169,9 @@
             e.stopImmediatePropagation();
             var dx = t.clientX - _joystick.startX;
             var dy = t.clientY - _joystick.startY;
-            var dist = Math.sqrt(dx*dx + dy*dy);
+            var dist = Math.sqrt(dx * dx + dy * dy);
             var r = CFG.joystickRadius;
-            if (dist > r) { dx *= r/dist; dy *= r/dist; }
+            if (dist > r) { dx *= r / dist; dy *= r / dist; }
             _joystick.curX = dx;
             _joystick.curY = dy;
             _jKnob.style.transform = 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px))';
@@ -215,7 +196,7 @@
     Game_Player.prototype.getInputDirection = function() {
         if (_joystick.active) {
             var dx = _joystick.curX, dy = _joystick.curY;
-            if (Math.sqrt(dx*dx + dy*dy) < CFG.joystickDeadzone) return 0;
+            if (Math.sqrt(dx * dx + dy * dy) < CFG.joystickDeadzone) return 0;
             if (Math.abs(dx) > Math.abs(dy)) return dx > 0 ? 6 : 4;
             return dy > 0 ? 2 : 8;
         }
@@ -251,22 +232,16 @@
     };
 
     // =========================================================================
-    // BOTÓN A — acción / confirmar / avanzar diálogos
-    // Siempre visible en el mapa. Durante diálogos avanza el mensaje.
+    // BOTÓN A — confirmar / avanzar diálogos
     // =========================================================================
-
     function _dibujarBotonA(bmp, size) {
         var r   = size / 2;
         var ctx = bmp._context;
-
-        // Sombra exterior
         ctx.beginPath();
         ctx.arc(r, r, r - 1, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.45)';
         ctx.fill();
-
-        // Gradiente principal azul oscuro
-        var grad = ctx.createRadialGradient(r - size*0.15, r - size*0.15, size*0.05, r, r, r - 4);
+        var grad = ctx.createRadialGradient(r - size * 0.15, r - size * 0.15, size * 0.05, r, r, r - 4);
         grad.addColorStop(0, '#4a90d9');
         grad.addColorStop(0.5, '#1a5fa8');
         grad.addColorStop(1, '#0d3d72');
@@ -274,8 +249,6 @@
         ctx.arc(r, r, r - 4, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
-
-        // Brillo superior
         var shineGrad = ctx.createRadialGradient(r, r * 0.4, 0, r, r * 0.4, r * 0.6);
         shineGrad.addColorStop(0, 'rgba(255,255,255,0.35)');
         shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
@@ -283,15 +256,11 @@
         ctx.arc(r, r, r - 4, 0, Math.PI * 2);
         ctx.fillStyle = shineGrad;
         ctx.fill();
-
-        // Borde exterior refinado
         ctx.beginPath();
         ctx.arc(r, r, r - 3, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(100,160,255,0.7)';
         ctx.lineWidth = 2;
         ctx.stroke();
-
-        // Letra A
         bmp.fontSize     = Math.floor(size * 0.44);
         bmp.textColor    = '#ffffff';
         bmp.outlineColor = 'rgba(0,30,80,0.8)';
@@ -310,33 +279,25 @@
         var s   = CFG.btnASize;
         var bmp = new Bitmap(s, s);
         _dibujarBotonA(bmp, s);
-
         this._botonA        = new Sprite_Button();
         this._botonA.bitmap = bmp;
-        // Posición relativa al canvas: esquina inferior derecha
-        this._botonA.x = Graphics.width  - s - CFG.btnARight;
-        this._botonA.y = Graphics.height - s - CFG.btnABottom;
-
+        this._botonA.x      = Graphics.width  - s - CFG.btnARight;
+        this._botonA.y      = Graphics.height - s - CFG.btnABottom;
         this._botonA.setClickHandler(function() {
             Input._currentState['ok'] = true;
             setTimeout(function() { Input._currentState['ok'] = false; }, 100);
         });
-
         this.addChild(this._botonA);
     };
 
-    // Botón A siempre visible — durante diálogos también funciona para avanzar
     var _Scene_Map_update = Scene_Map.prototype.update;
     Scene_Map.prototype.update = function() {
         _Scene_Map_update.call(this);
-        if (this._botonA) {
-            this._botonA.visible = true; // siempre visible en el mapa
-        }
+        if (this._botonA) this._botonA.visible = true;
     };
 
     // =========================================================================
-    // =========================================================================
-    // BOTÓN MOCHILA (HTML — esquina superior derecha, solo en el mapa)
+    // BOTÓN MOCHILA — esquina superior derecha, solo en el mapa
     // =========================================================================
     var _btnMochila = null;
 
@@ -373,7 +334,6 @@
         document.body.appendChild(_btnMochila);
     }
 
-    // Abre el inventario en el mapa; si ya estás dentro, lo cierra.
     function _toggleInventario() {
         if (SceneManager.isSceneChanging()) return;
         if (SceneManager._scene instanceof Scene_Item) {
@@ -388,7 +348,6 @@
         SceneManager.push(Scene_Item);
     }
 
-    // Solo visible en el mapa (oculta en título, batalla, menús, boot...)
     function _actualizarVisibilidadMochila() {
         if (!_btnMochila) return;
         var enMapa = SceneManager._scene instanceof Scene_Map;
@@ -396,7 +355,7 @@
     }
 
     // =========================================================================
-    // BOTÓN ATRÁS (HTML — esquina superior izquierda, visible en menús)
+    // BOTÓN ATRÁS — esquina superior izquierda, visible en menús
     // =========================================================================
     var _btnAtras = null;
 
@@ -438,7 +397,7 @@
             'touch-action:manipulation',
             'box-shadow:0 3px 12px rgba(0,0,0,0.5)'
         ].join(';');
-        _btnAtras.textContent = '\u2190'; // ←
+        _btnAtras.textContent = '\u2190';
         _btnAtras.addEventListener('click', _pulsarAtras);
         _btnAtras.addEventListener('touchend', function(e) {
             e.preventDefault();
@@ -459,6 +418,9 @@
         _btnAtras.style.display = (isMobile() && _esEscenaConAtras()) ? 'flex' : 'none';
     }
 
+    // =========================================================================
+    // HOOK CENTRAL — actualiza visibilidad en cada cambio de escena
+    // =========================================================================
     var _Scene_Base_start = Scene_Base.prototype.start;
     Scene_Base.prototype.start = function() {
         _Scene_Base_start.call(this);
@@ -469,19 +431,17 @@
         _actualizarVisibilidadAtras();
     };
 
+    // =========================================================================
     // BOTÓN X — cancelar (solo en batalla)
     // =========================================================================
-
     function _dibujarBotonX(bmp, size) {
         var r   = size / 2;
         var ctx = bmp._context;
-
         ctx.beginPath();
         ctx.arc(r, r, r - 1, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(0,0,0,0.45)';
         ctx.fill();
-
-        var grad = ctx.createRadialGradient(r - size*0.15, r - size*0.15, size*0.05, r, r, r - 4);
+        var grad = ctx.createRadialGradient(r - size * 0.15, r - size * 0.15, size * 0.05, r, r, r - 4);
         grad.addColorStop(0, '#d94040');
         grad.addColorStop(0.5, '#a81a1a');
         grad.addColorStop(1, '#720d0d');
@@ -489,7 +449,6 @@
         ctx.arc(r, r, r - 4, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
-
         var shineGrad = ctx.createRadialGradient(r, r * 0.4, 0, r, r * 0.4, r * 0.6);
         shineGrad.addColorStop(0, 'rgba(255,255,255,0.30)');
         shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
@@ -497,13 +456,11 @@
         ctx.arc(r, r, r - 4, 0, Math.PI * 2);
         ctx.fillStyle = shineGrad;
         ctx.fill();
-
         ctx.beginPath();
         ctx.arc(r, r, r - 3, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(255,120,120,0.65)';
         ctx.lineWidth = 2;
         ctx.stroke();
-
         bmp.fontSize     = Math.floor(size * 0.44);
         bmp.textColor    = '#ffffff';
         bmp.outlineColor = 'rgba(80,0,0,0.8)';
@@ -522,18 +479,15 @@
         var s   = CFG.btnXSize;
         var bmp = new Bitmap(s, s);
         _dibujarBotonX(bmp, s);
-
         this._botonX        = new Sprite_Button();
         this._botonX.bitmap = bmp;
         this._botonX.x      = Graphics.width  - s - CFG.btnXRight;
         this._botonX.y      = Graphics.height - s - CFG.btnXBottom;
-
         this._botonX.setClickHandler(function() {
             SoundManager.playCancel();
             Input._currentState['cancel'] = true;
             setTimeout(function() { Input._currentState['cancel'] = false; }, 100);
         });
-
         this.addChild(this._botonX);
     };
 
